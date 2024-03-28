@@ -88,18 +88,28 @@ def deleting_entry():
 
 def listing_entries():
     remove_right_objects()
+    
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=290)
+    scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
+    scrollable_frame.grid_columnconfigure(0, weight=1)
 
-    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries")
-    delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
+    list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries")
+    list_entry_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-    cursor.execute("SELECT username, password, folder FROM passwords;")
+    cursor.execute("SELECT username, password, folder FROM passwords ORDER BY folder;")
     entries = cursor.fetchall()
 
-    text_widget = customtkinter.CTkTextbox(right_frame, width=500, height=300)
-    text_widget.grid(row=1, column=0, padx=20, pady=20, sticky="w")
+    entry_id = 1
     for entry in entries:
-        text_widget.insert(customtkinter.END, f"{entry[0]} | {entry[1]} | {entry[2]}\n")
-    text_widget.configure(state='disabled')
+        username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
+        username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
+
+        button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass", command=lambda p=entry[1]: copy_to_clipboard(p))
+        button.grid(row=entry_id, column=1, padx=5, pady=5)
+
+        folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+        folder_label.grid(row=entry_id, column=2, padx=20, pady=5, sticky="w")
+        entry_id += 1
 
 def exit_application():
     cursor.close()
@@ -117,6 +127,10 @@ def remove_sidebar_objects():
 
 def clear_message_label():
     message_label.configure(text="")
+
+def copy_to_clipboard(password):
+    root.clipboard_clear()
+    root.clipboard_append(password)
 
 def main():
     remove_sidebar_objects()
