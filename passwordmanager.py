@@ -131,11 +131,11 @@ def listing_entries():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
             title_password_label.grid(row=2, column=1, padx=5, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
             title_folder_label.grid(row=2, column=2, padx=20, pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
