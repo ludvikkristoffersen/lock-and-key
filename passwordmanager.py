@@ -2,9 +2,11 @@ import customtkinter
 import mysql.connector
 import time
 
+# Setting the appearance mode and the color theme of the application
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
+# Functions for removing the contents from the frame objects
 def remove_right_objects():
     for widget in right_frame.winfo_children():
         widget.destroy()
@@ -13,12 +15,14 @@ def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
 
+# Function that copies the password from the list entries main function
 def copy_to_clipboard(password, button):
     root.clipboard_clear()
     root.clipboard_append(password)
     button.configure(text="Copied!", fg_color="#4374AB")
     scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D"))
 
+# Function for adding a new username:password entry to the database
 def adding_entry():
     remove_right_objects()
 
@@ -87,18 +91,21 @@ def adding_entry():
     message_label = customtkinter.CTkLabel(right_frame, text="")
     message_label.grid(row=5, column=0, padx=20, pady=10, sticky="w")
 
+# Function for updating an entry that is stored in the database
 def updating_entry():
     remove_right_objects()
 
     update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
     update_entry_label.grid(row=0, column=0, padx=20, pady=20)
 
+# Function for deleting an entry in the database
 def deleting_entry():
     remove_right_objects()
 
     delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20)
 
+# Function for listing the entries stored in the database
 def listing_entries():
     remove_right_objects()
     global scrollable_frame
@@ -150,12 +157,14 @@ def listing_entries():
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
+# Function for exiting the application and closing the database connection
 def exit_application():
     cursor.close()
     connection.close()
     time.sleep(2)
     quit()
 
+# The main function containing all functionality, creating the database and the table if not already created
 def main():
     remove_sidebar_objects()
     cursor.execute("CREATE DATABASE IF NOT EXISTS passwordmanager")
@@ -193,6 +202,7 @@ def main():
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
     root.mainloop()
 
+# Function to authenticate the user and logging them into the MySQL database
 def login():
     global root, login_frame, message_label
     root = customtkinter.CTk()
@@ -237,4 +247,5 @@ def login():
 
     root.mainloop()
 
+# Running the login function at startup
 login()
