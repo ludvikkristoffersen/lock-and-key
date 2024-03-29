@@ -183,8 +183,8 @@ def main():
     button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry)
     button_deleting_entry.grid(row=3, column=0, padx=20, pady=10)
 
-    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="List Entries", command=listing_entries)
-    button_exit_application.grid(row=4, column=0, padx=20, pady=10)
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List Entries", command=listing_entries)
+    button_listing_entries.grid(row=4, column=0, padx=20, pady=10)
 
     button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application)
     button_exit_application.grid(row=5, column=0, padx=20, pady=10)
