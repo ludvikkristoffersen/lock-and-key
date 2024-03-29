@@ -16,8 +16,8 @@ def remove_sidebar_objects():
 def copy_to_clipboard(password, button):
     root.clipboard_clear()
     root.clipboard_append(password)
-    button.configure(text="Copied!")
-    scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass"))
+    button.configure(text="Copied!", fg_color="#4374AB")
+    scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D"))
 
 def adding_entry():
     remove_right_objects()
@@ -35,7 +35,7 @@ def adding_entry():
     password_entry = customtkinter.CTkEntry(right_frame, show="*")
     password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
 
-    cursor.execute("SELECT folder FROM passwords")
+    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
     unique_set = set(folder_list)
@@ -64,21 +64,21 @@ def adding_entry():
                     if len(folder) > 0:
                         cursor.execute(f"INSERT INTO passwords (username, password, folder) VALUES ('{username}','{password}','{folder}');")
                         connection.commit()
-                        message_label.configure(text=f"New entry for '{username}' added!")
+                        message_label.configure(text="New entry added!", text_color="green")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
                         cursor.execute(f"INSERT INTO passwords (username, password, folder) VALUES ('{username}','{password}','{folder_select}');")
                         connection.commit()
-                        message_label.configure(text=f"New entry for '{username}' added!")
+                        message_label.configure(text="New entry added!", text_color="green")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
-                    message_label.configure(text=f"Password cannot be empty.")
+                    message_label.configure(text="Password cannot be empty.", text_color="red")
                     right_frame.after(2000, lambda: message_label.configure(text=""))
             else:
-                message_label.configure(text=f"Username cannot be empty.")
+                message_label.configure(text="Username cannot be empty.", text_color="red")
                 right_frame.after(2000, lambda: message_label.configure(text=""))
         except mysql.connector.Error:
-            message_label.configure(text="Failed to add new entry!")
+            message_label.configure(text="Failed to add new entry!", text_color="red")
             right_frame.after(2000, lambda: message_label.configure(text=""))
     
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
@@ -103,28 +103,52 @@ def listing_entries():
     remove_right_objects()
     global scrollable_frame
 
-    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=290)
-    scrollable_frame.grid(row=1, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
-    scrollable_frame.grid_columnconfigure(0, weight=1)
-
     list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries")
     list_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
-    cursor.execute("SELECT username, password, folder FROM passwords ORDER BY folder;")
-    entries = cursor.fetchall()
+    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    rows = cursor.fetchall()
+    folder_list = [row[0] for row in rows]
+    unique_set = set(folder_list)
+    unique_list = list(unique_set)
 
-    entry_id = 1
-    for entry in entries:
-        username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
-        username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
-        
-        copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
-        copy_button.grid(row=entry_id, column=1, padx=5, pady=5)
-        copy_button.configure(command=lambda p=entry[1], b=copy_button: copy_to_clipboard(p, b))
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
+    folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
-        folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-        folder_label.grid(row=entry_id, column=2, padx=20, pady=5, sticky="w")
-        entry_id += 1
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
+    scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
+    scrollable_frame.grid_columnconfigure(0, weight=1)
+
+    def updating_list():
+        if folder_menu.get() == "All":
+            cursor.execute("SELECT username, password, folder FROM passwords ORDER BY folder;")
+        else:
+            cursor.execute(f"SELECT username, password, folder FROM passwords WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+        entries = cursor.fetchall()
+
+        for widget in scrollable_frame.winfo_children():
+            widget.destroy()
+
+        entry_id = 3
+        for entry in entries:
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_password_label.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#1F538D")
+            title_folder_label.grid(row=2, column=2, padx=20, pady=5, sticky="w")
+
+            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
+            username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
+            copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
+            copy_button.grid(row=entry_id, column=1, padx=5, pady=5, sticky="w")
+            copy_button.configure(command=lambda p=entry[1], b=copy_button: copy_to_clipboard(p, b))
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label.grid(row=entry_id, column=2, padx=20, pady=5, sticky="w")
+            entry_id += 1
+    updating_list()
+    update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
+    update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
 def exit_application():
     cursor.close()
@@ -202,7 +226,7 @@ def login():
             cursor = connection.cursor()
             main()
         except mysql.connector.Error:
-            message_label.configure(text="Login failed.")
+            message_label.configure(text="Login failed.", text_color="red")
             login_frame.after(2000, lambda: message_label.configure(text=""))
 
     button_exit_application = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
