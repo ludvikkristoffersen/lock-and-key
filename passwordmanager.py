@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 import customtkinter
 import mysql.connector
 import time
@@ -5,6 +6,10 @@ import time
 # Setting the appearance mode and the color theme of the application
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
+
+# Encryption instance and key
+key = b'JKJXJcze3EnFFCvD8c6X4J21HwRF-T1slbIuFk3ibCc='
+cipher_instance = Fernet(key)
 
 # Functions for removing the contents from the frame objects
 def remove_right_objects():
@@ -60,18 +65,21 @@ def adding_entry():
         try:
             username = username_entry.get()
             password = password_entry.get()
+            encode_password = password.encode()
+            encrypt_password = cipher_instance.encrypt(encode_password)
+            decoded_encrypted_password = encrypt_password.decode()
             folder = folder_entry.get()
             folder_select = folder_menu.get()
 
             if len(username) > 0 :
                 if len(password) > 0:
                     if len(folder) > 0:
-                        cursor.execute(f"INSERT INTO passwords (username, password, folder) VALUES ('{username}','{password}','{folder}');")
+                        cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="green")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
-                        cursor.execute(f"INSERT INTO passwords (username, password, folder) VALUES ('{username}','{password}','{folder_select}');")
+                        cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="green")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
@@ -81,9 +89,10 @@ def adding_entry():
             else:
                 message_label.configure(text="Username cannot be empty.", text_color="red")
                 right_frame.after(2000, lambda: message_label.configure(text=""))
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             message_label.configure(text="Failed to add new entry!", text_color="red")
             right_frame.after(2000, lambda: message_label.configure(text=""))
+            print(e)
     
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
@@ -147,9 +156,14 @@ def listing_entries():
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
+
+            password = entry[1]
+            encode_password = password.encode()
+            decrypted_password = cipher_instance.decrypt(encode_password)
+
             copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
             copy_button.grid(row=entry_id, column=1, padx=5, pady=5, sticky="w")
-            copy_button.configure(command=lambda p=entry[1], b=copy_button: copy_to_clipboard(p, b))
+            copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
             folder_label.grid(row=entry_id, column=2, padx=20, pady=5, sticky="w")
             entry_id += 1
@@ -169,7 +183,7 @@ def main():
     remove_sidebar_objects()
     cursor.execute("CREATE DATABASE IF NOT EXISTS passwordmanager")
     cursor.execute("USE passwordmanager")
-    cursor.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(100) NOT NULL, password VARCHAR(255) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
+    cursor.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
     connection.commit()
 
     global right_frame, sidebar_frame
