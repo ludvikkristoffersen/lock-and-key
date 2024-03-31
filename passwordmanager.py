@@ -308,7 +308,7 @@ def login():
         try:
             username = username_entry.get()
             password = password_entry.get()
-            connection = mysql.connector.connect(user = username, password = password, host = '192.168.0.141')
+            connection = mysql.connector.connect(user=username, password=password, host="192.168.0.141")
             cursor = connection.cursor()
             main()
         except mysql.connector.Error:
