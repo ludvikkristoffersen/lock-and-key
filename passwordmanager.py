@@ -29,9 +29,19 @@ def copy_to_clipboard(password, button):
 
 # Function for deleting a entry in the main deleting function
 def delete_entry_button(row_id):
-    cursor.execute(f"DELETE FROM passwords WHERE id={int(row_id)}")
-    connection.commit()
-    updating_list()
+    remove_right_objects()
+    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
+    delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
+    warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
+    warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
+    def confirm_deletion():
+        cursor.execute(f"DELETE FROM passwords WHERE id={int(row_id)}")
+        connection.commit()
+        deleting_entry()
+    confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color="#B30000", hover_color="#6E0000")
+    confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
+    regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
+    regret_deletion_button.grid(row=2, column=0, padx=100, pady=5, sticky="w")
 
 # Function for adding a new username:password entry to the database
 def adding_entry():
@@ -82,12 +92,12 @@ def adding_entry():
                     if len(folder) > 0:
                         cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                         connection.commit()
-                        message_label.configure(text="New entry added!", text_color="green")
+                        message_label.configure(text="New entry added!", text_color="#90EE90")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
                         cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                         connection.commit()
-                        message_label.configure(text="New entry added!", text_color="green")
+                        message_label.configure(text="New entry added!", text_color="#90EE90")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
                     message_label.configure(text="Password cannot be empty.", text_color="red")
@@ -98,7 +108,6 @@ def adding_entry():
         except mysql.connector.Error as e:
             message_label.configure(text="Failed to add new entry!", text_color="red")
             right_frame.after(2000, lambda: message_label.configure(text=""))
-            print(e)
     
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
@@ -271,7 +280,7 @@ def main():
 
 # Function to authenticate the user and logging them into the MySQL database
 def login():
-    global root, login_frame, message_label
+    global root, login_frame
     root = customtkinter.CTk()
     root.geometry(f"{180}x{220}")
     root.title("Login")
@@ -285,8 +294,8 @@ def login():
     login_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     login_frame.grid_rowconfigure(6, weight=1)
 
-    label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
-    label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
+    main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
+    main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
 
     username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username")
     username_entry.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
@@ -303,14 +312,14 @@ def login():
             cursor = connection.cursor()
             main()
         except mysql.connector.Error:
-            message_label.configure(text="Login failed.", text_color="red")
-            login_frame.after(2000, lambda: message_label.configure(text=""))
+            login_failure_message_label.configure(text="Login failed.", text_color="red")
+            login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
 
-    button_exit_application = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
-    button_exit_application.grid(row=3, column=0, padx=20, pady=(10,5), sticky="w")
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
+    login_button.grid(row=3, column=0, padx=20, pady=(10,5), sticky="w")
 
-    message_label = customtkinter.CTkLabel(login_frame, text="")
-    message_label.grid(row=4, column=0, padx=20, pady=0, sticky="w")
+    login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
+    login_failure_message_label.grid(row=4, column=0, padx=20, pady=0, sticky="w")
 
     root.mainloop()
 
