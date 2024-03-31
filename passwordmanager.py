@@ -202,7 +202,11 @@ def updating_entry():
         folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
         folder_menu.grid(row=3, column=1, padx=0, pady=10)
         def confirm_update():
-            pass
+            if username_entry.get() == username:
+                pass
+            else:
+                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}' WHERE id={int(row_id)}")
+                connection.commit()
         def cancel_update():
             remove_right_objects()
             updating_entry()
