@@ -119,8 +119,91 @@ def adding_entry():
 def updating_entry():
     remove_right_objects()
 
+    global updating_list
     update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
-    update_entry_label.grid(row=0, column=0, padx=20, pady=20)
+    update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
+
+    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    rows = cursor.fetchall()
+    folder_list = [row[0] for row in rows]
+    unique_set = set(folder_list)
+    unique_list = list(unique_set)
+
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
+    folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
+    scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
+    scrollable_frame.grid_columnconfigure(0, weight=1)
+
+    def updating_list():
+        if folder_menu.get() == "All":
+            cursor.execute("SELECT id, username, folder FROM passwords ORDER BY folder;")
+        else:
+            cursor.execute(f"SELECT id, username, folder FROM passwords WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+        entries = cursor.fetchall()
+
+        for widget in scrollable_frame.winfo_children():
+            widget.destroy()
+
+        entry_id = 3
+        for entry in entries:
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
+
+            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
+            username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
+
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+
+            row_id = entry[0]
+            username = entry[1]
+            folder = entry[2]
+
+            select_entry_button = customtkinter.CTkButton(scrollable_frame, text="Select")
+            select_entry_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
+            select_entry_button.configure(command=lambda r=row_id, u=username, f=folder: updating_entry_button(r,u,f))
+            entry_id += 1
+    def updating_entry_button(row_id, username, folder):
+        remove_right_objects()
+    
+        update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
+        update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
+    
+        username_label = customtkinter.CTkLabel(right_frame, text="Username:")
+        username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+        username_entry = customtkinter.CTkEntry(right_frame)
+        username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="ew")
+        username_entry.insert(0, username)
+    
+        password_label = customtkinter.CTkLabel(right_frame, text="Password:")
+        password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
+        password_entry = customtkinter.CTkEntry(right_frame, show="*")
+        password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
+    
+        cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+        rows = cursor.fetchall()
+        folder_list = [row[0] for row in rows]
+        unique_set = set(folder_list)
+        unique_list = list(unique_set)
+        if "None" in unique_list:
+            unique_list.remove("None")
+        else:
+            pass
+        
+        folder_label = customtkinter.CTkLabel(right_frame, text="Folder:")
+        folder_label.grid(row=3, column=0, padx=20, pady=10, sticky="w")
+        folder_entry = customtkinter.CTkEntry(right_frame)
+        folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="ew")
+        folder_entry.insert(0, folder)
+        folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
+        folder_menu.grid(row=3, column=1, padx=0, pady=10)
+    updating_list()
+    update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
+    update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
 # Function for deleting an entry in the database
 def deleting_entry():
@@ -211,10 +294,10 @@ def listing_entries():
         for entry in entries:
             title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
-            title_password_label.grid(row=2, column=1, padx=5, pady=5, sticky="w")
             title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
-            title_folder_label.grid(row=2, column=2, padx=20, pady=5, sticky="w")
+            title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_password_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
@@ -223,11 +306,12 @@ def listing_entries():
             encode_password = password.encode()
             decrypted_password = cipher_instance.decrypt(encode_password)
 
-            copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
-            copy_button.grid(row=entry_id, column=1, padx=5, pady=5, sticky="w")
-            copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-            folder_label.grid(row=entry_id, column=2, padx=20, pady=5, sticky="w")
+            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+
+            copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
+            copy_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
+            copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             entry_id += 1
     updating_list()
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
@@ -237,7 +321,7 @@ def listing_entries():
 def exit_application():
     cursor.close()
     connection.close()
-    time.sleep(2)
+    time.sleep(1)
     quit()
 
 # The main function containing all functionality, creating the database and the table if not already created
@@ -259,13 +343,13 @@ def main():
     label = customtkinter.CTkLabel(sidebar_frame, text="Password Manager", font=customtkinter.CTkFont(size=20, weight="bold"))
     label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry)
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add Entries", command=adding_entry)
     button_adding_entry.grid(row=1, column=0, padx=20, pady=10)
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry)
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update Entries", command=updating_entry)
     button_updating_entry.grid(row=2, column=0, padx=20, pady=10)
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry)
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete Entries", command=deleting_entry)
     button_deleting_entry.grid(row=3, column=0, padx=20, pady=10)
 
     button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List Entries", command=listing_entries)
