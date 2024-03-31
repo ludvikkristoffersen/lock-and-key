@@ -24,8 +24,8 @@ def remove_sidebar_objects():
 def copy_to_clipboard(password, button):
     root.clipboard_clear()
     root.clipboard_append(password)
-    button.configure(text="Copied!", fg_color="#4374AB")
-    scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D"))
+    button.configure(text="Copied!", fg_color="#4374AB", hover_color="#4374AB")
+    scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D", hover_color="#14375E"))
 
 # Function for deleting a entry in the main deleting function
 def delete_entry_button(row_id):
