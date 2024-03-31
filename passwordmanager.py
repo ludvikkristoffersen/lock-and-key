@@ -47,7 +47,7 @@ def delete_entry_button(row_id):
 def adding_entry():
     remove_right_objects()
 
-    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add New Entry")
+    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry")
     add_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     username_label = customtkinter.CTkLabel(right_frame, text="Username:")
@@ -201,6 +201,15 @@ def updating_entry():
         folder_entry.insert(0, folder)
         folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
         folder_menu.grid(row=3, column=1, padx=0, pady=10)
+        def confirm_update():
+            pass
+        def cancel_update():
+            remove_right_objects()
+            updating_entry()
+        confirm_update_button = customtkinter.CTkButton(right_frame, text="Update", command=confirm_update, width=50)
+        confirm_update_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
+        cancel_update_button = customtkinter.CTkButton(right_frame, text="Cancel", command=cancel_update, width=50)
+        cancel_update_button.grid(row=4, column=0, padx=90, pady=10, sticky="w")
     updating_list()
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
