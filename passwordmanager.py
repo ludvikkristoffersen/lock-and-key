@@ -93,11 +93,17 @@ def adding_entry():
                         cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="#90EE90")
+                        username_entry.delete(0, 'end')
+                        password_entry.delete(0, 'end')
+                        folder_entry.delete(0, 'end')
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
                         cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="#90EE90")
+                        username_entry.delete(0, 'end')
+                        password_entry.delete(0, 'end')
+                        folder_entry.delete(0, 'end')
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
                     message_label.configure(text="Password cannot be empty.", text_color="red")
@@ -108,7 +114,7 @@ def adding_entry():
         except mysql.connector.Error as e:
             message_label.configure(text="Failed to add new entry!", text_color="red")
             right_frame.after(2000, lambda: message_label.configure(text=""))
-    
+
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
 
@@ -203,12 +209,14 @@ def updating_entry():
         folder_menu.grid(row=3, column=1, padx=0, pady=10)
         def confirm_update():
             password = password_entry.get()
+            folder_length = folder_entry.get()
             if len(password) != 0:
                 password = password_entry.get()
                 encode_password = password.encode()
                 encrypt_password = cipher_instance.encrypt(encode_password)
                 decoded_encrypted_password = encrypt_password.decode()
-            folder_length = folder_entry.get()
+            else:
+                pass
             if username_entry.get() != username and len(password) != 0 and folder_entry.get() != folder:
                 if len(folder_length) == 0:
                     cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
