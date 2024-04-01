@@ -204,14 +204,64 @@ def updating_entry():
         def confirm_update():
             password = password_entry.get()
             folder_length = folder_entry.get()
-            if username_entry.get() != username and len(password) != 0 and folder_entry != folder:
+            if username_entry.get() != username and len(password) != 0 and folder_entry.get() != folder:
                 if len(folder_length) == 0:
                     cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{password_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
                     connection.commit()
+                    print("updated everything with folder menu")
                     updating_entry()
                 else:
                     cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{password_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
                     connection.commit()
+                    print("updated everything with folder entry")
+                    updating_entry()
+            elif username_entry.get() != username and len(password) != 0:
+                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{password_entry.get()}' WHERE id={int(row_id)}")
+                connection.commit()
+                print("updated just username and password")
+                updating_entry()
+            elif username_entry.get() != username and folder_entry.get() != folder:
+                if len(folder_length) == 0:
+                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated just username and folder with folder menu")
+                    updating_entry()
+                else:
+                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated just username and folder with folder entry")
+                    updating_entry()
+            elif len(password) != 0 and folder_entry.get() != folder:
+                if len(folder_length) == 0:
+                    cursor.execute(f"UPDATE passwords SET password='{password_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated just password and folder with folder menu")
+                    updating_entry()
+                else:
+                    cursor.execute(f"UPDATE passwords SET username='{password_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated just password and folder with folder entry")
+                    updating_entry()
+            elif username_entry.get() != username:
+                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}' WHERE id={int(row_id)}")
+                connection.commit()
+                print("updated only username")
+                updating_entry()
+            elif len(password) != 0:
+                cursor.execute(f"UPDATE passwords SET password='{password_entry.get()}' WHERE id={int(row_id)}")
+                connection.commit()
+                print("updated only password")
+                updating_entry()
+            elif folder_entry.get() != folder:
+                if len(folder_length) == 0:
+                    cursor.execute(f"UPDATE passwords SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated only folder with folder menu")
+                    updating_entry()
+                else:
+                    cursor.execute(f"UPDATE passwords SET folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    print("updated only folder with folder entry")
                     updating_entry()
             else:
                 print("Not all values has been changed")
