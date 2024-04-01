@@ -35,7 +35,7 @@ def delete_entry_button(row_id):
     warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
     warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
     def confirm_deletion():
-        cursor.execute(f"DELETE FROM passwords WHERE id={int(row_id)}")
+        cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
         connection.commit()
         deleting_entry()
     confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color="#B30000", hover_color="#6E0000")
@@ -60,7 +60,7 @@ def adding_entry():
     password_entry = customtkinter.CTkEntry(right_frame, show="*")
     password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
 
-    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
     unique_set = set(folder_list)
@@ -90,7 +90,7 @@ def adding_entry():
             if len(username) > 0 :
                 if len(password) > 0:
                     if len(folder) > 0:
-                        cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
+                        cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="#90EE90")
                         username_entry.delete(0, 'end')
@@ -98,7 +98,7 @@ def adding_entry():
                         folder_entry.delete(0, 'end')
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
-                        cursor.execute(f'INSERT INTO passwords (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
+                        cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                         connection.commit()
                         message_label.configure(text="New entry added!", text_color="#90EE90")
                         username_entry.delete(0, 'end')
@@ -129,7 +129,7 @@ def updating_entry():
     update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
     update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
-    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
     unique_set = set(folder_list)
@@ -144,9 +144,9 @@ def updating_entry():
 
     def updating_list():
         if folder_menu.get() == "All":
-            cursor.execute("SELECT id, username, folder FROM passwords ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
         else:
-            cursor.execute(f"SELECT id, username, folder FROM passwords WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute(f"SELECT id, username, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -190,7 +190,7 @@ def updating_entry():
         password_entry = customtkinter.CTkEntry(right_frame, show="*")
         password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
     
-        cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+        cursor.execute("SELECT folder FROM vault ORDER BY folder")
         rows = cursor.fetchall()
         folder_list = [row[0] for row in rows]
         unique_set = set(folder_list)
@@ -219,50 +219,50 @@ def updating_entry():
                 pass
             if username_entry.get() != username and len(password) != 0 and folder_entry.get() != folder:
                 if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
                 else:
-                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
             elif username_entry.get() != username and len(password) != 0:
-                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
                 connection.commit()
                 updating_entry()
             elif username_entry.get() != username and folder_entry.get() != folder:
                 if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
                 else:
-                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
             elif len(password) != 0 and folder_entry.get() != folder:
                 if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE passwords SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
                 else:
-                    cursor.execute(f"UPDATE passwords SET username='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
             elif username_entry.get() != username:
-                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}' WHERE id={int(row_id)}")
+                cursor.execute(f"UPDATE vault SET username='{username_entry.get()}' WHERE id={int(row_id)}")
                 connection.commit()
                 updating_entry()
             elif len(password) != 0:
-                cursor.execute(f"UPDATE passwords SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
                 connection.commit()
                 updating_entry()
             elif folder_entry.get() != folder:
                 if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE passwords SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
                 else:
-                    cursor.execute(f"UPDATE passwords SET folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    cursor.execute(f"UPDATE vault SET folder='{folder_entry.get()}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
             else:
@@ -286,7 +286,7 @@ def deleting_entry():
     delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
-    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
     unique_set = set(folder_list)
@@ -301,9 +301,9 @@ def deleting_entry():
 
     def updating_list():
         if folder_menu.get() == "All":
-            cursor.execute("SELECT id, username, folder FROM passwords ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
         else:
-            cursor.execute(f"SELECT id, username, folder FROM passwords WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute(f"SELECT id, username, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -340,7 +340,7 @@ def listing_entries():
     list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries")
     list_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
-    cursor.execute("SELECT folder FROM passwords ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
     unique_set = set(folder_list)
@@ -355,9 +355,9 @@ def listing_entries():
 
     def updating_list():
         if folder_menu.get() == "All":
-            cursor.execute("SELECT username, password, folder FROM passwords ORDER BY folder;")
+            cursor.execute("SELECT username, password, folder FROM vault ORDER BY folder;")
         else:
-            cursor.execute(f"SELECT username, password, folder FROM passwords WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute(f"SELECT username, password, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -402,7 +402,7 @@ def main():
     remove_sidebar_objects()
     cursor.execute("CREATE DATABASE IF NOT EXISTS passwordmanager")
     cursor.execute("USE passwordmanager")
-    cursor.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
+    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
     connection.commit()
 
     global right_frame, sidebar_frame
