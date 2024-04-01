@@ -202,11 +202,19 @@ def updating_entry():
         folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
         folder_menu.grid(row=3, column=1, padx=0, pady=10)
         def confirm_update():
-            if username_entry.get() == username:
-                pass
+            password = password_entry.get()
+            folder_length = folder_entry.get()
+            if username_entry.get() != username and len(password) != 0 and folder_entry != folder:
+                if len(folder_length) == 0:
+                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{password_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    updating_entry()
+                else:
+                    cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}', password='{password_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    updating_entry()
             else:
-                cursor.execute(f"UPDATE passwords SET username='{username_entry.get()}' WHERE id={int(row_id)}")
-                connection.commit()
+                print("Not all values has been changed")
         def cancel_update():
             remove_right_objects()
             updating_entry()
