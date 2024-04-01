@@ -111,7 +111,7 @@ def adding_entry():
             else:
                 message_label.configure(text="Username cannot be empty.", text_color="red")
                 right_frame.after(2000, lambda: message_label.configure(text=""))
-        except mysql.connector.Error as e:
+        except mysql.connector.Error:
             message_label.configure(text="Failed to add new entry!", text_color="red")
             right_frame.after(2000, lambda: message_label.configure(text=""))
 
