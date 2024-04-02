@@ -2,14 +2,11 @@ from cryptography.fernet import Fernet
 import customtkinter
 import mysql.connector
 import time
+import os
 
 # Setting the appearance mode and the color theme of the application
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
-
-# Encryption instance and key
-key = b'JKJXJcze3EnFFCvD8c6X4J21HwRF-T1slbIuFk3ibCc='
-cipher_instance = Fernet(key)
 
 # Functions for removing the contents from the frame objects
 def remove_right_objects():
@@ -34,6 +31,7 @@ def delete_entry_button(row_id):
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
     warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
     warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
+
     def confirm_deletion():
         cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
         connection.commit()
@@ -173,6 +171,7 @@ def updating_entry():
             select_entry_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
             select_entry_button.configure(command=lambda r=row_id, u=username, f=folder: updating_entry_button(r,u,f))
             entry_id += 1
+            
     def updating_entry_button(row_id, username, folder):
         remove_right_objects()
     
@@ -400,12 +399,32 @@ def exit_application():
 # The main function containing all functionality, creating the database and the table if not already created
 def main():
     remove_sidebar_objects()
+
+    global right_frame, sidebar_frame, cipher_instance
     cursor.execute("CREATE DATABASE IF NOT EXISTS passwordmanager")
     cursor.execute("USE passwordmanager")
     cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
     connection.commit()
 
-    global right_frame, sidebar_frame
+    if os.path.isfile("key.txt"):
+        with open("key.txt", "r") as file:
+            key = file.readline().strip()
+            file.close()
+        encoded_key = key.encode()
+        cipher_instance = Fernet(encoded_key)
+    else:
+        with open("key.txt", "x") as file:
+            file.close()
+        genKey = Fernet.generate_key()
+        decode_key = genKey.decode()
+        with open("key.txt", "w+") as file:
+            file.write(decode_key)
+            file.seek(0)
+            key = file.readline().strip()
+            file.close()
+        encoded_key = key.encode()
+        cipher_instance = Fernet(encoded_key)
+
     root.geometry(f"{850}x{400}")
     root.title("Password Manager V1.0")
 
