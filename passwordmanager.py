@@ -1,6 +1,8 @@
 from cryptography.fernet import Fernet
 import customtkinter
 import mysql.connector
+import random
+import string
 import time
 import os
 
@@ -52,11 +54,20 @@ def adding_entry():
     username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
     username_entry = customtkinter.CTkEntry(right_frame)
     username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="ew")
+
+    def toggle_password_show():
+        if password_show.get():
+            password_entry.configure(show="")
+        else:
+            password_entry.configure(show="*")
     
     password_label = customtkinter.CTkLabel(right_frame, text="Password:")
     password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
     password_entry = customtkinter.CTkEntry(right_frame, show="*")
     password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
+
+    password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
+    password_show.grid(row=2, column=1, pady=10, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
@@ -73,7 +84,7 @@ def adding_entry():
     folder_entry = customtkinter.CTkEntry(right_frame)
     folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="ew")
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
-    folder_menu.grid(row=3, column=1, padx=0, pady=10)
+    folder_menu.grid(row=3, column=1, pady=10)
 
     def add_database_entry():
         try:
@@ -115,6 +126,18 @@ def adding_entry():
 
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
+    
+    def generate_random_password():
+        password_entry.delete(0, "end")
+        letters = [char for char in string.ascii_letters]
+        digits = [char for char in string.digits]
+        special_char = ["#","!","&","*","^","%"]
+        combined_char_list = letters+digits+special_char
+        random_password = "".join(random.choices(combined_char_list, k=50))
+        password_entry.insert(0, random_password)
+
+    generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password)
+    generate_password_button.grid(row=4, column=1, pady=10, sticky="w")
 
     message_label = customtkinter.CTkLabel(right_frame, text="")
     message_label.grid(row=5, column=0, padx=20, pady=10, sticky="w")
