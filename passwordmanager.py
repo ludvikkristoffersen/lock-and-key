@@ -19,30 +19,6 @@ def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
 
-# Function that copies the password from the list entries main function
-def copy_to_clipboard(password, button):
-    root.clipboard_clear()
-    root.clipboard_append(password)
-    button.configure(text="Copied!", fg_color="#4374AB", hover_color="#4374AB")
-    scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D", hover_color="#14375E"))
-
-# Function for deleting a entry in the main deleting function
-def delete_entry_button(row_id):
-    remove_right_objects()
-    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
-    delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
-    warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
-    warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
-
-    def confirm_deletion():
-        cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
-        connection.commit()
-        deleting_entry()
-    confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color="#B30000", hover_color="#6E0000")
-    confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
-    regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
-    regret_deletion_button.grid(row=2, column=0, padx=100, pady=5, sticky="w")
-
 # Function for adding a new username:password entry to the database
 def adding_entry():
     remove_right_objects()
@@ -206,11 +182,32 @@ def updating_entry():
         username_entry = customtkinter.CTkEntry(right_frame)
         username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="ew")
         username_entry.insert(0, username)
+
+        def toggle_password_show():
+            if password_show.get():
+                password_entry.configure(show="")
+            else:
+                password_entry.configure(show="*")
     
         password_label = customtkinter.CTkLabel(right_frame, text="Password:")
         password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
         password_entry = customtkinter.CTkEntry(right_frame, show="*")
         password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
+
+        password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
+        password_show.grid(row=2, column=1, pady=10, sticky="w")
+
+        def generate_random_password():
+            password_entry.delete(0, "end")
+            letters = [char for char in string.ascii_letters]
+            digits = [char for char in string.digits]
+            special_char = ["#","!","&","*","^","%"]
+            combined_char_list = letters+digits+special_char
+            random_password = "".join(random.choices(combined_char_list, k=50))
+            password_entry.insert(0, random_password)
+
+        generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password)
+        generate_password_button.grid(row=4, column=1, pady=10, sticky="w")
     
         cursor.execute("SELECT folder FROM vault ORDER BY folder")
         rows = cursor.fetchall()
@@ -321,6 +318,23 @@ def deleting_entry():
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
+    # Function for deleting a entry in the main deleting function
+    def delete_entry_button(row_id):
+        remove_right_objects()
+        delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
+        delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
+        warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
+        warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
+
+        def confirm_deletion():
+            cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
+            connection.commit()
+            deleting_entry()
+        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color="#B30000", hover_color="#6E0000")
+        confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
+        regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
+        regret_deletion_button.grid(row=2, column=0, padx=90, pady=5, sticky="w")
+
     def updating_list():
         if folder_menu.get() == "All":
             cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
@@ -374,6 +388,13 @@ def listing_entries():
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
+
+    # Function that copies the password from the list entries main function
+    def copy_to_clipboard(password, button):
+        root.clipboard_clear()
+        root.clipboard_append(password)
+        button.configure(text="Copied!", fg_color="#4374AB", hover_color="#4374AB")
+        scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D", hover_color="#14375E"))
 
     def updating_list():
         if folder_menu.get() == "All":
