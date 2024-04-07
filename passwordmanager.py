@@ -104,13 +104,29 @@ def adding_entry():
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
     
     def generate_random_password():
-        password_entry.delete(0, "end")
-        letters = [char for char in string.ascii_letters]
-        digits = [char for char in string.digits]
-        special_char = ["#","!","&","*","^","%"]
-        combined_char_list = letters+digits+special_char
-        random_password = "".join(random.choices(combined_char_list, k=50))
-        password_entry.insert(0, random_password)
+        try:
+            password_length = int(password_char_length.get())
+            if password_length < 20:
+                message_label.configure(text="Character length to short!", text_color="red")
+                right_frame.after(2000, lambda: message_label.configure(text=""))
+            elif password_length > 255:
+                message_label.configure(text="Character length to long!", text_color="red")
+                right_frame.after(2000, lambda: message_label.configure(text=""))
+            else:
+                password_entry.delete(0, "end")
+                letters = [char for char in string.ascii_letters]
+                digits = [char for char in string.digits]
+                special_char = ["#","!","&","*","^","%"]
+                combined_char_list = letters+digits+special_char
+                random_password = "".join(random.choices(combined_char_list, k=password_length))
+                password_entry.insert(0, random_password)
+        except:
+            message_label.configure(text="Character length not valid!", text_color="red")
+            right_frame.after(2000, lambda: message_label.configure(text=""))
+    
+    password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="20-255", width=60)
+    password_char_length.grid(row=4, column=2, padx=10, pady=10, sticky="w")
+    password_char_length.insert(0, "50")
 
     generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password)
     generate_password_button.grid(row=4, column=1, pady=10, sticky="w")
