@@ -579,8 +579,6 @@ def main():
 
     home_screen()
 
-    root.mainloop()
-
 # Function to authenticate the user and logging them into the MySQL database
 def login():
     global root, login_frame
