@@ -1,4 +1,14 @@
+"""
+Password manager name v1.0
+
+Self managed, open-source. Everything you need to store your passwords securely.
+
+
+Created by: Ludvik Kristoffersen
+"""
+
 from cryptography.fernet import Fernet
+from PIL import Image
 import customtkinter
 import mysql.connector
 import random
@@ -10,6 +20,9 @@ import os
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
+# Setting images
+information_image = customtkinter.CTkImage(light_image=Image.open('images/info.png'), size=(40,40))
+
 # Functions for removing the contents from the frame objects
 def remove_right_objects():
     for widget in right_frame.winfo_children():
@@ -18,6 +31,28 @@ def remove_right_objects():
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
+
+def home_screen():
+    information_image_label = customtkinter.CTkLabel(right_frame, text="", image=information_image)
+    information_image_label.grid(row=0, column=0,padx=20, pady=(20,10), sticky="w")
+    information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"))
+    information_title_label.grid(row=0, column=0, padx=70, pady=(20,10), sticky="w")
+
+    description_text = customtkinter.CTkTextbox(right_frame, width=582, height=50, fg_color="transparent")
+    description_text.grid(row=1, column=0, padx=12, pady=10, sticky="w")
+    description_text.insert("end", "Lock&Key is a self managed, open-source password manager. Everything you need would need to store and manage your passwords securely!")
+    description_text.configure(state="disabled")
+
+    usecase_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
+    usecase_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
+
+    usage_text = customtkinter.CTkTextbox(right_frame, width=582, height=160, fg_color="transparent")
+    usage_text.grid(row=3, column=0, padx=12, pady=5, sticky="w")
+    usage_text.insert("end", """• Add new entries for any account you have. Generate strong random passwords to prevent    weak passwords.\n
+• Update entries to change their details such as new username, password, and folder.\n
+• Manage your entries by deleting those you no longer user.\n
+• Easily list all or specified entries, and safely copy passwords.""")
+    usage_text.configure(state="disabled")
 
 # Function for adding a new username:password entry to the database
 def adding_entry():
@@ -29,7 +64,7 @@ def adding_entry():
     username_label = customtkinter.CTkLabel(right_frame, text="Username:")
     username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
     username_entry = customtkinter.CTkEntry(right_frame)
-    username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="ew")
+    username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="w")
 
     def toggle_password_show():
         if password_show.get():
@@ -40,7 +75,7 @@ def adding_entry():
     password_label = customtkinter.CTkLabel(right_frame, text="Password:")
     password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
     password_entry = customtkinter.CTkEntry(right_frame, show="*")
-    password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="ew")
+    password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="w")
 
     password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
     password_show.grid(row=2, column=1, pady=10, sticky="w")
@@ -58,7 +93,7 @@ def adding_entry():
     folder_label = customtkinter.CTkLabel(right_frame, text="Folder:")
     folder_label.grid(row=3, column=0, padx=20, pady=10, sticky="w")
     folder_entry = customtkinter.CTkEntry(right_frame)
-    folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="ew")
+    folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="w")
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
     folder_menu.grid(row=3, column=1, pady=10)
 
@@ -505,14 +540,14 @@ def main():
         encoded_key = key.encode()
         cipher_instance = Fernet(encoded_key)
 
-    root.geometry(f"{850}x{400}")
-    root.title("Password Manager V1.0")
+    root.geometry(f"{800}x{400}")
+    root.title("Lock&Key V1.0")
 
     sidebar_frame = customtkinter.CTkFrame(root, width=300, corner_radius=0)
     sidebar_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     sidebar_frame.grid_rowconfigure(6, weight=1)
 
-    label = customtkinter.CTkLabel(sidebar_frame, text="Password Manager", font=customtkinter.CTkFont(size=20, weight="bold"))
+    label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
     label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
     button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add Entries", command=adding_entry)
@@ -532,6 +567,9 @@ def main():
 
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
+
+    home_screen()
+
     root.mainloop()
 
 # Function to authenticate the user and logging them into the MySQL database
