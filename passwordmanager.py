@@ -1,12 +1,17 @@
 """
-Password manager name v1.0
+Lock&Key v1.0 - Password Manager
 
-Self managed, open-source. Everything you need to store your passwords securely.
-
+Lock&Key is a self managed, open-source password manager. Everything you need would 
+need to store and manage your passwords securely!
 
 Created by: Ludvik Kristoffersen
 """
-
+# Importing the necessary modules, this application is built with customtkinter
+# and it uses mysql.connector to connect to the self hosted MySQL intance, and 
+# uses Fernet to encrypt and decrypt passwords. Pillow is used for the processing 
+# of images in conjunction with customtikinter. String and random are used for the
+# creation of random passwords. Time is used for adding delays between certain 
+# actions, and the os library is used to check if files exist or not.
 from cryptography.fernet import Fernet
 from PIL import Image
 import customtkinter
@@ -21,7 +26,7 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 # Setting images
-information_image = customtkinter.CTkImage(light_image=Image.open('images/info.png'), size=(40,40))
+information_image = customtkinter.CTkImage(light_image=Image.open('.images/info.png'), size=(40,40))
 
 # Functions for removing the contents from the frame objects
 def remove_right_objects():
@@ -33,6 +38,7 @@ def remove_sidebar_objects():
         widget.destroy()
 
 def home_screen():
+    remove_right_objects()
     information_image_label = customtkinter.CTkLabel(right_frame, text="", image=information_image)
     information_image_label.grid(row=0, column=0,padx=20, pady=(20,10), sticky="w")
     information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -58,7 +64,7 @@ def home_screen():
 def adding_entry():
     remove_right_objects()
 
-    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry")
+    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(weight="bold"))
     add_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     username_label = customtkinter.CTkLabel(right_frame, text="Username:")
@@ -174,7 +180,7 @@ def updating_entry():
     remove_right_objects()
 
     global updating_list
-    update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
+    update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry", font=customtkinter.CTkFont(weight="bold"))
     update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -373,7 +379,7 @@ def deleting_entry():
     remove_right_objects()
 
     global updating_list
-    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
+    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(weight="bold"))
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -444,7 +450,7 @@ def listing_entries():
     remove_right_objects()
     global scrollable_frame
 
-    list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries")
+    list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries", font=customtkinter.CTkFont(weight="bold"))
     list_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -521,18 +527,18 @@ def main():
     cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
     connection.commit()
 
-    if os.path.isfile("key.txt"):
-        with open("key.txt", "r") as file:
+    if os.path.isfile(".key.txt"):
+        with open(".key.txt", "r") as file:
             key = file.readline().strip()
             file.close()
         encoded_key = key.encode()
         cipher_instance = Fernet(encoded_key)
     else:
-        with open("key.txt", "x") as file:
+        with open(".key.txt", "x") as file:
             file.close()
         genKey = Fernet.generate_key()
         decode_key = genKey.decode()
-        with open("key.txt", "w+") as file:
+        with open(".key.txt", "w+") as file:
             file.write(decode_key)
             file.seek(0)
             key = file.readline().strip()
@@ -550,22 +556,25 @@ def main():
     label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
     label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add Entries", command=adding_entry)
-    button_adding_entry.grid(row=1, column=0, padx=20, pady=10)
+    button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_home.grid(row=1, column=0, padx=20, pady=10)
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update Entries", command=updating_entry)
-    button_updating_entry.grid(row=2, column=0, padx=20, pady=10)
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_adding_entry.grid(row=2, column=0, padx=20, pady=10)
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete Entries", command=deleting_entry)
-    button_deleting_entry.grid(row=3, column=0, padx=20, pady=10)
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_updating_entry.grid(row=3, column=0, padx=20, pady=10)
 
-    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List Entries", command=listing_entries)
-    button_listing_entries.grid(row=4, column=0, padx=20, pady=10)
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_deleting_entry.grid(row=4, column=0, padx=20, pady=10)
 
-    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application)
-    button_exit_application.grid(row=5, column=0, padx=20, pady=10)
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_listing_entries.grid(row=5, column=0, padx=20, pady=10)
 
-    right_frame = customtkinter.CTkFrame(root)
+    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application, fg_color="#B30000", hover_color="#6E0000", font=customtkinter.CTkFont(weight="bold"))
+    button_exit_application.grid(row=6, column=0, padx=0, pady=10)
+
+    right_frame = customtkinter.CTkFrame(root, corner_radius=0)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
 
     home_screen()
