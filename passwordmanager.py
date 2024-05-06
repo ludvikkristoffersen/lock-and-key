@@ -556,23 +556,23 @@ def main():
     label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
     label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-    button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_home.grid(row=1, column=0, padx=20, pady=10)
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_adding_entry.grid(row=2, column=0, padx=20, pady=10)
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_updating_entry.grid(row=3, column=0, padx=20, pady=10)
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_deleting_entry.grid(row=4, column=0, padx=20, pady=10)
 
-    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, fg_color="#2A2A2A", hover_color="#353535", font=customtkinter.CTkFont(weight="bold"), text_color="#FFFFFF")
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_listing_entries.grid(row=5, column=0, padx=20, pady=10)
 
-    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application, fg_color="#B30000", hover_color="#6E0000", font=customtkinter.CTkFont(weight="bold"))
-    button_exit_application.grid(row=6, column=0, padx=0, pady=10)
+    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application, fg_color="#B30000", hover_color="#6E0000", font=customtkinter.CTkFont(weight="bold"),corner_radius=5)
+    button_exit_application.grid(row=6, column=0, padx=20, pady=10)
 
     right_frame = customtkinter.CTkFrame(root, corner_radius=0)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
