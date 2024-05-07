@@ -21,23 +21,26 @@ import string
 import time
 import os
 
-# Setting the appearance mode and the color theme of the application
+# Setting appearance mode to dark, and setting default color scheme to blue
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
-# Setting images
+# Opening and creating image instances 
 logo_image = customtkinter.CTkImage(dark_image=Image.open(".images/L&K-text-logo.png"), size=(150,27))
 information_image = customtkinter.CTkImage(light_image=Image.open(".images/info.png"), size=(40,40))
 
-# Functions for removing the contents from the frame objects
+# Removing objects in the right-hand panel
 def remove_right_objects():
     for widget in right_frame.winfo_children():
         widget.destroy()
-
+# Removing objects in the left-hand panel
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
 
+# A function for creating the home screen, the home screen's main purpose
+# is to provide the user with information as to how the password manager
+# is supposed to be used.
 def home_screen():
     remove_right_objects()
     information_image_label = customtkinter.CTkLabel(right_frame, text="", image=information_image)
@@ -61,7 +64,10 @@ def home_screen():
 • Easily list all or specified entries, and safely copy passwords.""")
     usage_text.configure(state="disabled")
 
-# Function for adding a new username:password entry to the database
+# Function for adding new user account entries, the user can add
+# their username for their respective accounts, then input a password
+# they choose, or they could randomly generate a password of 25-255 characters.
+# The user can also choose a folder for the account to be placed inside of.
 def adding_entry():
     remove_right_objects()
 
@@ -562,9 +568,6 @@ def main():
 
     logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image)
     logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-
-    #label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
-    #label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
     button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_home.grid(row=1, column=0, padx=20, pady=10)
