@@ -556,19 +556,19 @@ def main():
     label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
     label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-    button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_home.grid(row=1, column=0, padx=20, pady=10)
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_adding_entry.grid(row=2, column=0, padx=20, pady=10)
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_updating_entry.grid(row=3, column=0, padx=20, pady=10)
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_deleting_entry.grid(row=4, column=0, padx=20, pady=10)
 
-    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_listing_entries.grid(row=5, column=0, padx=20, pady=10)
 
     button_exit_application = customtkinter.CTkButton(sidebar_frame, text="Exit", command=exit_application, fg_color="#B30000", hover_color="#6E0000", font=customtkinter.CTkFont(weight="bold"),corner_radius=5)
@@ -583,7 +583,7 @@ def main():
 def login():
     global root, login_frame
     root = customtkinter.CTk()
-    root.geometry(f"{180}x{220}")
+    root.geometry(f"{180}x{280}")
     root.title("Login")
     root.resizable(False, False)
 
@@ -595,21 +595,54 @@ def login():
     login_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     login_frame.grid_rowconfigure(6, weight=1)
 
+
     main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
     main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
 
+    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP")
+    host_entry.grid(row=1, column=0, padx=20, pady=5, sticky="ew")
+
     username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username")
-    username_entry.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+    username_entry.grid(row=2, column=0, padx=20, pady=5, sticky="ew")
 
     password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*")
-    password_entry.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
+    password_entry.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
+
+    def remember_me():
+        if remember_me_check.get():
+            if os.path.isfile(".remember_me.txt"):
+                pass
+            else:
+                with open(".remember_me.txt", "x") as file:
+                    file.close()
+                with open(".remember_me.txt", "a") as file:
+                    file.write(host_entry.get() + "\n")
+                    file.write(username_entry.get())
+                    file.close()
+        else:
+            if os.path.isfile(".remember_me.txt"):
+                os.remove(".remember_me.txt")
+
+    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
+    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
+
+    if os.path.isfile(".remember_me.txt"):
+        with open(".remember_me.txt", "r") as file:
+            line = file.readlines()
+            remember_me_check.select()
+            stripped_line = line[0].strip()
+            host_entry.insert("end", stripped_line)
+            username_entry.insert("end", line[1])
+    else:
+        pass
 
     def authentication():
         global connection, cursor
         try:
             username = username_entry.get()
             password = password_entry.get()
-            connection = mysql.connector.connect(user=username, password=password, host="192.168.0.141")
+            host = host_entry.get()
+            connection = mysql.connector.connect(user=username, password=password, host=host)
             cursor = connection.cursor()
             main()
         except mysql.connector.Error:
@@ -617,10 +650,10 @@ def login():
             login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
 
     login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
-    login_button.grid(row=3, column=0, padx=20, pady=(10,5), sticky="w")
+    login_button.grid(row=5, column=0, padx=20, pady=(10,5), sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
-    login_failure_message_label.grid(row=4, column=0, padx=20, pady=0, sticky="w")
+    login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
 
     root.mainloop()
 
