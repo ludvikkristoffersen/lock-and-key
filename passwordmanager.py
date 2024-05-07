@@ -26,7 +26,8 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 # Setting images
-information_image = customtkinter.CTkImage(light_image=Image.open('.images/info.png'), size=(40,40))
+logo_image = customtkinter.CTkImage(dark_image=Image.open(".images/L&K-text-logo.png"), size=(150,27))
+information_image = customtkinter.CTkImage(light_image=Image.open(".images/info.png"), size=(40,40))
 
 # Functions for removing the contents from the frame objects
 def remove_right_objects():
@@ -553,8 +554,11 @@ def main():
     sidebar_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     sidebar_frame.grid_rowconfigure(6, weight=1)
 
-    label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
-    label.grid(row=0, column=0, padx=20, pady=(20, 10))
+    logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image)
+    logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+
+    #label = customtkinter.CTkLabel(sidebar_frame, text="Lock&Key", font=customtkinter.CTkFont(size=20, weight="bold"))
+    #label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
     button_home = customtkinter.CTkButton(sidebar_frame, text="Home", command=home_screen, text_color="#212020", fg_color="#D7D7D6", hover_color="#A9A9A9", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
     button_home.grid(row=1, column=0, padx=20, pady=10)
