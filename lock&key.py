@@ -313,57 +313,61 @@ def updating_entry():
                 decoded_encrypted_password = encrypt_password.decode()
             else:
                 pass
-            if username_entry.get() != username and len(password) != 0 and folder_entry.get() != folder:
-                if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+            if len(username_entry.get()) > 0:
+                if username_entry.get() != username and len(password) != 0 and folder_entry.get() != folder:
+                    if len(folder_length) == 0:
+                        cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                    else:
+                        cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                elif username_entry.get() != username and len(password) != 0:
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
                     connection.commit()
                     updating_entry()
+                elif username_entry.get() != username and folder_entry.get() != folder:
+                    if len(folder_length) == 0:
+                        cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                    else:
+                        cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                elif len(password) != 0 and folder_entry.get() != folder:
+                    if len(folder_length) == 0:
+                        cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                    else:
+                        cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                elif username_entry.get() != username:
+                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    updating_entry()
+                elif len(password) != 0:
+                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                    connection.commit()
+                    updating_entry()
+                elif folder_entry.get() != folder:
+                    if len(folder_length) == 0:
+                        cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
+                    else:
+                        cursor.execute(f"UPDATE vault SET folder='{folder_entry.get()}' WHERE id={int(row_id)}")
+                        connection.commit()
+                        updating_entry()
                 else:
-                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-            elif username_entry.get() != username and len(password) != 0:
-                cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
-                connection.commit()
-                updating_entry()
-            elif username_entry.get() != username and folder_entry.get() != folder:
-                if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                else:
-                    cursor.execute(f"UPDATE vault SET username='{username_entry.get()}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-            elif len(password) != 0 and folder_entry.get() != folder:
-                if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                else:
-                    cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{folder_entry.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-            elif username_entry.get() != username:
-                cursor.execute(f"UPDATE vault SET username='{username_entry.get()}' WHERE id={int(row_id)}")
-                connection.commit()
-                updating_entry()
-            elif len(password) != 0:
-                cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
-                connection.commit()
-                updating_entry()
-            elif folder_entry.get() != folder:
-                if len(folder_length) == 0:
-                    cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                else:
-                    cursor.execute(f"UPDATE vault SET folder='{folder_entry.get()}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
+                    message_label.configure(text="Nothing has been changed!", text_color="red")
+                    right_frame.after(2000, lambda: message_label.configure(text="")) 
             else:
-                message_label.configure(text="Nothing has been changed!", text_color="red")
-                right_frame.after(2000, lambda: message_label.configure(text="")) 
+                message_label.configure(text="Username cannot be empty.", text_color="red")
+                right_frame.after(2000, lambda: message_label.configure(text=""))
         def cancel_update():
             remove_right_objects()
             updating_entry()
