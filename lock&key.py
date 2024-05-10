@@ -31,6 +31,10 @@ customtkinter.set_default_color_theme("dark-blue")
 logo_image = customtkinter.CTkImage(dark_image=Image.open(".images/L&K-text-logo.png"), size=(150,27))
 information_image = customtkinter.CTkImage(light_image=Image.open(".images/info.png"), size=(40,40))
 
+username_regex = r"^[A-Za-z0-9_.@\-]+$"
+password_regex = r"^[A-Za-z0-9!@#$%^&*]+$"
+folder_regex = r"^[A-Za-z0-9]+$"
+
 # Removing objects in the right-hand panel
 def remove_right_objects():
     for widget in right_frame.winfo_children():
@@ -128,9 +132,6 @@ def adding_entry():
             password = password_entry.get().strip()
             folder = folder_entry.get().strip()
             folder_select = folder_menu.get()
-            username_regex = r"^[A-Za-z0-9_.@\-]+$"
-            password_regex = r"^[A-Za-z0-9!@#$^&*]+$"
-            folder_regex = r"^[A-Za-z0-9]+$"
             
             if len(username) > 0 :
                 if re.match(username_regex,username):
@@ -341,71 +342,81 @@ def updating_entry():
             password = password_entry.get().strip()
             folder_length = folder_entry.get().strip()
             new_folder = folder_entry.get().strip()
-            #username_regex = r"^[A-Za-z_.@\-]+$"
-            #password_regex = r"^[A-Za-z0-9#!@#$^&*]+$"
-            #folder_regex = r"^[A-Za-z0-9]+$"
-            if len(password) != 0:
-                password = password_entry.get().strip()
-                encode_password = password.encode()
-                encrypt_password = cipher_instance.encrypt(encode_password)
-                decoded_encrypted_password = encrypt_password.decode()
-            else:
-                pass
+
             if len(new_username) > 0:
-                if new_username != username and len(password) != 0 and new_folder != folder:
-                    if len(folder_length) == 0:
-                        cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
+                if re.match(username_regex,new_username):
+                    if len(password) == 0 or re.match(password_regex,password):
+                        if len(new_folder) == 0 or re.match(folder_regex,new_folder):
+                            if len(password) != 0:
+                                encode_password = password.encode()
+                                encrypt_password = cipher_instance.encrypt(encode_password)
+                                decoded_encrypted_password = encrypt_password.decode()
+
+                            if new_username != username and len(password) != 0 and new_folder != folder:
+                                if len(folder_length) == 0:
+                                    cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                                else:
+                                    cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                            elif new_username != username and len(password) != 0:
+                                cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                                connection.commit()
+                                updating_entry()
+                            elif new_username != username and new_folder != folder:
+                                if len(folder_length) == 0:
+                                    cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                                else:
+                                    cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                            elif len(password) != 0 and new_folder != folder:
+                                if len(folder_length) == 0:
+                                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                                else:
+                                    cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                            elif new_username != username:
+                                cursor.execute(f"UPDATE vault SET username='{new_username}' WHERE id={int(row_id)}")
+                                connection.commit()
+                                updating_entry()
+                            elif len(password) != 0:
+                                cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                                connection.commit()
+                                updating_entry()
+                            elif new_folder != folder:
+                                if len(folder_length) == 0:
+                                    cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                                else:
+                                    cursor.execute(f"UPDATE vault SET folder='{new_folder}' WHERE id={int(row_id)}")
+                                    connection.commit()
+                                    updating_entry()
+                            else:
+                                message_label.configure(text="Nothing has been changed!", text_color="red")
+                                right_frame.after(2000, lambda: message_label.configure(text=""))
+                        else:
+                            message_label.configure(text="Folder invalid.", text_color="red")
+                            right_frame.after(2000, lambda: message_label.configure(text=""))  
                     else:
-                        cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                elif new_username != username and len(password) != 0:
-                    cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                elif new_username != username and new_folder != folder:
-                    if len(folder_length) == 0:
-                        cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                    else:
-                        cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{new_folder}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                elif len(password) != 0 and new_folder != folder:
-                    if len(folder_length) == 0:
-                        cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                    else:
-                        cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                elif new_username != username:
-                    cursor.execute(f"UPDATE vault SET username='{new_username}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                elif len(password) != 0:
-                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
-                    connection.commit()
-                    updating_entry()
-                elif new_folder != folder:
-                    if len(folder_length) == 0:
-                        cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
-                    else:
-                        cursor.execute(f"UPDATE vault SET folder='{new_folder}' WHERE id={int(row_id)}")
-                        connection.commit()
-                        updating_entry()
+                        print(password)
+                        message_label.configure(text="Password invalid.", text_color="red")
+                        right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
-                    message_label.configure(text="Nothing has been changed!", text_color="red")
-                    right_frame.after(2000, lambda: message_label.configure(text="")) 
+                    message_label.configure(text="Username invalid.", text_color="red")
+                    right_frame.after(2000, lambda: message_label.configure(text=""))
             else:
                 message_label.configure(text="Username cannot be empty.", text_color="red")
                 right_frame.after(2000, lambda: message_label.configure(text=""))
+
         def cancel_update():
             remove_right_objects()
             updating_entry()
