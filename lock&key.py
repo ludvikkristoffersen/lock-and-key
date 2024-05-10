@@ -40,7 +40,7 @@ def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
 
-def host_alive_check(host, port=3306):
+def mysql_server_alive_check(host, port=3306):
     try:
         socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_instance.settimeout(4)
@@ -126,32 +126,47 @@ def adding_entry():
         try:
             username = username_entry.get().strip()
             password = password_entry.get().strip()
-            encode_password = password.encode()
-            encrypt_password = cipher_instance.encrypt(encode_password)
-            decoded_encrypted_password = encrypt_password.decode()
             folder = folder_entry.get().strip()
             folder_select = folder_menu.get()
-
+            username_regex = r"^[A-Za-z0-9_.@\-]+$"
+            password_regex = r"^[A-Za-z0-9!@#$^&*]+$"
+            folder_regex = r"^[A-Za-z0-9]+$"
+            
             if len(username) > 0 :
-                if len(password) > 0:
-                    if len(folder) > 0:
-                        cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
-                        connection.commit()
-                        message_label.configure(text="New entry added!", text_color="#90EE90")
-                        username_entry.delete(0, 'end')
-                        password_entry.delete(0, 'end')
-                        folder_entry.delete(0, 'end')
-                        right_frame.after(2000, lambda: message_label.configure(text=""))
+                if re.match(username_regex,username):
+                    if len(password) > 0:
+                        if re.match(password_regex,password):
+                            encode_password = password.encode()
+                            encrypt_password = cipher_instance.encrypt(encode_password)
+                            decoded_encrypted_password = encrypt_password.decode()
+                            if len(folder) > 0:
+                                if re.match(folder_regex,folder):
+                                    cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
+                                    connection.commit()
+                                    message_label.configure(text="New entry added!", text_color="#90EE90")
+                                    username_entry.delete(0, 'end')
+                                    password_entry.delete(0, 'end')
+                                    folder_entry.delete(0, 'end')
+                                    right_frame.after(2000, lambda: message_label.configure(text=""))
+                                else:
+                                    message_label.configure(text="Folder not valid.", text_color="red")
+                                    right_frame.after(2000, lambda: message_label.configure(text=""))
+                            else:
+                                cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
+                                connection.commit()
+                                message_label.configure(text="New entry added!", text_color="#90EE90")
+                                username_entry.delete(0, 'end')
+                                password_entry.delete(0, 'end')
+                                folder_entry.delete(0, 'end')
+                                right_frame.after(2000, lambda: message_label.configure(text=""))
+                        else:
+                            message_label.configure(text="Password not valid.", text_color="red")
+                            right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
-                        cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
-                        connection.commit()
-                        message_label.configure(text="New entry added!", text_color="#90EE90")
-                        username_entry.delete(0, 'end')
-                        password_entry.delete(0, 'end')
-                        folder_entry.delete(0, 'end')
+                        message_label.configure(text="Password cannot be empty.", text_color="red")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
-                    message_label.configure(text="Password cannot be empty.", text_color="red")
+                    message_label.configure(text="Username not valid.", text_color="red")
                     right_frame.after(2000, lambda: message_label.configure(text=""))
             else:
                 message_label.configure(text="Username cannot be empty.", text_color="red")
@@ -326,11 +341,11 @@ def updating_entry():
             password = password_entry.get().strip()
             folder_length = folder_entry.get().strip()
             new_folder = folder_entry.get().strip()
-            username_regex = r"^[A-Za-z_.@\-]+$"
-            password_regex = r"^[A-Za-z0-9#!@#$^&*]+$"
-            folder_regex = r"^[A-Za-z0-9]+$"
+            #username_regex = r"^[A-Za-z_.@\-]+$"
+            #password_regex = r"^[A-Za-z0-9#!@#$^&*]+$"
+            #folder_regex = r"^[A-Za-z0-9]+$"
             if len(password) != 0:
-                password = password_entry.get()
+                password = password_entry.get().strip()
                 encode_password = password.encode()
                 encrypt_password = cipher_instance.encrypt(encode_password)
                 decoded_encrypted_password = encrypt_password.decode()
@@ -677,7 +692,7 @@ def login():
         if re.match(host_regex,host):
             if re.match(username_regex,username):
                 if re.match(password_regex,password):
-                    if host_alive_check(host):
+                    if mysql_server_alive_check(host):
                         try:
                             connection = mysql.connector.connect(user=username, password=password, host=host)
                             cursor = connection.cursor()
