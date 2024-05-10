@@ -18,8 +18,10 @@ import customtkinter
 import mysql.connector
 import random
 import string
+import socket
 import time
 import os
+import re
 
 # Setting appearance mode to dark, and setting default color scheme to blue
 customtkinter.set_appearance_mode("dark")
@@ -37,6 +39,16 @@ def remove_right_objects():
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
+
+def host_alive_check(host, port=3306):
+    try:
+        socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_instance.settimeout(4)
+        socket_instance.connect((host,port))
+        socket_instance.close()
+        return True
+    except:
+        return False
 
 # A function for creating the home screen, the home screen's main purpose
 # is to provide the user with information as to how the password manager
@@ -164,7 +176,7 @@ def adding_entry():
                 password_entry.delete(0, "end")
                 letters = [char for char in string.ascii_letters]
                 digits = [char for char in string.digits]
-                special_char = ["#","!","&","*","^","%"]
+                special_char = ["!","@","#","$","%","^","&","*"]
                 combined_char_list = letters+digits+special_char
                 random_password = "".join(random.choices(combined_char_list, k=password_length))
                 password_entry.insert(0, random_password)
@@ -265,21 +277,21 @@ def updating_entry():
             try:
                 password_length = int(password_char_length.get())
                 if password_length < 25:
-                    message_label.configure(text="Character length to short!", text_color="red")
+                    message_label.configure(text="Character length to short.", text_color="red")
                     right_frame.after(2000, lambda: message_label.configure(text=""))
                 elif password_length > 255:
-                    message_label.configure(text="Character length to long!", text_color="red")
+                    message_label.configure(text="Character length to long.", text_color="red")
                     right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
                     password_entry.delete(0, "end")
                     letters = [char for char in string.ascii_letters]
                     digits = [char for char in string.digits]
-                    special_char = ["#","!","&","*","^","%"]
+                    special_char = ["!","@","#","$","%","^","&","*"]
                     combined_char_list = letters+digits+special_char
                     random_password = "".join(random.choices(combined_char_list, k=password_length))
                     password_entry.insert(0, random_password)
             except:
-                message_label.configure(text="Character length not valid!", text_color="red")
+                message_label.configure(text="Character length not valid.", text_color="red")
                 right_frame.after(2000, lambda: message_label.configure(text=""))
     
         password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center")
@@ -314,6 +326,9 @@ def updating_entry():
             password = password_entry.get().strip()
             folder_length = folder_entry.get().strip()
             new_folder = folder_entry.get().strip()
+            username_regex = r"^[A-Za-z_.@\-]+$"
+            password_regex = r"^[A-Za-z0-9#!@#$^&*]+$"
+            folder_regex = r"^[A-Za-z0-9]+$"
             if len(password) != 0:
                 password = password_entry.get()
                 encode_password = password.encode()
@@ -594,7 +609,7 @@ def main():
 
 # Function to authenticate the user and logging them into the MySQL database
 def login():
-    global root, login_frame
+    global root, login_frame, login_failure_message_label
     root = customtkinter.CTk()
     root.geometry(f"{180}x{280}")
     root.title("Login")
@@ -651,15 +666,36 @@ def login():
 
     def authentication():
         global connection, cursor
-        try:
-            username = username_entry.get()
-            password = password_entry.get()
-            host = host_entry.get()
-            connection = mysql.connector.connect(user=username, password=password, host=host)
-            cursor = connection.cursor()
-            main()
-        except mysql.connector.Error:
-            login_failure_message_label.configure(text="Login failed.", text_color="red")
+
+        username = username_entry.get().strip()
+        password = password_entry.get().strip()
+        host = host_entry.get().strip()
+        octet_regex = r"(?!.*(?:\d){4})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+        host_regex = rf"{octet_regex}\.{octet_regex}\.{octet_regex}\.{octet_regex}$"
+        username_regex = r"^[A-Za-z_.@\-]+$"
+        password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
+        if re.match(host_regex,host):
+            if re.match(username_regex,username):
+                if re.match(password_regex,password):
+                    if host_alive_check(host):
+                        try:
+                            connection = mysql.connector.connect(user=username, password=password, host=host)
+                            cursor = connection.cursor()
+                            main()
+                        except mysql.connector.Error:
+                            login_failure_message_label.configure(text="Login failed.", text_color="red")
+                            login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
+                    else:
+                        login_failure_message_label.configure(text="Host unreachable.", text_color="red")
+                        login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
+                else:
+                    login_failure_message_label.configure(text="Password input invalid.", text_color="red")
+                    login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))  
+            else:
+                login_failure_message_label.configure(text="Username input invalid.", text_color="red")
+                login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
+        else:
+            login_failure_message_label.configure(text="Host input invalid.", text_color="red")
             login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
 
     login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
