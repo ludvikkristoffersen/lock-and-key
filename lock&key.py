@@ -1,11 +1,11 @@
-#------------------------------------------------------------------------|
-# Lock&Key Password Manager                                              |
-#------------------------------------------------------------------------|
-# Version: 1.0                                                           |
-# Open-source and self-hosted                                            |
-#                                                                        |
-# created by - Ludvik Kristoffersen                                      |
-#________________________________________________________________________|
+#------------------------------------------------------------------------#
+# Lock&Key Password Manager                                              #
+#------------------------------------------------------------------------#
+# Version: 1.0                                                           #
+# Open-source and self-hosted                                            #
+#                                                                        #
+# created by - Ludvik Kristoffersen                                      #
+#________________________________________________________________________#
 
 
 #---------------------------IMPORTING MODULES-----------------------------
@@ -75,7 +75,7 @@ def mysql_server_alive_check(host, port=3306):
     except:
         return False
 
-#----------------------------HOME SCREEN-----------------------------
+#----------------------------HOME SCREEN------------------------------
 # Creating a home screen where the user should be informed of what
 # features are in the password manager, also given a short description
 # of the password manager itself.
@@ -233,7 +233,12 @@ def adding_entry():
     message_label = customtkinter.CTkLabel(right_frame, text="")
     message_label.grid(row=5, column=0, padx=20, pady=10, sticky="w")
 
-# Function for updating an entry that is stored in the database
+#----------------------------UPDATING ENTRY---------------------------
+# One of the main functions. This let's the user update a entry that is
+# already stored in the database, they can change everything or just 
+# small parts of the entry such as only the username, password, or folder.
+# The user should also be allowed to generate a random password here with
+# the same 25-255 range character limit.
 def updating_entry():
     remove_right_objects()
 
@@ -451,7 +456,10 @@ def updating_entry():
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-# Function for deleting an entry in the database
+#----------------------------DELETING ENTRY---------------------------
+# One of the main functions. This let's the user delete one or more 
+# entries stored in the database. This is not reversible so we must
+# notify the user before deleting an entry.
 def deleting_entry():
     remove_right_objects()
 
@@ -522,7 +530,11 @@ def deleting_entry():
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-# Function for listing the entries stored in the database
+#----------------------------LISTING ENTRIES--------------------------
+# One of the main functions. This let's the user list all or specified
+# entries from the database, this is also where the user can copy the 
+# password for their accounts directly. Passwords are not shown in
+# plaintext for security reasons.
 def listing_entries():
     remove_right_objects()
     global scrollable_frame
@@ -587,14 +599,20 @@ def listing_entries():
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-# Function for exiting the application and closing the database connection
+#----------------------------EXIT APPLICATION-------------------------
+# Simply let's the user exit the application.
 def exit_application():
     cursor.close()
     connection.close()
     time.sleep(1)
     quit()
 
-# The main function containing all functionality, creating the database and the table if not already created
+#-----------------------------MAIN FUNCTION---------------------------
+# The main function powers all the functions above by creating buttons
+# that call these functions when clicked. The main function also creates
+# the database and table if not already created, it also creates the 
+# ".key.txt" file which holds the users key used to encrypt and decrypt
+# passwords.
 def main():
     remove_sidebar_objects()
 
@@ -656,7 +674,12 @@ def main():
 
     home_screen()
 
-# Function to authenticate the user and logging them into the MySQL database
+#-----------------------------LOGIN FUNCTION--------------------------
+# The login function authenticates the user before being able to use
+# the password manager, it establishes a connection to the specified
+# MySQL server, and uses the MySQL credentials for authentication.
+# The login function also has a "remember me" functionality which
+# remembers the IP and username.
 def login():
     global root, login_frame, login_failure_message_label
     root = customtkinter.CTk()
@@ -755,5 +778,6 @@ def login():
 
     root.mainloop()
 
-# Running the login function at startup
+
+# RUNS THE LOGIN FUNCTION UPON RUNTIME
 login()
