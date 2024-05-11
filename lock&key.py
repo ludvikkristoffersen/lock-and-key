@@ -1,17 +1,24 @@
-"""
-Lock&Key v1.0 - Password Manager
+#------------------------------------------------------------------------|
+# Lock&Key Password Manager                                              |
+#------------------------------------------------------------------------|
+# Version: 1.0                                                           |
+# Open-source and self-hosted                                            |
+#                                                                        |
+# created by - Ludvik Kristoffersen                                      |
+#________________________________________________________________________|
 
-Lock&Key is a self managed, open-source password manager. Everything you need would 
-need to store and manage your passwords securely!
 
-Created by: Ludvik Kristoffersen
-"""
-# Importing the necessary modules, this application is built with customtkinter
-# and it uses mysql.connector to connect to the self hosted MySQL intance, and 
-# uses Fernet to encrypt and decrypt passwords. Pillow is used for the processing 
-# of images in conjunction with customtikinter. String and random are used for the
-# creation of random passwords. Time is used for adding delays between certain 
-# actions, and the os library is used to check if files exist or not.
+#---------------------------IMPORTING MODULES-----------------------------
+# 1. Cryptography for encrypting and decrypting passwords.
+# 2. Pillow for importing and handling images.
+# 3. Customtkinter for creating the application interface.
+# 4. MySQL connector for connecting and interacting with the MySQL database.
+# 5. Random for randomly selecting characters for password generating.
+# 6. String for easily getting lowercase, uppercase, and digit characters.
+# 7. Socket for testing the connection of the user supplied IP address.
+# 8. Time for creating small time delays between some actions.
+# 9. OS for mainly checking for if files exist or not.
+# 10. RE for creating regex to be used to check user input.
 from cryptography.fernet import Fernet
 from PIL import Image
 import customtkinter
@@ -23,23 +30,37 @@ import time
 import os
 import re
 
-# Setting appearance mode to dark, and setting default color scheme to blue
+#---------------------------APPEARANCE MODE-----------------------------
+# Setting the default appearance mode of the application to being dark,
+# and setting the default color theme to being dark-blue, some colors are
+# changed on certain buttons.
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
-# Opening and creating image instances 
+#--------------------------------IMAGES----------------------------------
+# Importing images from the ".images" folder, and saving these images as
+# variables to be used later in the script.
 logo_image = customtkinter.CTkImage(dark_image=Image.open(".images/L&K-text-logo.png"), size=(150,27))
 information_image = customtkinter.CTkImage(light_image=Image.open(".images/info.png"), size=(40,40))
 
+#--------------------------------REGEX-----------------------------------
+# Creating some regex's that determine what the user is allowed to type
+# in the various input fields, checks if the user has used characters that 
+# is not allowed.
 username_regex = r"^[A-Za-z0-9_.@\-]+$"
 password_regex = r"^[A-Za-z0-9!@#$%^&*]+$"
 folder_regex = r"^[A-Za-z0-9]+$"
 
-# Removing objects in the right-hand panel
+#----------------------------MINOR FUNCTIONS-----------------------------
+# 1. remove_right_objects is used to remove all objects that are currently 
+#    present on the right hand side.
+# 2. remove_sidebar_objects are used to remove the sidebar objects.
+# 3. mysql_server_alive_check is used to check if the user supplied IP
+#    address is reachable on port 3306.
 def remove_right_objects():
     for widget in right_frame.winfo_children():
         widget.destroy()
-# Removing objects in the left-hand panel
+
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
@@ -54,9 +75,10 @@ def mysql_server_alive_check(host, port=3306):
     except:
         return False
 
-# A function for creating the home screen, the home screen's main purpose
-# is to provide the user with information as to how the password manager
-# is supposed to be used.
+#----------------------------HOME SCREEN-----------------------------
+# Creating a home screen where the user should be informed of what
+# features are in the password manager, also given a short description
+# of the password manager itself.
 def home_screen():
     remove_right_objects()
     information_image_label = customtkinter.CTkLabel(right_frame, text="", image=information_image)
@@ -80,10 +102,11 @@ def home_screen():
 • Easily list all or specified entries, and safely copy passwords.""")
     usage_text.configure(state="disabled")
 
-# Function for adding new user account entries, the user can add
-# their username for their respective accounts, then input a password
-# they choose, or they could randomly generate a password of 25-255 characters.
-# The user can also choose a folder for the account to be placed inside of.
+#----------------------------ADDING ENTRY-----------------------------
+# One of the main functions. This let's the user add a new account entry
+# to the database, they can choose to generate a random password in the
+# 25-255 character limit, and they can also choose to save this account
+# in a group by specifying a folder name.
 def adding_entry():
     remove_right_objects()
 
