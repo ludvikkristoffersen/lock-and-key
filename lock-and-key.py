@@ -19,13 +19,17 @@
 # 8. Time for creating small time delays between some actions.
 # 9. OS for mainly checking for if files exist or not.
 # 10. RE for creating regex to be used to check user input.
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from PIL import Image
-import customtkinter
 import mysql.connector
+import customtkinter
 import random
 import string
 import socket
+import base64
 import time
 import os
 import re
@@ -75,6 +79,17 @@ def mysql_server_alive_check(host, port=3306):
     except:
         return False
 
+def key_derivation_function(master_password, salt):
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=480000
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
+    return key
+
+
 #----------------------------HOME SCREEN------------------------------
 # Creating a home screen where the user should be informed of what
 # features are in the password manager, also given a short description
@@ -88,7 +103,7 @@ def home_screen():
 
     description_text = customtkinter.CTkTextbox(right_frame, width=582, height=50, fg_color="transparent")
     description_text.grid(row=1, column=0, padx=12, pady=10, sticky="w")
-    description_text.insert("end", "Lock&Key is a self managed, open-source password manager. Everything you need would need to store and manage your passwords securely!")
+    description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. Everything you need to store and manage your passwords securely!")
     description_text.configure(state="disabled")
 
     usecase_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -617,29 +632,20 @@ def main():
     remove_sidebar_objects()
 
     global right_frame, sidebar_frame, cipher_instance
-    cursor.execute("CREATE DATABASE IF NOT EXISTS passwordmanager")
-    cursor.execute("USE passwordmanager")
-    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
-    connection.commit()
 
-    if os.path.isfile(".key.txt"):
-        with open(".key.txt", "r") as file:
-            key = file.readline().strip()
-            file.close()
-        encoded_key = key.encode()
-        cipher_instance = Fernet(encoded_key)
+    cursor.execute("SELECT salt FROM user")
+    retrieved_salt = cursor.fetchone()
+
+    if retrieved_salt is not None:
+        salt = bytes.fromhex(retrieved_salt[0])
     else:
-        with open(".key.txt", "x") as file:
-            file.close()
-        genKey = Fernet.generate_key()
-        decode_key = genKey.decode()
-        with open(".key.txt", "w+") as file:
-            file.write(decode_key)
-            file.seek(0)
-            key = file.readline().strip()
-            file.close()
-        encoded_key = key.encode()
-        cipher_instance = Fernet(encoded_key)
+        salt = os.urandom(16)
+        store_salt = salt.hex()
+        cursor.execute(f"INSERT INTO user (salt) VALUES ('{store_salt}')")
+        connection.commit()
+    
+    key = key_derivation_function(master_password,salt)
+    cipher_instance = Fernet(key)
 
     root.geometry(f"{800}x{400}")
     root.title("Lock&Key V1.0")
@@ -673,6 +679,22 @@ def main():
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
 
     home_screen()
+
+def creating_db():
+    remove_sidebar_objects()
+    root.geometry(f"{180}x{200}")
+    root.title("Creating Database")
+    root.resizable(False, False)
+
+    creating_db_label = customtkinter.CTkLabel(login_frame, text="Creating Database")
+    creating_db_label.grid(row=2, column=0, padx=20, pady=(10,10), sticky="w")
+
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS passwordmanager_{username}")
+    cursor.execute(f"USE passwordmanager_{username}")
+    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
+    cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, salt VARCHAR(50) NOT NULL)")
+    connection.commit()
+    main()
 
 #-----------------------------LOGIN FUNCTION--------------------------
 # The login function authenticates the user before being able to use
@@ -737,10 +759,10 @@ def login():
         pass
 
     def authentication():
-        global connection, cursor
+        global connection, cursor, username, master_password
 
         username = username_entry.get().strip()
-        password = password_entry.get().strip()
+        master_password = password_entry.get().strip()
         host = host_entry.get().strip()
         octet_regex = r"(?!.*(?:\d){4})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
         host_regex = rf"{octet_regex}\.{octet_regex}\.{octet_regex}\.{octet_regex}$"
@@ -748,12 +770,12 @@ def login():
         password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
         if re.match(host_regex,host):
             if re.match(username_regex,username):
-                if re.match(password_regex,password):
+                if re.match(password_regex,master_password):
                     if mysql_server_alive_check(host):
                         try:
-                            connection = mysql.connector.connect(user=username, password=password, host=host)
+                            connection = mysql.connector.connect(user=username, password=master_password, host=host)
                             cursor = connection.cursor()
-                            main()
+                            creating_db()
                         except mysql.connector.Error:
                             login_failure_message_label.configure(text="Login failed.", text_color="red")
                             login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
