@@ -16,11 +16,11 @@
 # 5. Random for randomly selecting characters for password generating.
 # 6. String for easily getting lowercase, uppercase, and digit characters.
 # 7. Socket for testing the connection of the user supplied IP address.
-# 8. Time for creating small time delays between some actions.
-# 9. OS for mainly checking for if files exist or not.
-# 10. RE for creating regex to be used to check user input.
+# 8. Base64 for encoding the encryption/decryption key into base64
+# 9. Time for creating small time delays between some actions.
+# 10. OS for mainly checking for if files exist or not.
+# 11. RE for creating regex to be used to check user input.
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from PIL import Image
@@ -79,6 +79,9 @@ def mysql_server_alive_check(host, port=3306):
     except:
         return False
 
+#-----------------------------KDF--------------------------
+# Used to create a encryption/decryption key from combining
+# the master password with a salt created on first runtime
 def key_derivation_function(master_password, salt):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -88,7 +91,6 @@ def key_derivation_function(master_password, salt):
     )
     key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
     return key
-
 
 #----------------------------HOME SCREEN------------------------------
 # Creating a home screen where the user should be informed of what
@@ -188,7 +190,7 @@ def adding_entry():
                                     folder_entry.delete(0, 'end')
                                     right_frame.after(2000, lambda: message_label.configure(text=""))
                                 else:
-                                    message_label.configure(text="Folder not valid.", text_color="red")
+                                    message_label.configure(text="Folder invalid.", text_color="red")
                                     right_frame.after(2000, lambda: message_label.configure(text=""))
                             else:
                                 cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
@@ -199,13 +201,13 @@ def adding_entry():
                                 folder_entry.delete(0, 'end')
                                 right_frame.after(2000, lambda: message_label.configure(text=""))
                         else:
-                            message_label.configure(text="Password not valid.", text_color="red")
+                            message_label.configure(text="Password invalid.", text_color="red")
                             right_frame.after(2000, lambda: message_label.configure(text=""))
                     else:
                         message_label.configure(text="Password cannot be empty.", text_color="red")
                         right_frame.after(2000, lambda: message_label.configure(text=""))
                 else:
-                    message_label.configure(text="Username not valid.", text_color="red")
+                    message_label.configure(text="Username invalid.", text_color="red")
                     right_frame.after(2000, lambda: message_label.configure(text=""))
             else:
                 message_label.configure(text="Username cannot be empty.", text_color="red")
@@ -624,10 +626,7 @@ def exit_application():
 
 #-----------------------------MAIN FUNCTION---------------------------
 # The main function powers all the functions above by creating buttons
-# that call these functions when clicked. The main function also creates
-# the database and table if not already created, it also creates the 
-# ".key.txt" file which holds the users key used to encrypt and decrypt
-# passwords.
+# that call these functions when clicked.
 def main():
     remove_sidebar_objects()
 
@@ -680,6 +679,8 @@ def main():
 
     home_screen()
 
+#-----------------------------DATABASE CREATION--------------------------
+# Creates the database for the user and tables if not already cerated.
 def creating_db():
     remove_sidebar_objects()
     root.geometry(f"{180}x{200}")
@@ -783,13 +784,13 @@ def login():
                         login_failure_message_label.configure(text="Host unreachable.", text_color="red")
                         login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
                 else:
-                    login_failure_message_label.configure(text="Password input invalid.", text_color="red")
+                    login_failure_message_label.configure(text="Password invalid.", text_color="red")
                     login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))  
             else:
-                login_failure_message_label.configure(text="Username input invalid.", text_color="red")
+                login_failure_message_label.configure(text="Username invalid.", text_color="red")
                 login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
         else:
-            login_failure_message_label.configure(text="Host input invalid.", text_color="red")
+            login_failure_message_label.configure(text="Host invalid.", text_color="red")
             login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
 
     login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
