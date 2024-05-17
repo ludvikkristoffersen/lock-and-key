@@ -24,14 +24,16 @@ Clone repository (requires git to be installed):
 ```
 git clone https://github.com/ludvikkristoffersen/lock-and-key
 ```
-Change directory to the 'lock-and-key' directory:
+Change the directory to the 'lock-and-key' directory:
 ```
 cd lock-and-key
 ```
 Install the required libraries:
 ```
 pip install -r requirements.txt
-
+```
+Install and fix the Pillow library:
+```
 pip install --upgrade --force-reinstall Pillow
 ```
 ## Usage
