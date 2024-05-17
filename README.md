@@ -1,5 +1,5 @@
 
-![Lock&Key](https://dl.dropboxusercontent.com/scl/fi/jdyghth5c1cdgnnh2tm36/Lock-Key-SMALL.logo.png?rlkey=xqfjbgbwkl27dmaumff5hxpnj&st=7d0y7ul9&dl=0)
+![Lock&Key](https://dl.dropboxusercontent.com/scl/fi/nnoz9p4gqw4o3e2378mhh/lock-key-grey-everything.png?rlkey=i3d5zn73yh725lingwgsomzxb&st=qjrjtfgf&dl=0)
 
 - Created by: [@ludvikkristoffersen](https://github.com/ludvikkristoffersen)
 - Requires Python3 and MySQL server
