@@ -113,7 +113,7 @@ def home_screen():
 
     usage_text = customtkinter.CTkTextbox(right_frame, width=582, height=160, fg_color="transparent")
     usage_text.grid(row=3, column=0, padx=12, pady=5, sticky="w")
-    usage_text.insert("end", """• Add new entries for any account you have. Generate strong random passwords to prevent    weak passwords.\n
+    usage_text.insert("end", """• Add new entries for any account you have. Generate strong random passwords to prevent weak passwords.\n
 • Update entries to change their details such as new username, password, and folder.\n
 • Manage your entries by deleting those you no longer user.\n
 • Easily list all or specified entries, and safely copy passwords.""")
@@ -690,8 +690,8 @@ def creating_db():
     creating_db_label = customtkinter.CTkLabel(login_frame, text="Creating Database")
     creating_db_label.grid(row=2, column=0, padx=20, pady=(10,10), sticky="w")
 
-    cursor.execute(f"CREATE DATABASE IF NOT EXISTS passwordmanager_{username}")
-    cursor.execute(f"USE passwordmanager_{username}")
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS lockandkey_{username}")
+    cursor.execute(f"USE lockandkey_{username}")
     cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
     cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, salt VARCHAR(50) NOT NULL)")
     connection.commit()
