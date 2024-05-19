@@ -131,7 +131,7 @@ def adding_entry():
 
     username_label = customtkinter.CTkLabel(right_frame, text="Username:", text_color="#DAD9FC")
     username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
-    username_entry = customtkinter.CTkEntry(right_frame, fg_color="#0B0B12", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    username_entry = customtkinter.CTkEntry(right_frame, fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
     username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="w")
 
     def toggle_password_show():
@@ -142,10 +142,10 @@ def adding_entry():
     
     password_label = customtkinter.CTkLabel(right_frame, text="Password:", text_color="#DAD9FC")
     password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
-    password_entry = customtkinter.CTkEntry(right_frame, show="*", fg_color="#0B0B12", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    password_entry = customtkinter.CTkEntry(right_frame, show="*", fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
     password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="w")
 
-    password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show, fg_color="#0B0B12", hover_color="#141425", text_color="#DAD9FC", border_color="#DAD9FC")
+    password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC", border_color="#30303f")
     password_show.grid(row=2, column=1, pady=10, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -160,9 +160,9 @@ def adding_entry():
 
     folder_label = customtkinter.CTkLabel(right_frame, text="Folder:", text_color="#DAD9FC")
     folder_label.grid(row=3, column=0, padx=20, pady=10, sticky="w")
-    folder_entry = customtkinter.CTkEntry(right_frame, fg_color="#0B0B12", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    folder_entry = customtkinter.CTkEntry(right_frame, fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
     folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="w")
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list, fg_color="#0B0B12", text_color="#DAD9FC", button_color="#141425", button_hover_color="#1E1E33")
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list, fg_color="#262639", text_color="#DAD9FC", button_color="#262639", button_hover_color="#30303f", dropdown_fg_color="#262639", dropdown_text_color="#DAD9FC", dropdown_hover_color="#30303f")
     folder_menu.grid(row=3, column=1, pady=10)
 
     def add_database_entry():
@@ -173,25 +173,30 @@ def adding_entry():
             folder_select = folder_menu.get()
             
             if len(username) > 0 and len(password) > 0:
+                message_label.configure(text="")
                 if re.match(username_regex,username):
+                    message_label.configure(text="")
                     if re.match(password_regex,password):
+                        message_label.configure(text="")
                         encode_password = password.encode()
                         encrypt_password = cipher_instance.encrypt(encode_password)
                         decoded_encrypted_password = encrypt_password.decode()
                         if len(folder) > 0:
+                            message_label.configure(text="")
                             if re.match(folder_regex,folder):
                                 cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                                 connection.commit()
-                                message_label.configure(text="New entry added!", text_color="#3a3dfd")
+                                message_label.configure(text="New entry added.", text_color="#3a3dfd")
                                 username_entry.delete(0, 'end')
                                 password_entry.delete(0, 'end')
                                 folder_entry.delete(0, 'end')
                             else:
                                 message_label.configure(text="Folder invalid.", text_color="#D81E5B")
                         else:
+                            message_label.configure(text="")
                             cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                             connection.commit()
-                            message_label.configure(text="New entry added!", text_color="#3a3dfd")
+                            message_label.configure(text="New entry added.", text_color="#3a3dfd")
                             username_entry.delete(0, 'end')
                             password_entry.delete(0, 'end')
                             folder_entry.delete(0, 'end')
@@ -200,23 +205,22 @@ def adding_entry():
                 else:
                     message_label.configure(text="Username invalid.", text_color="#D81E5B")
             else:
-                message_label.configure(text="Username and password cannot be empty.", text_color="#D81E5B")
+                message_label.configure(text="Username or password cannot be empty.", text_color="#D81E5B")
         except mysql.connector.Error:
-            message_label.configure(text="Failed to add new entry!", text_color="#D81E5B")
+            message_label.configure(text="Failed to add new entry.", text_color="#D81E5B")
 
-    add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry, fg_color="#0B0B12", hover_color="#141425", text_color="#DAD9FC")
+    add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC")
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
     
     def generate_random_password():
         try:
             password_length = int(password_char_length.get())
             if password_length < 25:
-                message_label.configure(text="Character length to short!", text_color="#D81E5B")
-                right_frame.after(2000, lambda: message_label.configure(text=""))
+                message_label.configure(text="Password character length to short.", text_color="#D81E5B")
             elif password_length > 255:
-                message_label.configure(text="Character length to long!", text_color="#D81E5B")
-                right_frame.after(2000, lambda: message_label.configure(text=""))
+                message_label.configure(text="Password character length to long.", text_color="#D81E5B")
             else:
+                message_label.configure(text="")
                 password_entry.delete(0, "end")
                 letters = [char for char in string.ascii_letters]
                 digits = [char for char in string.digits]
@@ -225,14 +229,13 @@ def adding_entry():
                 random_password = "".join(random.choices(combined_char_list, k=password_length))
                 password_entry.insert(0, random_password)
         except:
-            message_label.configure(text="Character length not valid!", text_color="#D81E5B")
-            right_frame.after(2000, lambda: message_label.configure(text=""))
+            message_label.configure(text="Password character length not valid.", text_color="#D81E5B")
     
-    password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center", fg_color="#0B0B12", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center", fg_color="#262639", text_color="#DAD9FC", border_color="#30303f", placeholder_text_color="#8887A4")
     password_char_length.grid(row=4, column=2, padx=10, pady=10, sticky="w")
     password_char_length.insert(0, "50")
 
-    generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password, fg_color="#0B0B12", hover_color="#141425", text_color="#DAD9FC")
+    generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC")
     generate_password_button.grid(row=4, column=1, pady=10, sticky="w")
 
     message_label = customtkinter.CTkLabel(right_frame, text="")
@@ -661,7 +664,7 @@ def main():
     button_exit_application = customtkinter.CTkButton(sidebar_frame, text="", image=exit_image, command=exit_application, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, width=30, height=30)
     button_exit_application.grid(row=6, column=0, padx=70, pady=10, sticky="w")
 
-    right_frame = customtkinter.CTkFrame(root, corner_radius=0, bg_color="#151522", fg_color="#151522")
+    right_frame = customtkinter.CTkFrame(root, corner_radius=0, bg_color="#11111c", fg_color="#11111c")
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
 
     home_screen()
@@ -717,10 +720,6 @@ def login():
             else:
                 with open(".remember_me.txt", "x") as file:
                     file.close()
-                with open(".remember_me.txt", "a") as file:
-                    file.write(host_entry.get() + "\n")
-                    file.write(username_entry.get())
-                    file.close()
         else:
             if os.path.isfile(".remember_me.txt"):
                 os.remove(".remember_me.txt")
@@ -731,10 +730,14 @@ def login():
     if os.path.isfile(".remember_me.txt"):
         with open(".remember_me.txt", "r") as file:
             line = file.readlines()
+        if len(line) > 0:
             remember_me_check.select()
             stripped_line = line[0].strip()
             host_entry.insert("end", stripped_line)
             username_entry.insert("end", line[1])
+        else:
+            remember_me_check.deselect()
+            os.remove(".remember_me.txt")
     else:
         pass
 
@@ -749,28 +752,31 @@ def login():
         username_regex = r"^[A-Za-z_.@\-]+$"
         password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
         if re.match(host_regex,host):
+            login_failure_message_label.configure(text="")
             if re.match(username_regex,username):
+                login_failure_message_label.configure(text="")
                 if re.match(password_regex,master_password):
+                    login_failure_message_label.configure(text="")
                     if mysql_server_alive_check(host):
+                        login_failure_message_label.configure(text="")
                         try:
+                            with open(".remember_me.txt", "a") as file:
+                                file.write(host_entry.get() + "\n")
+                                file.write(username_entry.get())
+                                file.close()
                             connection = mysql.connector.connect(user=username, password=master_password, host=host)
                             cursor = connection.cursor()
                             creating_db()
                         except mysql.connector.Error:
                             login_failure_message_label.configure(text="Login failed.", text_color="#D81E5B")
-                            login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
                     else:
                         login_failure_message_label.configure(text="Host unreachable.", text_color="#D81E5B")
-                        login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
                 else:
-                    login_failure_message_label.configure(text="Password invalid.", text_color="#D81E5B")
-                    login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))  
+                    login_failure_message_label.configure(text="Password invalid.", text_color="#D81E5B") 
             else:
                 login_failure_message_label.configure(text="Username invalid.", text_color="#D81E5B")
-                login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
         else:
             login_failure_message_label.configure(text="Host invalid.", text_color="#D81E5B")
-            login_frame.after(2000, lambda: login_failure_message_label.configure(text=""))
 
     login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC")
     login_button.grid(row=5, column=0, padx=20, pady=(10,5), sticky="w")
