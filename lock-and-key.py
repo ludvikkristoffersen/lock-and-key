@@ -38,15 +38,22 @@ import re
 # Setting the default appearance mode of the application to being dark,
 # and setting the default color theme to being dark-blue, some colors are
 # changed on certain buttons.
-#customtkinter.set_appearance_mode("dark")
-#customtkinter.set_default_color_theme("dark-blue")
-
+customtkinter.set_appearance_mode("dark")
+appearance_mode = "light"
+customtkinter.set_default_color_theme(".app-theme.json")
+error_color = "#D81E5B"
+succeed_color = "#3A3DFD"
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
 # variables to be used later in the script.
-logo_image = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-logo.png"), size=(150,36))
-information_image = customtkinter.CTkImage(light_image=Image.open(".images/info-button.png"), size=(24,24))
-exit_image = customtkinter.CTkImage(light_image=Image.open(".images/exit-button.png"), size=(24,24))
+logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-darkmode.png"), size=(150,36))
+logo_image_light = customtkinter.CTkImage(light_image=Image.open(".images/lock-and-key-lightmode.png"), size=(150,36))
+information_image_light = customtkinter.CTkImage(light_image=Image.open(".images/info-button-lightmode.png"), size=(24,24))
+information_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/info-button-darkmode.png"), size=(24,24))
+dark_mode_image = customtkinter.CTkImage(light_image=Image.open(".images/light-mode.png"), size=(24,24))
+light_mode_image = customtkinter.CTkImage(dark_image=Image.open(".images/dark-mode.png"), size=(24,24))
+exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-button-lightmode.png"), size=(24,24))
+exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
 
 #--------------------------------REGEX-----------------------------------
 # Creating some regex's that determine what the user is allowed to type
@@ -55,6 +62,27 @@ exit_image = customtkinter.CTkImage(light_image=Image.open(".images/exit-button.
 username_regex = r"^[A-Za-z0-9_.@\-]+$"
 password_regex = r"^[A-Za-z0-9!@#$%^&*]+$"
 folder_regex = r"^[A-Za-z0-9]+$"
+
+#--------------------------------CHANGING COLOR-----------------------------------
+# User can change the appearance mode from dark to light mode and vice versa.
+def change_appearance_mode():
+    global appearance_mode
+    if appearance_mode == "dark":
+        appearance_mode = "light"
+        button_change_appearance.configure(image=light_mode_image)
+        button_home.configure(image=information_image_light)
+        button_exit_application.configure(image=exit_image_light)
+        logo_label.configure(image=logo_image_light)
+        customtkinter.set_appearance_mode("light")
+        right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
+    else:
+        appearance_mode = "dark"
+        button_change_appearance.configure(image=dark_mode_image)
+        button_home.configure(image=information_image_dark)
+        button_exit_application.configure(image=exit_image_dark)
+        logo_label.configure(image=logo_image_dark)
+        customtkinter.set_appearance_mode("dark")
+        right_frame.configure(fg_color="#11111C", bg_color="#11111C")
 
 #----------------------------MINOR FUNCTIONS-----------------------------
 # 1. remove_right_objects is used to remove all objects that are currently 
@@ -99,18 +127,18 @@ def key_derivation_function(master_password, salt):
 # of the password manager itself.
 def home_screen():
     remove_right_objects()
-    information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"), text_color="#DAD9FC")
+    information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"))
     information_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
 
-    description_text = customtkinter.CTkTextbox(right_frame, width=582, height=50, fg_color="transparent", text_color="#DAD9FC")
+    description_text = customtkinter.CTkTextbox(right_frame, width=575, height=50, font=customtkinter.CTkFont(size=13))
     description_text.grid(row=1, column=0, padx=12, pady=(10,20), sticky="w")
     description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. Everything you need to store and manage your passwords securely!")
     description_text.configure(state="disabled")
 
-    usecase_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"), text_color="#DAD9FC")
+    usecase_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
     usecase_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
 
-    usage_text = customtkinter.CTkTextbox(right_frame, width=582, height=160, fg_color="transparent", text_color="#DAD9FC")
+    usage_text = customtkinter.CTkTextbox(right_frame, width=575, height=160, font=customtkinter.CTkFont(size=13))
     usage_text.grid(row=3, column=0, padx=12, pady=5, sticky="w")
     usage_text.insert("end", """• Add new entries for any account you have. Generate strong random passwords to prevent weak passwords.\n
 • Update entries to change their details such as new username, password, and folder.\n
@@ -126,12 +154,12 @@ def home_screen():
 def adding_entry():
     remove_right_objects()
 
-    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(weight="bold"), text_color="#DAD9FC")
+    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(weight="bold"))
     add_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
-    username_label = customtkinter.CTkLabel(right_frame, text="Username:", text_color="#DAD9FC")
+    username_label = customtkinter.CTkLabel(right_frame, text="Username:")
     username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
-    username_entry = customtkinter.CTkEntry(right_frame, fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
+    username_entry = customtkinter.CTkEntry(right_frame)
     username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="w")
 
     def toggle_password_show():
@@ -140,12 +168,12 @@ def adding_entry():
         else:
             password_entry.configure(show="*")
     
-    password_label = customtkinter.CTkLabel(right_frame, text="Password:", text_color="#DAD9FC")
+    password_label = customtkinter.CTkLabel(right_frame, text="Password:")
     password_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
-    password_entry = customtkinter.CTkEntry(right_frame, show="*", fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
+    password_entry = customtkinter.CTkEntry(right_frame, show="*")
     password_entry.grid(row=2, column=0, padx=100, pady=10, sticky="w")
 
-    password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC", border_color="#30303f")
+    password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
     password_show.grid(row=2, column=1, pady=10, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -158,11 +186,11 @@ def adding_entry():
     else:
         pass
 
-    folder_label = customtkinter.CTkLabel(right_frame, text="Folder:", text_color="#DAD9FC")
+    folder_label = customtkinter.CTkLabel(right_frame, text="Folder:")
     folder_label.grid(row=3, column=0, padx=20, pady=10, sticky="w")
-    folder_entry = customtkinter.CTkEntry(right_frame, fg_color="#262639", text_color="#DAD9FC", border_color="#30303f")
+    folder_entry = customtkinter.CTkEntry(right_frame)
     folder_entry.grid(row=3, column=0, padx=100, pady=10, sticky="w")
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list, fg_color="#262639", text_color="#DAD9FC", button_color="#262639", button_hover_color="#30303f", dropdown_fg_color="#262639", dropdown_text_color="#DAD9FC", dropdown_hover_color="#30303f")
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
     folder_menu.grid(row=3, column=1, pady=10)
 
     def add_database_entry():
@@ -186,39 +214,39 @@ def adding_entry():
                             if re.match(folder_regex,folder):
                                 cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
                                 connection.commit()
-                                message_label.configure(text="New entry added.", text_color="#3a3dfd")
+                                message_label.configure(text="New entry added.", text_color=succeed_color)
                                 username_entry.delete(0, 'end')
                                 password_entry.delete(0, 'end')
                                 folder_entry.delete(0, 'end')
                             else:
-                                message_label.configure(text="Folder invalid.", text_color="#D81E5B")
+                                message_label.configure(text="Folder invalid.", text_color=error_color)
                         else:
                             message_label.configure(text="")
                             cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
                             connection.commit()
-                            message_label.configure(text="New entry added.", text_color="#3a3dfd")
+                            message_label.configure(text="New entry added.", text_color=succeed_color)
                             username_entry.delete(0, 'end')
                             password_entry.delete(0, 'end')
                             folder_entry.delete(0, 'end')
                     else:
-                        message_label.configure(text="Password invalid.", text_color="#D81E5B")
+                        message_label.configure(text="Password invalid.", text_color=error_color)
                 else:
-                    message_label.configure(text="Username invalid.", text_color="#D81E5B")
+                    message_label.configure(text="Username invalid.", text_color=error_color)
             else:
-                message_label.configure(text="Username or password cannot be empty.", text_color="#D81E5B")
+                message_label.configure(text="Username or password cannot be empty.", text_color=error_color)
         except mysql.connector.Error:
-            message_label.configure(text="Failed to add new entry.", text_color="#D81E5B")
+            message_label.configure(text="Failed to add new entry.", text_color=error_color)
 
-    add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC")
+    add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=4, column=0, padx=20, pady=10, sticky="w")
     
     def generate_random_password():
         try:
             password_length = int(password_char_length.get())
             if password_length < 25:
-                message_label.configure(text="Password character length to short.", text_color="#D81E5B")
+                message_label.configure(text="Password character length to short.", text_color=error_color)
             elif password_length > 255:
-                message_label.configure(text="Password character length to long.", text_color="#D81E5B")
+                message_label.configure(text="Password character length to long.", text_color=error_color)
             else:
                 message_label.configure(text="")
                 password_entry.delete(0, "end")
@@ -229,13 +257,13 @@ def adding_entry():
                 random_password = "".join(random.choices(combined_char_list, k=password_length))
                 password_entry.insert(0, random_password)
         except:
-            message_label.configure(text="Password character length not valid.", text_color="#D81E5B")
+            message_label.configure(text="Password character length not valid.", text_color=error_color)
     
-    password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center", fg_color="#262639", text_color="#DAD9FC", border_color="#30303f", placeholder_text_color="#8887A4")
+    password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center")
     password_char_length.grid(row=4, column=2, padx=10, pady=10, sticky="w")
     password_char_length.insert(0, "50")
 
-    generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password, fg_color="#262639", hover_color="#30303f", text_color="#DAD9FC")
+    generate_password_button = customtkinter.CTkButton(right_frame, text="Generate Password", command=generate_random_password)
     generate_password_button.grid(row=4, column=1, pady=10, sticky="w")
 
     message_label = customtkinter.CTkLabel(right_frame, text="")
@@ -279,9 +307,9 @@ def updating_entry():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
@@ -302,7 +330,7 @@ def updating_entry():
     def updating_entry_button(row_id, username, folder):
         remove_right_objects()
     
-        update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry")
+        update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry", font=customtkinter.CTkFont(weight="bold"))
         update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
     
         username_label = customtkinter.CTkLabel(right_frame, text="Username:")
@@ -329,11 +357,9 @@ def updating_entry():
             try:
                 password_length = int(password_char_length.get())
                 if password_length < 25:
-                    message_label.configure(text="Character length to short.", text_color="red")
-                    right_frame.after(2000, lambda: message_label.configure(text=""))
+                    message_label.configure(text="Password character length to short.", text_color=error_color)
                 elif password_length > 255:
-                    message_label.configure(text="Character length to long.", text_color="red")
-                    right_frame.after(2000, lambda: message_label.configure(text=""))
+                    message_label.configure(text="Password character length to long.", text_color=error_color)
                 else:
                     password_entry.delete(0, "end")
                     letters = [char for char in string.ascii_letters]
@@ -343,8 +369,7 @@ def updating_entry():
                     random_password = "".join(random.choices(combined_char_list, k=password_length))
                     password_entry.insert(0, random_password)
             except:
-                message_label.configure(text="Character length not valid.", text_color="red")
-                right_frame.after(2000, lambda: message_label.configure(text=""))
+                message_label.configure(text="Password character length not valid.", text_color=error_color)
     
         password_char_length = customtkinter.CTkEntry(right_frame, placeholder_text="25-255", width=60, justify="center")
         password_char_length.grid(row=4, column=2, padx=10, pady=10, sticky="w")
@@ -380,9 +405,13 @@ def updating_entry():
             new_folder = folder_entry.get().strip()
 
             if len(new_username) > 0:
+                message_label.configure(text="")
                 if re.match(username_regex,new_username):
+                    message_label.configure(text="")
                     if len(password) == 0 or re.match(password_regex,password):
+                        message_label.configure(text="")
                         if len(new_folder) == 0 or re.match(folder_regex,new_folder):
+                            message_label.configure(text="")
                             if len(password) != 0:
                                 encode_password = password.encode()
                                 encrypt_password = cipher_instance.encrypt(encode_password)
@@ -437,20 +466,15 @@ def updating_entry():
                                     connection.commit()
                                     updating_entry()
                             else:
-                                message_label.configure(text="Nothing has been changed!", text_color="red")
-                                right_frame.after(2000, lambda: message_label.configure(text=""))
+                                message_label.configure(text="Nothing has been changed!", text_color=error_color)
                         else:
-                            message_label.configure(text="Folder invalid.", text_color="red")
-                            right_frame.after(2000, lambda: message_label.configure(text=""))  
+                            message_label.configure(text="Folder invalid.", text_color=error_color) 
                     else:
-                        message_label.configure(text="Password invalid.", text_color="red")
-                        right_frame.after(2000, lambda: message_label.configure(text=""))
+                        message_label.configure(text="Password invalid.", text_color=error_color)
                 else:
-                    message_label.configure(text="Username invalid.", text_color="red")
-                    right_frame.after(2000, lambda: message_label.configure(text=""))
+                    message_label.configure(text="Username invalid.", text_color=error_color)
             else:
-                message_label.configure(text="Username cannot be empty.", text_color="red")
-                right_frame.after(2000, lambda: message_label.configure(text=""))
+                message_label.configure(text="Username cannot be empty.", text_color=error_color)
 
         def cancel_update():
             remove_right_objects()
@@ -460,6 +484,7 @@ def updating_entry():
         cancel_update_button = customtkinter.CTkButton(right_frame, text="Cancel", command=cancel_update, width=50)
         cancel_update_button.grid(row=4, column=0, padx=90, pady=10, sticky="w")
     updating_list()
+
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
@@ -490,7 +515,7 @@ def deleting_entry():
     # Function for deleting a entry in the main deleting function
     def delete_entry_button(row_id):
         remove_right_objects()
-        delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry")
+        delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(weight="bold"))
         delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
         warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
         warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
@@ -499,7 +524,7 @@ def deleting_entry():
             cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
             connection.commit()
             deleting_entry()
-        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color="#B30000", hover_color="#800000")
+        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50)
         confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
         regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
         regret_deletion_button.grid(row=2, column=0, padx=90, pady=5, sticky="w")
@@ -516,9 +541,9 @@ def deleting_entry():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
@@ -529,11 +554,12 @@ def deleting_entry():
 
             row_id = entry[0]
 
-            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete", fg_color="#B30000", hover_color="#800000")
+            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete")
             remove_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
             remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
             entry_id += 1
     updating_list()
+
     update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
@@ -566,8 +592,8 @@ def listing_entries():
     def copy_to_clipboard(password, button):
         root.clipboard_clear()
         root.clipboard_append(password)
-        button.configure(text="Copied!", fg_color="#4374AB", hover_color="#4374AB")
-        scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#1F538D", hover_color="#14375E"))
+        button.configure(text="Copied!")
+        scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass"))
 
     def updating_list():
         if folder_menu.get() == "All":
@@ -581,22 +607,22 @@ def listing_entries():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
-            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"), text_color="#72ACEC")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"))
             title_password_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+
             password = entry[1]
             encode_password = password.encode()
             decrypted_password = cipher_instance.decrypt(encode_password)
-
-            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
 
             copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
             copy_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
@@ -619,8 +645,7 @@ def exit_application():
 # that call these functions when clicked.
 def main():
     remove_sidebar_objects()
-
-    global right_frame, sidebar_frame, cipher_instance
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label
 
     cursor.execute("SELECT salt FROM user")
     retrieved_salt = cursor.fetchone()
@@ -639,34 +664,37 @@ def main():
     root.geometry(f"{800}x{400}")
     root.title("Lock&Key - Password Manager")
 
-    sidebar_frame = customtkinter.CTkFrame(root, width=300, corner_radius=0, bg_color="#0B0B12", fg_color="#0B0B12")
+    sidebar_frame = customtkinter.CTkFrame(root, width=300)
     sidebar_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     sidebar_frame.grid_rowconfigure(6, weight=1)
 
-    logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image)
+    logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image_dark)
     logo_label.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="w")
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, font=customtkinter.CTkFont(weight="bold"))
     button_adding_entry.grid(row=1, column=0, padx=20, pady=10, sticky="w")
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, font=customtkinter.CTkFont(weight="bold"))
     button_updating_entry.grid(row=2, column=0, padx=20, pady=10, sticky="w")
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, font=customtkinter.CTkFont(weight="bold"))
     button_deleting_entry.grid(row=3, column=0, padx=20, pady=10, sticky="w")
 
-    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5)
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, font=customtkinter.CTkFont(weight="bold"))
     button_listing_entries.grid(row=4, column=0, padx=20, pady=10, sticky="w")
 
-    button_home = customtkinter.CTkButton(sidebar_frame, text="", image=information_image, command=home_screen, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, width=30, height=30)
-    button_home.grid(row=6, column=0, padx=20, pady=10, sticky="w")
+    button_home = customtkinter.CTkButton(sidebar_frame, text="", image=information_image_dark, command=home_screen, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
+    button_home.grid(row=6, column=0, padx=(20,0), pady=10, sticky="w")
 
-    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="", image=exit_image, command=exit_application, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", font=customtkinter.CTkFont(weight="bold"), corner_radius=5, width=30, height=30)
-    button_exit_application.grid(row=6, column=0, padx=70, pady=10, sticky="w")
+    button_change_appearance = customtkinter.CTkButton(sidebar_frame, text="", image=dark_mode_image, command=change_appearance_mode, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
+    button_change_appearance.grid(row=6, column=0, padx=(70,0), pady=10, sticky="w")
 
-    right_frame = customtkinter.CTkFrame(root, corner_radius=0, bg_color="#11111c", fg_color="#11111c")
+    button_exit_application = customtkinter.CTkButton(sidebar_frame, text="", image=exit_image_dark, command=exit_application, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
+    button_exit_application.grid(row=6, column=0, padx=(120,0), pady=10, sticky="w")
+
+    right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
-
+    change_appearance_mode()
     home_screen()
 
 #-----------------------------DATABASE CREATION--------------------------
@@ -696,21 +724,21 @@ def login():
     root.grid_columnconfigure((2, 3), weight=0)
     root.grid_rowconfigure((0, 1, 2), weight=1)
 
-    login_frame = customtkinter.CTkFrame(root, bg_color="#0B0B12", fg_color="#0B0B12")
+    login_frame = customtkinter.CTkFrame(root)
     login_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
     login_frame.grid_rowconfigure(6, weight=1)
 
 
-    main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"), text_color="#DAD9FC")
+    main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
     main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
 
-    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP", fg_color="#1B1B2A", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP")
     host_entry.grid(row=1, column=0, padx=20, pady=5, sticky="ew")
 
-    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username", fg_color="#1B1B2A", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username")
     username_entry.grid(row=2, column=0, padx=20, pady=5, sticky="ew")
 
-    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*", fg_color="#1B1B2A", text_color="#DAD9FC", border_color="#DAD9FC", placeholder_text_color="#8887A4")
+    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*")
     password_entry.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
 
     def remember_me():
@@ -724,7 +752,7 @@ def login():
             if os.path.isfile(".remember_me.txt"):
                 os.remove(".remember_me.txt")
 
-    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC", border_color="#DAD9FC")
+    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
     remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
 
     if os.path.isfile(".remember_me.txt"):
@@ -760,25 +788,33 @@ def login():
                     if mysql_server_alive_check(host):
                         login_failure_message_label.configure(text="")
                         try:
-                            with open(".remember_me.txt", "a") as file:
-                                file.write(host_entry.get() + "\n")
-                                file.write(username_entry.get())
-                                file.close()
+                            if os.path.isfile(".remember_me.txt"):
+                                with open(".remember_me.txt", "r") as file:
+                                    line = file.readlines()
+                                if len(line) > 0:
+                                    pass
+                                else:
+                                    with open(".remember_me.txt", "a") as file:
+                                        file.write(host_entry.get() + "\n")
+                                        file.write(username_entry.get())
+                                        file.close()
+                            else:
+                                pass
                             connection = mysql.connector.connect(user=username, password=master_password, host=host)
                             cursor = connection.cursor()
                             creating_db()
                         except mysql.connector.Error:
-                            login_failure_message_label.configure(text="Login failed.", text_color="#D81E5B")
+                            login_failure_message_label.configure(text="Login failed.", text_color=error_color)
                     else:
-                        login_failure_message_label.configure(text="Host unreachable.", text_color="#D81E5B")
+                        login_failure_message_label.configure(text="Host unreachable.", text_color=error_color)
                 else:
-                    login_failure_message_label.configure(text="Password invalid.", text_color="#D81E5B") 
+                    login_failure_message_label.configure(text="Password invalid.", text_color=error_color) 
             else:
-                login_failure_message_label.configure(text="Username invalid.", text_color="#D81E5B")
+                login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
         else:
-            login_failure_message_label.configure(text="Host invalid.", text_color="#D81E5B")
+            login_failure_message_label.configure(text="Host invalid.", text_color=error_color)
 
-    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, fg_color="#1B1B2A", hover_color="#262639", text_color="#DAD9FC")
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
     login_button.grid(row=5, column=0, padx=20, pady=(10,5), sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
