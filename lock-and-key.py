@@ -109,6 +109,7 @@ def ui_change():
         button_exit_application.configure(image=exit_image_dark)
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
+        customtkinter.set_appearance_mode("dark")
 
 def change_appearance_mode():
     global appearance_mode
@@ -176,8 +177,8 @@ def key_derivation_function(master_password, salt):
 # of the password manager itself.
 def home_screen():
     remove_right_objects()
-    information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"))
-    information_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
+    description_title_label = customtkinter.CTkLabel(right_frame, text="Description", font=customtkinter.CTkFont(size=20, weight="bold"))
+    description_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
 
     description_text = customtkinter.CTkTextbox(right_frame, width=550, height=50, font=customtkinter.CTkFont(size=13), wrap="word")
     description_text.grid(row=1, column=0, padx=20, pady=(10,20), sticky="w")
@@ -186,6 +187,7 @@ def home_screen():
 
     functionalities_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
     functionalities_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
+
 
     functionalities_text = customtkinter.CTkTextbox(right_frame, width=550, height=200, font=customtkinter.CTkFont(size=13), wrap="word")
     functionalities_text.grid(row=3, column=0, padx=20, pady=5, sticky="w")
@@ -205,7 +207,7 @@ def home_screen():
 def adding_entry():
     remove_right_objects()
 
-    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(weight="bold"))
+    add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     add_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     username_label = customtkinter.CTkLabel(right_frame, text="Username:")
@@ -330,7 +332,7 @@ def updating_entry():
     remove_right_objects()
 
     global updating_list
-    update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry", font=customtkinter.CTkFont(weight="bold"))
+    update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -547,7 +549,7 @@ def deleting_entry():
     remove_right_objects()
 
     global updating_list
-    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(weight="bold"))
+    delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -624,7 +626,7 @@ def listing_entries():
     remove_right_objects()
     global scrollable_frame
 
-    list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries", font=customtkinter.CTkFont(weight="bold"))
+    list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries", font=customtkinter.CTkFont(size=15, weight="bold"))
     list_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
@@ -748,8 +750,8 @@ def main():
 
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
-    ui_change()
     home_screen()
+    ui_change()
 
 #-----------------------------DATABASE CREATION--------------------------
 # Creates the database for the user and tables if not already cerated.
