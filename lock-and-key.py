@@ -34,15 +34,7 @@ import time
 import os
 import re
 
-#---------------------------APPEARANCE MODE-----------------------------
-# Setting the default appearance mode of the application to being dark,
-# and setting the default color theme to being dark-blue, some colors are
-# changed on certain buttons.
-customtkinter.set_appearance_mode("dark")
-appearance_mode = "light"
-customtkinter.set_default_color_theme(".app-theme.json")
-error_color = "#D81E5B"
-succeed_color = "#3A3DFD"
+
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
 # variables to be used later in the script.
@@ -55,6 +47,84 @@ light_mode_image = customtkinter.CTkImage(dark_image=Image.open(".images/dark-mo
 exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-button-lightmode.png"), size=(24,24))
 exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
 
+#---------------------------APPEARANCE MODE-----------------------------
+# Setting the default appearance mode of the application to being dark,
+# and setting the default color theme to being dark-blue, some colors are
+# changed on certain buttons.
+customtkinter.set_default_color_theme(".app-theme.json")
+error_color = "#D81E5B"
+succeed_color = "#3A3DFD"
+
+appearance_mode = "dark"
+
+def get_color():
+    global appearance_mode
+    if os.path.isfile(".appearance-mode.txt"):
+        with open(".appearance-mode.txt", "r") as file:
+            appearance_mode = file.readline().strip()
+        if appearance_mode == "dark":
+            customtkinter.set_appearance_mode("light")
+            appearance_mode = "dark"
+        elif appearance_mode == "light":
+            customtkinter.set_appearance_mode("dark")
+            appearance_mode = "light"
+        else:
+            customtkinter.set_appearance_mode("dark")
+            appearance_mode = "light"
+    else:
+        with open(".appearance-mode.txt", "x") as file:
+            file.close()
+        with open(".appearance-mode.txt", "w") as file:
+            file.write("light")
+            file.close()
+        with open(".appearance-mode.txt", "r") as file:
+            appearance_mode = file.readline()
+            file.close()
+        if appearance_mode == "light":
+            customtkinter.set_appearance_mode("dark")
+            appearance_mode = "light"
+        else:
+            customtkinter.set_appearance_mode("dark")
+            appearance_mode = "light"
+
+#--------------------------------CHANGING COLOR-----------------------------------
+# User can change the appearance mode from dark to light mode and vice versa.
+def ui_change():
+    if appearance_mode == "dark":
+        button_change_appearance.configure(image=light_mode_image)
+        button_home.configure(image=information_image_light)
+        button_exit_application.configure(image=exit_image_light)
+        logo_label.configure(image=logo_image_light)
+        right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
+        customtkinter.set_appearance_mode("light")
+    elif appearance_mode == "light":
+        button_change_appearance.configure(image=dark_mode_image)
+        button_home.configure(image=information_image_dark)
+        button_exit_application.configure(image=exit_image_dark)
+        logo_label.configure(image=logo_image_dark)
+        right_frame.configure(fg_color="#11111C", bg_color="#11111C")
+        customtkinter.set_appearance_mode("dark")
+    else:
+        button_change_appearance.configure(image=dark_mode_image)
+        button_home.configure(image=information_image_dark)
+        button_exit_application.configure(image=exit_image_dark)
+        logo_label.configure(image=logo_image_dark)
+        right_frame.configure(fg_color="#11111C", bg_color="#11111C")
+
+def change_appearance_mode():
+    global appearance_mode
+    if appearance_mode == "dark":
+        appearance_mode = "light"
+        with open(".appearance-mode.txt", "w") as file:
+            file.write("light")
+            file.close()
+        ui_change()
+    else:
+        appearance_mode = "dark"
+        with open(".appearance-mode.txt", "w") as file:
+            file.write("dark")
+            file.close()
+        ui_change()
 #--------------------------------REGEX-----------------------------------
 # Creating some regex's that determine what the user is allowed to type
 # in the various input fields, checks if the user has used characters that 
@@ -62,27 +132,6 @@ exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-but
 username_regex = r"^[A-Za-z0-9_.@\-]+$"
 password_regex = r"^[A-Za-z0-9!@#$%^&*]+$"
 folder_regex = r"^[A-Za-z0-9]+$"
-
-#--------------------------------CHANGING COLOR-----------------------------------
-# User can change the appearance mode from dark to light mode and vice versa.
-def change_appearance_mode():
-    global appearance_mode
-    if appearance_mode == "dark":
-        appearance_mode = "light"
-        button_change_appearance.configure(image=light_mode_image)
-        button_home.configure(image=information_image_light)
-        button_exit_application.configure(image=exit_image_light)
-        logo_label.configure(image=logo_image_light)
-        customtkinter.set_appearance_mode("light")
-        right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
-    else:
-        appearance_mode = "dark"
-        button_change_appearance.configure(image=dark_mode_image)
-        button_home.configure(image=information_image_dark)
-        button_exit_application.configure(image=exit_image_dark)
-        logo_label.configure(image=logo_image_dark)
-        customtkinter.set_appearance_mode("dark")
-        right_frame.configure(fg_color="#11111C", bg_color="#11111C")
 
 #----------------------------MINOR FUNCTIONS-----------------------------
 # 1. remove_right_objects is used to remove all objects that are currently 
@@ -694,7 +743,7 @@ def main():
 
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
-    change_appearance_mode()
+    ui_change()
     home_screen()
 
 #-----------------------------DATABASE CREATION--------------------------
@@ -820,6 +869,7 @@ def login():
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
     login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
 
+    get_color()
     root.mainloop()
 
 
