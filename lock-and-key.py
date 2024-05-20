@@ -744,7 +744,7 @@ def main():
     cipher_instance = Fernet(key)
 
     root.geometry(f"{770}x{400}")
-    root.overrideredirect(True)
+    root.attributes("-type", "splash")
 
     root.grid_columnconfigure(0, weight=0)
     root.grid_columnconfigure(1, weight=1)
@@ -769,6 +769,8 @@ def main():
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
+
+    title_bar.tkraise()
 
     sidebar_frame = customtkinter.CTkFrame(root, width=300)
     sidebar_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
@@ -801,7 +803,6 @@ def main():
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=1, column=1, rowspan=5, sticky="nsew")
 
-    title_bar.tkraise()
     home_screen()
     ui_change()
 
@@ -827,7 +828,7 @@ def login():
     root.geometry(f"{180}x{280}")
     root.title("Login")
     root.resizable(False, False)
-    root.overrideredirect(True)
+    root.attributes("-type", "splash")
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
@@ -842,7 +843,7 @@ def login():
     title_bar_title = customtkinter.CTkLabel(title_bar, text="Login", font=customtkinter.CTkFont("bold"))
     title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
 
-    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5, command=lambda: root.iconify())
+    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5)
     title_bar_minimize_button.grid(row=0, column=1, padx=5, sticky="e")
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="X", width=20, height=5, command=exit_application)
@@ -850,6 +851,8 @@ def login():
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
+
+    title_bar.tkraise()
 
     login_frame = customtkinter.CTkFrame(root)
     login_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
@@ -946,10 +949,9 @@ def login():
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
     login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
 
-    title_bar.tkraise()
     get_color()
+    root.focus_force()
     root.mainloop()
-
 
 # RUNS THE LOGIN FUNCTION UPON RUNTIME
 login()
