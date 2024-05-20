@@ -4,7 +4,7 @@
 - Requires Python3 and MySQL server
 # About Lock&Key
 
-Lock&Key is a self-hosted, self-managed, open-source password manager. Everything you need to store and manage your passwords securely!
+Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!
 
 Lock&Key is built using Python as its main language with MySQL integrated to help store and manage password entries, it's self-hosted and open-source meaning you as the consumer have full control over everything. The master password for each user is used for encrypting and decrypting password entries so make it strong.
 ## Features

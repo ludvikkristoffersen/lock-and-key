@@ -38,8 +38,8 @@ import re
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
 # variables to be used later in the script.
-logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-darkmode.png"), size=(150,36))
-logo_image_light = customtkinter.CTkImage(light_image=Image.open(".images/lock-and-key-lightmode.png"), size=(150,36))
+logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-darkmode.png"), size=(140,34))
+logo_image_light = customtkinter.CTkImage(light_image=Image.open(".images/lock-and-key-lightmode.png"), size=(140,34))
 information_image_light = customtkinter.CTkImage(light_image=Image.open(".images/info-button-lightmode.png"), size=(24,24))
 information_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/info-button-darkmode.png"), size=(24,24))
 dark_mode_image = customtkinter.CTkImage(light_image=Image.open(".images/light-mode.png"), size=(24,24))
@@ -48,9 +48,8 @@ exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-b
 exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
 
 #---------------------------APPEARANCE MODE-----------------------------
-# Setting the default appearance mode of the application to being dark,
-# and setting the default color theme to being dark-blue, some colors are
-# changed on certain buttons.
+# Setting the default appearance mode of the application to custom JSON
+# theme, and setting the default color mode to being dark.
 customtkinter.set_default_color_theme(".app-theme.json")
 error_color = "#D81E5B"
 succeed_color = "#3A3DFD"
@@ -125,6 +124,7 @@ def change_appearance_mode():
             file.write("dark")
             file.close()
         ui_change()
+
 #--------------------------------REGEX-----------------------------------
 # Creating some regex's that determine what the user is allowed to type
 # in the various input fields, checks if the user has used characters that 
@@ -179,21 +179,23 @@ def home_screen():
     information_title_label = customtkinter.CTkLabel(right_frame, text="Information", font=customtkinter.CTkFont(size=20, weight="bold"))
     information_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
 
-    description_text = customtkinter.CTkTextbox(right_frame, width=575, height=50, font=customtkinter.CTkFont(size=13))
-    description_text.grid(row=1, column=0, padx=12, pady=(10,20), sticky="w")
-    description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. Everything you need to store and manage your passwords securely!")
+    description_text = customtkinter.CTkTextbox(right_frame, width=550, height=50, font=customtkinter.CTkFont(size=13), wrap="word")
+    description_text.grid(row=1, column=0, padx=20, pady=(10,20), sticky="w")
+    description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!")
     description_text.configure(state="disabled")
 
-    usecase_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
-    usecase_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
+    functionalities_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
+    functionalities_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
 
-    usage_text = customtkinter.CTkTextbox(right_frame, width=575, height=160, font=customtkinter.CTkFont(size=13))
-    usage_text.grid(row=3, column=0, padx=12, pady=5, sticky="w")
-    usage_text.insert("end", """• Add new entries for any account you have. Generate strong random passwords to prevent weak passwords.\n
-• Update entries to change their details such as new username, password, and folder.\n
-• Manage your entries by deleting those you no longer user.\n
-• Easily list all or specified entries, and safely copy passwords.""")
-    usage_text.configure(state="disabled")
+    functionalities_text = customtkinter.CTkTextbox(right_frame, width=550, height=200, font=customtkinter.CTkFont(size=13), wrap="word")
+    functionalities_text.grid(row=3, column=0, padx=20, pady=5, sticky="w")
+    functionalities_text.insert("end", """• Adding account entries: Create new or add existing account entries.\n
+• Updating account entries: Modify account entries with new information.\n
+• Deleting account entries: Remove unwanted account entries.\n
+• Listing account entries: Display a list of all or specified account entries.\n
+• Password generation: Generate random, complex passwords.\n
+• Encryption: Data securely stored with encryption.""")
+    functionalities_text.configure(state="disabled")
 
 #----------------------------ADDING ENTRY-----------------------------
 # One of the main functions. This let's the user add a new account entry
@@ -534,7 +536,7 @@ def updating_entry():
         cancel_update_button.grid(row=4, column=0, padx=90, pady=10, sticky="w")
     updating_list()
 
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
+    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
 #----------------------------DELETING ENTRY---------------------------
@@ -573,7 +575,7 @@ def deleting_entry():
             cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
             connection.commit()
             deleting_entry()
-        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50)
+        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, text_color=error_color)
         confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
         regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
         regret_deletion_button.grid(row=2, column=0, padx=90, pady=5, sticky="w")
@@ -603,13 +605,14 @@ def deleting_entry():
 
             row_id = entry[0]
 
-            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete")
+            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete", text_color=error_color)
             remove_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
             remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
             entry_id += 1
+
     updating_list()
 
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
+    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
 #----------------------------LISTING ENTRIES--------------------------
@@ -677,8 +680,10 @@ def listing_entries():
             copy_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
             copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             entry_id += 1
+
     updating_list()
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Refresh", command=updating_list)
+
+    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
 #----------------------------EXIT APPLICATION-------------------------
@@ -710,7 +715,7 @@ def main():
     key = key_derivation_function(master_password,salt)
     cipher_instance = Fernet(key)
 
-    root.geometry(f"{800}x{400}")
+    root.geometry(f"{770}x{400}")
     root.title("Lock&Key - Password Manager")
 
     sidebar_frame = customtkinter.CTkFrame(root, width=300)

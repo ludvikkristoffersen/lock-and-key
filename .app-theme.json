@@ -49,6 +49,7 @@
     "CTkTextbox": {
         "corner_radius": 0,
         "border_width": 0,
+        "border_spacing": 0,
         "fg_color": "transparent",
         "border_color": "transparent",
         "text_color": ["#0B0B12", "#DAD9FC"],
