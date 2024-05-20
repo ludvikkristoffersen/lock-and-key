@@ -24,7 +24,6 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from PIL import Image
-#from tkinter import *
 import mysql.connector
 import customtkinter
 import random
@@ -65,14 +64,17 @@ def get_color():
         if appearance_mode == "dark":
             customtkinter.set_appearance_mode("light")
             title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
+            title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
             appearance_mode = "dark"
         elif appearance_mode == "light":
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             appearance_mode = "light"
         else:
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             appearance_mode = "light"
     else:
         with open(".appearance-mode.txt", "x") as file:
@@ -86,10 +88,12 @@ def get_color():
         if appearance_mode == "light":
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             appearance_mode = "light"
         else:
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             appearance_mode = "light"
 
 #--------------------------------CHANGING COLOR-----------------------------------
@@ -102,6 +106,7 @@ def ui_change():
         logo_label.configure(image=logo_image_light)
         right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
         title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
+        title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
         customtkinter.set_appearance_mode("light")
     elif appearance_mode == "light":
         button_change_appearance.configure(image=dark_mode_image)
@@ -110,6 +115,7 @@ def ui_change():
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+        title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
         customtkinter.set_appearance_mode("dark")
     else:
         button_change_appearance.configure(image=dark_mode_image)
@@ -118,6 +124,7 @@ def ui_change():
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+        title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
         customtkinter.set_appearance_mode("dark")
 
 def change_appearance_mode():
@@ -190,16 +197,15 @@ def home_screen():
     description_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
 
     description_text = customtkinter.CTkTextbox(right_frame, width=550, height=50, font=customtkinter.CTkFont(size=13), wrap="word")
-    description_text.grid(row=1, column=0, padx=20, pady=(10,20), sticky="w")
+    description_text.grid(row=1, column=0, padx=20, sticky="w")
     description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!")
     description_text.configure(state="disabled")
 
     functionalities_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
-    functionalities_label.grid(row=2, column=0, padx=20, pady=5, sticky="w")
-
+    functionalities_label.grid(row=2, column=0, padx=20, pady=(5,5), sticky="w")
 
     functionalities_text = customtkinter.CTkTextbox(right_frame, width=550, height=200, font=customtkinter.CTkFont(size=13), wrap="word")
-    functionalities_text.grid(row=3, column=0, padx=20, pady=5, sticky="w")
+    functionalities_text.grid(row=3, column=0, padx=20, sticky="w")
     functionalities_text.insert("end", """• Adding account entries: Create new or add existing account entries.\n
 • Updating account entries: Modify account entries with new information.\n
 • Deleting account entries: Remove unwanted account entries.\n
@@ -723,12 +729,15 @@ def move_application(event):
     y = event.y_root - y_pos
     root.geometry(f"+{x}+{y}")
 
+def remove_icon(app_icon, item):
+    app_icon.stop()
+
 #-----------------------------MAIN FUNCTION---------------------------
 # The main function powers all the functions above by creating buttons
 # that call these functions when clicked.
 def main():
     remove_sidebar_objects()
-    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button
     cursor.execute("SELECT salt FROM user")
     retrieved_salt = cursor.fetchone()
 
@@ -756,16 +765,12 @@ def main():
 
     title_bar.grid_columnconfigure(0, weight=1)
     title_bar.grid_columnconfigure(1, weight=0)
-    title_bar.grid_columnconfigure(2, weight=0)
 
     title_bar_title = customtkinter.CTkLabel(title_bar, text="Lock&Key - Password Manager", font=customtkinter.CTkFont("bold"))
     title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
 
-    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5, command=lambda: root.iconify())
-    title_bar_minimize_button.grid(row=0, column=1, padx=5, sticky="e")
-
-    title_bar_close_button = customtkinter.CTkButton(title_bar, text="X", width=20, height=5, command=exit_application)
-    title_bar_close_button.grid(row=0, column=2, padx=(0,5), sticky="e")
+    title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
+    title_bar_close_button.grid(row=0, column=1, padx=(0,5), sticky="e")
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
@@ -823,9 +828,9 @@ def creating_db():
 # The login function also has a "remember me" functionality which
 # remembers the IP and username.
 def login():
-    global root, login_frame, login_failure_message_label, title_bar
+    global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button
     root = customtkinter.CTk()
-    root.geometry(f"{180}x{280}")
+    root.geometry(f"{180}x{300}")
     root.title("Login")
     root.resizable(False, False)
     root.attributes("-type", "splash")
@@ -838,16 +843,12 @@ def login():
 
     title_bar.grid_columnconfigure(0, weight=1)
     title_bar.grid_columnconfigure(1, weight=0)
-    title_bar.grid_columnconfigure(2, weight=0)
 
     title_bar_title = customtkinter.CTkLabel(title_bar, text="Login", font=customtkinter.CTkFont("bold"))
     title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
 
-    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5)
-    title_bar_minimize_button.grid(row=0, column=1, padx=5, sticky="e")
-
-    title_bar_close_button = customtkinter.CTkButton(title_bar, text="X", width=20, height=5, command=exit_application)
-    title_bar_close_button.grid(row=0, column=2, padx=(0,5), sticky="e")
+    title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
+    title_bar_close_button.grid(row=0, column=1, padx=(0,5), sticky="e")
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
