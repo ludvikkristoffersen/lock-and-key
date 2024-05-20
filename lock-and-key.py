@@ -24,6 +24,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from PIL import Image
+#from tkinter import *
 import mysql.connector
 import customtkinter
 import random
@@ -63,12 +64,15 @@ def get_color():
             appearance_mode = file.readline().strip()
         if appearance_mode == "dark":
             customtkinter.set_appearance_mode("light")
+            title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
             appearance_mode = "dark"
         elif appearance_mode == "light":
             customtkinter.set_appearance_mode("dark")
+            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             appearance_mode = "light"
         else:
             customtkinter.set_appearance_mode("dark")
+            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             appearance_mode = "light"
     else:
         with open(".appearance-mode.txt", "x") as file:
@@ -81,9 +85,11 @@ def get_color():
             file.close()
         if appearance_mode == "light":
             customtkinter.set_appearance_mode("dark")
+            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             appearance_mode = "light"
         else:
             customtkinter.set_appearance_mode("dark")
+            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             appearance_mode = "light"
 
 #--------------------------------CHANGING COLOR-----------------------------------
@@ -95,6 +101,7 @@ def ui_change():
         button_exit_application.configure(image=exit_image_light)
         logo_label.configure(image=logo_image_light)
         right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
+        title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
         customtkinter.set_appearance_mode("light")
     elif appearance_mode == "light":
         button_change_appearance.configure(image=dark_mode_image)
@@ -102,6 +109,7 @@ def ui_change():
         button_exit_application.configure(image=exit_image_dark)
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
+        title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
         customtkinter.set_appearance_mode("dark")
     else:
         button_change_appearance.configure(image=dark_mode_image)
@@ -109,6 +117,7 @@ def ui_change():
         button_exit_application.configure(image=exit_image_dark)
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
+        title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
         customtkinter.set_appearance_mode("dark")
 
 def change_appearance_mode():
@@ -691,18 +700,35 @@ def listing_entries():
 #----------------------------EXIT APPLICATION-------------------------
 # Simply let's the user exit the application.
 def exit_application():
-    cursor.close()
-    connection.close()
-    time.sleep(1)
-    quit()
+    try:
+        if cursor and connection:
+            cursor.close()
+            connection.close()
+            time.sleep(1)
+            quit()
+        else:
+            quit()
+    except:
+        time.sleep(1)
+        quit()
+
+
+def get_position(event):
+    global x_pos, y_pos
+    x_pos = event.x
+    y_pos = event.y
+    
+def move_application(event):
+    x = event.x_root - x_pos
+    y = event.y_root - y_pos
+    root.geometry(f"+{x}+{y}")
 
 #-----------------------------MAIN FUNCTION---------------------------
 # The main function powers all the functions above by creating buttons
 # that call these functions when clicked.
 def main():
     remove_sidebar_objects()
-    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label
-
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar
     cursor.execute("SELECT salt FROM user")
     retrieved_salt = cursor.fetchone()
 
@@ -718,10 +744,34 @@ def main():
     cipher_instance = Fernet(key)
 
     root.geometry(f"{770}x{400}")
-    root.title("Lock&Key - Password Manager")
+    root.overrideredirect(True)
+
+    root.grid_columnconfigure(0, weight=0)
+    root.grid_columnconfigure(1, weight=1)
+    root.grid_rowconfigure(0, weight=0)
+    root.grid_rowconfigure(1, weight=1)
+
+    title_bar = customtkinter.CTkFrame(root, height=5)
+    title_bar.grid(row=0, column=0, columnspan=2, sticky="ew")
+
+    title_bar.grid_columnconfigure(0, weight=1)
+    title_bar.grid_columnconfigure(1, weight=0)
+    title_bar.grid_columnconfigure(2, weight=0)
+
+    title_bar_title = customtkinter.CTkLabel(title_bar, text="Lock&Key - Password Manager", font=customtkinter.CTkFont("bold"))
+    title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
+
+    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5, command=lambda: root.iconify())
+    title_bar_minimize_button.grid(row=0, column=1, padx=5, sticky="e")
+
+    title_bar_close_button = customtkinter.CTkButton(title_bar, text="X", width=20, height=5, command=exit_application)
+    title_bar_close_button.grid(row=0, column=2, padx=(0,5), sticky="e")
+
+    title_bar.bind("<Button-1>", get_position)
+    title_bar.bind("<B1-Motion>", move_application)
 
     sidebar_frame = customtkinter.CTkFrame(root, width=300)
-    sidebar_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
+    sidebar_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
     sidebar_frame.grid_rowconfigure(6, weight=1)
 
     logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image_dark)
@@ -749,7 +799,9 @@ def main():
     button_exit_application.grid(row=6, column=0, padx=(120,0), pady=10, sticky="w")
 
     right_frame = customtkinter.CTkFrame(root)
-    right_frame.grid(row=0, column=1, rowspan=5, sticky="nsew")
+    right_frame.grid(row=1, column=1, rowspan=5, sticky="nsew")
+
+    title_bar.tkraise()
     home_screen()
     ui_change()
 
@@ -770,20 +822,38 @@ def creating_db():
 # The login function also has a "remember me" functionality which
 # remembers the IP and username.
 def login():
-    global root, login_frame, login_failure_message_label
+    global root, login_frame, login_failure_message_label, title_bar
     root = customtkinter.CTk()
     root.geometry(f"{180}x{280}")
     root.title("Login")
     root.resizable(False, False)
+    root.overrideredirect(True)
 
-    root.grid_columnconfigure(1, weight=1)
-    root.grid_columnconfigure((2, 3), weight=0)
-    root.grid_rowconfigure((0, 1, 2), weight=1)
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_rowconfigure(1, weight=1)
+
+    title_bar = customtkinter.CTkFrame(root, height=5, fg_color="#11111C")
+    title_bar.grid(row=0, column=0, sticky="ew")
+
+    title_bar.grid_columnconfigure(0, weight=1)
+    title_bar.grid_columnconfigure(1, weight=0)
+    title_bar.grid_columnconfigure(2, weight=0)
+
+    title_bar_title = customtkinter.CTkLabel(title_bar, text="Login", font=customtkinter.CTkFont("bold"))
+    title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
+
+    title_bar_minimize_button = customtkinter.CTkButton(title_bar, text="_", width=20, height=5, command=lambda: root.iconify())
+    title_bar_minimize_button.grid(row=0, column=1, padx=5, sticky="e")
+
+    title_bar_close_button = customtkinter.CTkButton(title_bar, text="X", width=20, height=5, command=exit_application)
+    title_bar_close_button.grid(row=0, column=2, padx=(0,5), sticky="e")
+
+    title_bar.bind("<Button-1>", get_position)
+    title_bar.bind("<B1-Motion>", move_application)
 
     login_frame = customtkinter.CTkFrame(root)
-    login_frame.grid(row=0, column=0, rowspan=6, sticky="nsew")
+    login_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
     login_frame.grid_rowconfigure(6, weight=1)
-
 
     main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
     main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
@@ -876,6 +946,7 @@ def login():
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
     login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
 
+    title_bar.tkraise()
     get_color()
     root.mainloop()
 

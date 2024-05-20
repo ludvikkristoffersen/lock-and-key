@@ -42,10 +42,22 @@
         "text_color_disabled": ["#0B0B12","#DAD9FC"]
     },
     "CTkFont": {
-        "family": "Roboto",
-        "size": 13,
-        "weight": "normal"
-    },
+        "macOS": {
+          "family": "SF Display",
+          "size": 13,
+          "weight": "normal"
+        },
+        "Windows": {
+          "family": "Roboto",
+          "size": 13,
+          "weight": "normal"
+        },
+        "Linux": {
+          "family": "Roboto",
+          "size": 13,
+          "weight": "normal"
+        }
+      },
     "CTkTextbox": {
         "corner_radius": 0,
         "border_width": 0,
