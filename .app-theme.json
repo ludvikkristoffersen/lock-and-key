@@ -69,12 +69,12 @@
         "scrollbar_button_hover_color": ["#DAD9FC","#11111C"]
     },
     "CTkScrollbar": {
-        "corner_radius": 6,
-        "border_color": ["#DAD9FC","#11111C"],
-        "fg_color": ["#DAD9FC","#11111C"],
+        "corner_radius": 1000,
+        "fg_color": "transparent",
         "button_color": ["#DAD9FC","#11111C"],
-        "button_hover_color": ["#DAD9FC","#11111C"],
-        "border_spacing": 10
+        "button_hover_color": ["#eaeaff","#2c2c46"],
+        "border_spacing": 4,
+        "width": 10
     },
     "CTkOptionMenu": {
         "corner_radius": 6,
@@ -91,6 +91,7 @@
     },
     "CTkScrollableFrame": {
       "label_fg_color": ["#b5b3de", "#0B0B12"],
-      "scrollbar_button_color": ["#DAD9FC","#11111C"]
+      "corner_radius": 6,
+      "border_width": 0
     }
 }

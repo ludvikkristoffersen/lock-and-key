@@ -359,7 +359,7 @@ def updating_entry():
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
-    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
@@ -576,7 +576,7 @@ def deleting_entry():
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
-    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
@@ -653,7 +653,7 @@ def listing_entries():
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
-    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=250)
+    scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
@@ -752,7 +752,7 @@ def main():
     key = key_derivation_function(master_password,salt)
     cipher_instance = Fernet(key)
 
-    root.geometry(f"{770}x{400}")
+    root.geometry(f"{792}x{400}")
     root.attributes("-type", "splash")
 
     root.grid_columnconfigure(0, weight=0)
