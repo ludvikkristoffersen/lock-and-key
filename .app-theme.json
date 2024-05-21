@@ -93,5 +93,15 @@
       "label_fg_color": ["#b5b3de", "#0B0B12"],
       "corner_radius": 6,
       "border_width": 0
+    },
+    "CTkSlider": {
+      "corner_radius": 1000,
+      "button_corner_radius": 1000,
+      "border_width": 0,
+      "button_length": 0,
+      "fg_color": ["#DAD9FC","#11111C"],
+      "progress_color": ["#11111C","#DAD9FC"],
+      "button_color": ["#DAD9FC","#11111C"],
+      "button_hover_color": ["#DAD9FC","#11111C"]
     }
 }
