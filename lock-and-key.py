@@ -33,78 +33,157 @@ import string
 import socket
 import base64
 import time
+import sys
 import os
 import re
+
 
 #--------------------------------OS TYPE----------------------------------
 # Getting the OS type the user is using
 os_name = platform.system()
 
+if os_name == "Windows":
+# Code taken from https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+    def resource_path(relative_path):
+        try:
+            base_path = sys._MEIPASS2
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+else:
+    pass
+
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
 # variables to be used later in the script.
-logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-darkmode.png"), size=(140,34))
-logo_image_light = customtkinter.CTkImage(light_image=Image.open(".images/lock-and-key-lightmode.png"), size=(140,34))
-information_image_light = customtkinter.CTkImage(light_image=Image.open(".images/info-button-lightmode.png"), size=(24,24))
-information_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/info-button-darkmode.png"), size=(24,24))
-dark_mode_image = customtkinter.CTkImage(light_image=Image.open(".images/light-mode.png"), size=(24,24))
-light_mode_image = customtkinter.CTkImage(dark_image=Image.open(".images/dark-mode.png"), size=(24,24))
-exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-button-lightmode.png"), size=(24,24))
-exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
-title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-white.png"), size=(20,20))
-title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-dark.png"), size=(20,20))
+if os_name == "Windows":
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-darkmode.png")), size=(140,34))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\lock-and-key-lightmode.png")), size=(140,34))
+    information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\info-button-lightmode.png")), size=(24,24))
+    information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\info-button-darkmode.png")), size=(24,24))
+    dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\light-mode.png")), size=(24,24))
+    light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\dark-mode.png")), size=(24,24))
+    exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\exit-button-lightmode.png")), size=(24,24))
+    exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\exit-button-darkmode.png")), size=(24,24))
+    title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-white.png")), size=(20,20))
+    title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-dark.png")), size=(20,20))
+elif os_name == "Linux":
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-darkmode.png"), size=(140,34))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(".images/lock-and-key-lightmode.png"), size=(140,34))
+    information_image_light = customtkinter.CTkImage(light_image=Image.open(".images/info-button-lightmode.png"), size=(24,24))
+    information_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/info-button-darkmode.png"), size=(24,24))
+    dark_mode_image = customtkinter.CTkImage(light_image=Image.open(".images/light-mode.png"), size=(24,24))
+    light_mode_image = customtkinter.CTkImage(dark_image=Image.open(".images/dark-mode.png"), size=(24,24))
+    exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-button-lightmode.png"), size=(24,24))
+    exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
+    title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-white.png"), size=(20,20))
+    title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-dark.png"), size=(20,20))
+else:
+    sys.exit()
+
 
 #---------------------------APPEARANCE MODE-----------------------------
 # Setting the default appearance mode of the application to custom JSON
 # theme, and setting the default color mode to being dark.
-customtkinter.set_default_color_theme(".app-theme.json")
-error_color = "#E63946"
-succeed_color = "#3A3DFD"
+if os_name == "Windows":
+    customtkinter.set_default_color_theme(resource_path(".app-theme.json"))
+    error_color = "#E63946"
+    succeed_color = "#3A3DFD"
 
-appearance_mode = "dark"
+    appearance_mode = "dark"
 
-def get_color():
-    global appearance_mode
-    if os.path.isfile(".appearance-mode.txt"):
-        with open(".appearance-mode.txt", "r") as file:
-            appearance_mode = file.readline().strip()
-        if appearance_mode == "dark":
-            customtkinter.set_appearance_mode("light")
-            title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
-            title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
-            title_bar_logo_label.configure(image=title_bar_logo_light)
-            appearance_mode = "dark"
-        elif appearance_mode == "light":
-            customtkinter.set_appearance_mode("dark")
-            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
-            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
-            title_bar_logo_label.configure(image=title_bar_logo_dark)
-            appearance_mode = "light"
+    def get_color():
+        global appearance_mode
+        if os.path.isfile(resource_path(".appearance-mode.txt")):
+            with open(resource_path(".appearance-mode.txt"), "r") as file:
+                appearance_mode = file.readline().strip()
+            if appearance_mode == "dark":
+                customtkinter.set_appearance_mode("light")
+                title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
+                title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
+                title_bar_logo_label.configure(image=title_bar_logo_light)
+                appearance_mode = "dark"
+            elif appearance_mode == "light":
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                title_bar_logo_label.configure(image=title_bar_logo_dark)
+                appearance_mode = "light"
+            else:
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                title_bar_logo_label.configure(image=title_bar_logo_dark)
+                appearance_mode = "light"
         else:
-            customtkinter.set_appearance_mode("dark")
-            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
-            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
-            title_bar_logo_label.configure(image=title_bar_logo_dark)
-            appearance_mode = "light"
-    else:
-        with open(".appearance-mode.txt", "x") as file:
-            file.close()
-        with open(".appearance-mode.txt", "w") as file:
-            file.write("light")
-            file.close()
-        with open(".appearance-mode.txt", "r") as file:
-            appearance_mode = file.readline()
-            file.close()
-        if appearance_mode == "light":
-            customtkinter.set_appearance_mode("dark")
-            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
-            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
-            appearance_mode = "light"
+            with open(resource_path(".appearance-mode.txt"), "x") as file:
+                file.close()
+            with open(resource_path(".appearance-mode.txt"), "w") as file:
+                file.write("light")
+                file.close()
+            with open(resource_path(".appearance-mode.txt"), "r") as file:
+                appearance_mode = file.readline()
+                file.close()
+            if appearance_mode == "light":
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                appearance_mode = "light"
+            else:
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                appearance_mode = "light"
+elif os_name == "Linux":
+    customtkinter.set_default_color_theme(".app-theme.json")
+    error_color = "#E63946"
+    succeed_color = "#3A3DFD"
+
+    appearance_mode = "dark"
+
+    def get_color():
+        global appearance_mode
+        if os.path.isfile(resource_path(".appearance-mode.txt")):
+            with open(resource_path(".appearance-mode.txt"), "r") as file:
+                appearance_mode = file.readline().strip()
+            if appearance_mode == "dark":
+                customtkinter.set_appearance_mode("light")
+                title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
+                title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
+                title_bar_logo_label.configure(image=title_bar_logo_light)
+                appearance_mode = "dark"
+            elif appearance_mode == "light":
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                title_bar_logo_label.configure(image=title_bar_logo_dark)
+                appearance_mode = "light"
+            else:
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                title_bar_logo_label.configure(image=title_bar_logo_dark)
+                appearance_mode = "light"
         else:
-            customtkinter.set_appearance_mode("dark")
-            title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
-            title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
-            appearance_mode = "light"
+            with open(resource_path(".appearance-mode.txt"), "x") as file:
+                file.close()
+            with open(resource_path(".appearance-mode.txt"), "w") as file:
+                file.write("light")
+                file.close()
+            with open(resource_path(".appearance-mode.txt"), "r") as file:
+                appearance_mode = file.readline()
+                file.close()
+            if appearance_mode == "light":
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                appearance_mode = "light"
+            else:
+                customtkinter.set_appearance_mode("dark")
+                title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
+                title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+                appearance_mode = "light"
 
 #--------------------------------CHANGING COLOR-----------------------------------
 # User can change the appearance mode from dark to light mode and vice versa.
@@ -155,20 +234,36 @@ def ui_change():
             pass
         customtkinter.set_appearance_mode("dark")
 
-def change_appearance_mode():
-    global appearance_mode
-    if appearance_mode == "dark":
-        appearance_mode = "light"
-        with open(".appearance-mode.txt", "w") as file:
-            file.write("light")
-            file.close()
-        ui_change()
-    else:
-        appearance_mode = "dark"
-        with open(".appearance-mode.txt", "w") as file:
-            file.write("dark")
-            file.close()
-        ui_change()
+if os_name == "Windows":
+    def change_appearance_mode():
+        global appearance_mode
+        if appearance_mode == "dark":
+            appearance_mode = "light"
+            with open(resource_path(".appearance-mode.txt"), "w") as file:
+                file.write("light")
+                file.close()
+            ui_change()
+        else:
+            appearance_mode = "dark"
+            with open(resource_path(".appearance-mode.txt"), "w") as file:
+                file.write("dark")
+                file.close()
+            ui_change()
+elif os_name == "Linux":
+    def change_appearance_mode():
+        global appearance_mode
+        if appearance_mode == "dark":
+            appearance_mode = "light"
+            with open(".appearance-mode.txt", "w") as file:
+                file.write("light")
+                file.close()
+            ui_change()
+        else:
+            appearance_mode = "dark"
+            with open(".appearance-mode.txt", "w") as file:
+                file.write("dark")
+                file.close()
+            ui_change()
 
 #--------------------------------REGEX-----------------------------------
 # Creating some regex's that determine what the user is allowed to type
@@ -704,7 +799,7 @@ def deleting_entry():
     # Function for deleting a entry in the main deleting function
     def delete_entry_button(row_id):
         remove_right_objects()
-        delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(weight="bold"))
+        delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
         delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
         warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
         warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
@@ -713,7 +808,7 @@ def deleting_entry():
             cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
             connection.commit()
             deleting_entry()
-        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, text_color=error_color)
+        confirm_deletion_button = customtkinter.CTkButton(right_frame, text="Yes", command=confirm_deletion, width=50, fg_color=error_color, hover_color="#CC323F", text_color="#0B0B12")
         confirm_deletion_button.grid(row=2, column=0, padx=20, pady=5, sticky="w")
         regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
         regret_deletion_button.grid(row=2, column=0, padx=90, pady=5, sticky="w")
@@ -743,7 +838,7 @@ def deleting_entry():
 
             row_id = entry[0]
 
-            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete", text_color=error_color)
+            remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete", fg_color=error_color, hover_color="#CC323F", text_color="#0B0B12")
             remove_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
             remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
             entry_id += 1
@@ -840,12 +935,15 @@ def exit_application():
             cursor.close()
             connection.close()
             time.sleep(1)
-            quit()
+            root.quit()
+            sys.exit()
         else:
-            quit()
+            root.quit()
+            sys.exit()
     except:
         time.sleep(1)
-        quit()
+        root.quit()
+        sys.exit()
 
 
 def get_position(event):
@@ -977,7 +1075,8 @@ def login():
     elif os_name == "Linux":
         root.attributes("-type", "splash")
     else:
-        quit()
+        root.quit()
+        sys.quit()
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
@@ -1018,33 +1117,60 @@ def login():
     password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*")
     password_entry.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
 
-    def remember_me():
-        if remember_me_check.get():
-            if os.path.isfile(".remember_me.txt"):
-                pass
+    if os_name == "Windows":
+        def remember_me():
+            if remember_me_check.get():
+                if os.path.isfile(resource_path(".remember_me.txt")):
+                    pass
+                else:
+                    with open(resource_path(".remember_me.txt"), "x") as file:
+                        file.close()
             else:
-                with open(".remember_me.txt", "x") as file:
-                    file.close()
-        else:
-            if os.path.isfile(".remember_me.txt"):
-                os.remove(".remember_me.txt")
+                if os.path.isfile(resource_path(".remember_me.txt")):
+                    os.remove(resource_path(".remember_me.txt"))
+    elif os_name == "Linux":
+        def remember_me():
+            if remember_me_check.get():
+                if os.path.isfile(".remember_me.txt"):
+                    pass
+                else:
+                    with open(".remember_me.txt", "x") as file:
+                        file.close()
+            else:
+                if os.path.isfile(".remember_me.txt"):
+                    os.remove(".remember_me.txt")
 
     remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
     remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
 
-    if os.path.isfile(".remember_me.txt"):
-        with open(".remember_me.txt", "r") as file:
-            line = file.readlines()
-        if len(line) > 0:
-            remember_me_check.select()
-            stripped_line = line[0].strip()
-            host_entry.insert("end", stripped_line)
-            username_entry.insert("end", line[1])
+    if os_name == "Windows":
+        if os.path.isfile(resource_path(".remember_me.txt")):
+            with open(resource_path(".remember_me.txt"), "r") as file:
+                line = file.readlines()
+            if len(line) > 0:
+                remember_me_check.select()
+                stripped_line = line[0].strip()
+                host_entry.insert("end", stripped_line)
+                username_entry.insert("end", line[1])
+            else:
+                remember_me_check.deselect()
+                os.remove(resource_path(".remember_me.txt"))
         else:
-            remember_me_check.deselect()
-            os.remove(".remember_me.txt")
-    else:
-        pass
+            pass
+    elif os_name == "Linux":
+        if os.path.isfile(".remember_me.txt"):
+            with open(".remember_me.txt", "r") as file:
+                line = file.readlines()
+            if len(line) > 0:
+                remember_me_check.select()
+                stripped_line = line[0].strip()
+                host_entry.insert("end", stripped_line)
+                username_entry.insert("end", line[1])
+            else:
+                remember_me_check.deselect()
+                os.remove(".remember_me.txt")
+        else:
+            pass
 
     def authentication():
         global connection, cursor, username, master_password
@@ -1067,18 +1193,33 @@ def login():
                         if mysql_server_alive_check(host):
                             login_failure_message_label.configure(text="")
                             try:
-                                if os.path.isfile(".remember_me.txt"):
-                                    with open(".remember_me.txt", "r") as file:
-                                        line = file.readlines()
-                                    if len(line) > 0:
-                                        pass
+                                if os_name == "Windows":
+                                    if os.path.isfile(resource_path(".remember_me.txt")):
+                                        with open(resource_path(".remember_me.txt"), "r") as file:
+                                            line = file.readlines()
+                                        if len(line) > 0:
+                                            pass
+                                        else:
+                                            with open(resource_path(".remember_me.txt"), "a") as file:
+                                                file.write(host_entry.get() + "\n")
+                                                file.write(username_entry.get())
+                                                file.close()
                                     else:
-                                        with open(".remember_me.txt", "a") as file:
-                                            file.write(host_entry.get() + "\n")
-                                            file.write(username_entry.get())
-                                            file.close()
-                                else:
-                                    pass
+                                        pass
+                                elif os_name == "Linux":
+                                    if os_name == "Windows":
+                                        if os.path.isfile(".remember_me.txt"):
+                                            with open(".remember_me.txt", "r") as file:
+                                                line = file.readlines()
+                                            if len(line) > 0:
+                                                pass
+                                            else:
+                                                with open(".remember_me.txt", "a") as file:
+                                                    file.write(host_entry.get() + "\n")
+                                                    file.write(username_entry.get())
+                                                    file.close()
+                                        else:
+                                            pass
                                 connection = mysql.connector.connect(user=username, password=master_password, host=host)
                                 cursor = connection.cursor()
                                 creating_db()
