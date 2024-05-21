@@ -375,23 +375,23 @@ def updating_entry():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
-            title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
             folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+            folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             row_id = entry[0]
             username = entry[1]
             folder = entry[2]
 
             select_entry_button = customtkinter.CTkButton(scrollable_frame, text="Select")
-            select_entry_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
+            select_entry_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
             select_entry_button.configure(command=lambda r=row_id, u=username, f=folder: updating_entry_button(r,u,f))
             entry_id += 1
             
@@ -609,21 +609,21 @@ def deleting_entry():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
-            title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
             folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+            folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             row_id = entry[0]
 
             remove_button = customtkinter.CTkButton(scrollable_frame, text="Delete", text_color=error_color)
-            remove_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
+            remove_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
             remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
             entry_id += 1
 
@@ -676,25 +676,25 @@ def listing_entries():
 
         entry_id = 3
         for entry in entries:
-            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=15, weight="bold"))
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=15, weight="bold"))
-            title_folder_label.grid(row=2, column=1, padx=20, pady=5, sticky="w")
-            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=15, weight="bold"))
-            title_password_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_password_label.grid(row=2, column=2, padx=(5,0), pady=5, sticky="w")
 
             username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
             folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
-            folder_label.grid(row=entry_id, column=1, padx=20, pady=5, sticky="w")
+            folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             password = entry[1]
             encode_password = password.encode()
             decrypted_password = cipher_instance.decrypt(encode_password)
 
             copy_button = customtkinter.CTkButton(scrollable_frame, text="Copy Pass")
-            copy_button.grid(row=entry_id, column=2, padx=5, pady=5, sticky="w")
+            copy_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
             copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             entry_id += 1
 
@@ -806,7 +806,7 @@ def main():
     button_exit_application.grid(row=6, column=0, padx=(120,0), pady=10, sticky="w")
 
     right_frame = customtkinter.CTkFrame(root)
-    right_frame.grid(row=1, column=1, rowspan=5, sticky="nsew")
+    right_frame.grid(row=1, column=1, columnspan=2, rowspan=5, sticky="nsew")
 
     home_screen()
     ui_change()
