@@ -13,19 +13,21 @@
 # 2. Pillow for importing and handling images.
 # 3. Customtkinter for creating the application interface.
 # 4. MySQL connector for connecting and interacting with the MySQL database.
-# 5. Random for randomly selecting characters for password generating.
-# 6. String for easily getting lowercase, uppercase, and digit characters.
-# 7. Socket for testing the connection of the user supplied IP address.
-# 8. Base64 for encoding the encryption/decryption key into base64
-# 9. Time for creating small time delays between some actions.
-# 10. OS for mainly checking for if files exist or not.
-# 11. RE for creating regex to be used to check user input.
+# 5. Platform used for OS type detection.
+# 6. Random for randomly selecting characters for password generating.
+# 7. String for easily getting lowercase, uppercase, and digit characters.
+# 8. Socket for testing the connection of the user supplied IP address.
+# 9. Base64 for encoding the encryption/decryption key into base64
+# 10. Time for creating small time delays between some actions.
+# 11. OS for mainly checking for if files exist or not.
+# 12. RE for creating regex to be used to check user input.
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from PIL import Image
 import mysql.connector
 import customtkinter
+import platform
 import random
 import string
 import socket
@@ -34,6 +36,9 @@ import time
 import os
 import re
 
+#--------------------------------OS TYPE----------------------------------
+# Getting the OS type the user is using
+os_name = platform.system()
 
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
@@ -753,7 +758,13 @@ def main():
     cipher_instance = Fernet(key)
 
     root.geometry(f"{792}x{400}")
-    root.attributes("-type", "splash")
+
+    if os_name == "Windows":
+        root.overrideredirect(True)
+    elif os_name == "Linux":
+        root.attributes("-type", "splash")
+    else:
+        quit()
 
     root.grid_columnconfigure(0, weight=0)
     root.grid_columnconfigure(1, weight=1)
@@ -833,7 +844,13 @@ def login():
     root.geometry(f"{180}x{300}")
     root.title("Login")
     root.resizable(False, False)
-    root.attributes("-type", "splash")
+
+    if os_name == "Windows":
+        root.overrideredirect(True)
+    elif os_name == "Linux":
+        root.attributes("-type", "splash")
+    else:
+        quit()
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
