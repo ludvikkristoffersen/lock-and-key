@@ -51,6 +51,8 @@ dark_mode_image = customtkinter.CTkImage(light_image=Image.open(".images/light-m
 light_mode_image = customtkinter.CTkImage(dark_image=Image.open(".images/dark-mode.png"), size=(24,24))
 exit_image_light = customtkinter.CTkImage(light_image=Image.open(".images/exit-button-lightmode.png"), size=(24,24))
 exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(".images/exit-button-darkmode.png"), size=(24,24))
+title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-white.png"), size=(20,20))
+title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(".images/lock-and-key-titlebar-dark.png"), size=(20,20))
 
 #---------------------------APPEARANCE MODE-----------------------------
 # Setting the default appearance mode of the application to custom JSON
@@ -70,16 +72,19 @@ def get_color():
             customtkinter.set_appearance_mode("light")
             title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
             title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
+            title_bar_logo_label.configure(image=title_bar_logo_light)
             appearance_mode = "dark"
         elif appearance_mode == "light":
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+            title_bar_logo_label.configure(image=title_bar_logo_dark)
             appearance_mode = "light"
         else:
             customtkinter.set_appearance_mode("dark")
             title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
             title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+            title_bar_logo_label.configure(image=title_bar_logo_dark)
             appearance_mode = "light"
     else:
         with open(".appearance-mode.txt", "x") as file:
@@ -112,6 +117,7 @@ def ui_change():
         right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
         title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
         title_bar_close_button.configure(fg_color="#b5b3de", bg_color="#b5b3de", text_color="#0B0B12", hover_color="#a3a0e2")
+        title_bar_logo_label.configure(image=title_bar_logo_light)
         customtkinter.set_appearance_mode("light")
     elif appearance_mode == "light":
         button_change_appearance.configure(image=dark_mode_image)
@@ -121,6 +127,7 @@ def ui_change():
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
         title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+        title_bar_logo_label.configure(image=title_bar_logo_dark)
         customtkinter.set_appearance_mode("dark")
     else:
         button_change_appearance.configure(image=dark_mode_image)
@@ -130,6 +137,7 @@ def ui_change():
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
         title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
+        title_bar_logo_label.configure(image=title_bar_logo_dark)
         customtkinter.set_appearance_mode("dark")
 
 def change_appearance_mode():
@@ -666,10 +674,18 @@ def listing_entries():
     def copy_to_clipboard(password, button):
         root.clipboard_clear()
         root.clipboard_append(password)
-        button.configure(text="Copied!")
-        scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass"))
+        if appearance_mode == "light":
+            button.configure(text="Copied!", fg_color="#DAD9FC", hover_color="#DAD9FC", text_color="#0B0B12")
+            scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#262639", hover_color="#30303F", text_color="#DAD9FC"))
+        elif appearance_mode == "dark":
+            button.configure(text="Copied!", fg_color="#0B0B12", hover_color="#0B0B12", text_color="#DAD9FC")
+            scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#918ebc", hover_color="#7a77a9", text_color="#0B0B12"))
+        else:
+            button.configure(text="Copied!", fg_color="#DAD9FC", hover_color="#DAD9FC", text_color="#0B0B12")
+            scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#262639", hover_color="#30303F", text_color="#DAD9FC"))
 
     def updating_list():
+        global copy_button
         if folder_menu.get() == "All":
             cursor.execute("SELECT username, password, folder FROM vault ORDER BY folder;")
         else:
@@ -742,7 +758,7 @@ def remove_icon(app_icon, item):
 # that call these functions when clicked.
 def main():
     remove_sidebar_objects()
-    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label
     cursor.execute("SELECT salt FROM user")
     retrieved_salt = cursor.fetchone()
 
@@ -777,11 +793,14 @@ def main():
     title_bar.grid_columnconfigure(0, weight=1)
     title_bar.grid_columnconfigure(1, weight=0)
 
+    title_bar_logo_label = customtkinter.CTkLabel(title_bar, text="", image=title_bar_logo_dark)
+    title_bar_logo_label.grid(row=0, column=0, padx=5, sticky="w")
+
     title_bar_title = customtkinter.CTkLabel(title_bar, text="Lock&Key - Password Manager", font=customtkinter.CTkFont("bold"))
-    title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
+    title_bar_title.grid(row=0, column=0, padx=27, sticky="w")
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
-    title_bar_close_button.grid(row=0, column=1, padx=(0,5), sticky="e")
+    title_bar_close_button.grid(row=0, column=1, padx=5, sticky="e")
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
@@ -839,7 +858,7 @@ def creating_db():
 # The login function also has a "remember me" functionality which
 # remembers the IP and username.
 def login():
-    global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button
+    global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
     root = customtkinter.CTk()
     root.geometry(f"{180}x{300}")
     root.title("Login")
@@ -861,11 +880,14 @@ def login():
     title_bar.grid_columnconfigure(0, weight=1)
     title_bar.grid_columnconfigure(1, weight=0)
 
+    title_bar_logo_label = customtkinter.CTkLabel(title_bar, text="", image=title_bar_logo_dark)
+    title_bar_logo_label.grid(row=0, column=0, padx=5, sticky="w")
+
     title_bar_title = customtkinter.CTkLabel(title_bar, text="Login", font=customtkinter.CTkFont("bold"))
-    title_bar_title.grid(row=0, column=0, padx=5, sticky="w")
+    title_bar_title.grid(row=0, column=0, padx=27, sticky="w")
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
-    title_bar_close_button.grid(row=0, column=1, padx=(0,5), sticky="e")
+    title_bar_close_button.grid(row=0, column=1, padx=5, sticky="e")
 
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
