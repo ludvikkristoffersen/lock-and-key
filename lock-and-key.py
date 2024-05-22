@@ -60,7 +60,7 @@ elif os_name == "Linux":
         try:
             base_path = sys._MEIPASS2
         except Exception:
-            base_path = os.path.expanduser("~")
+            base_path = os.path.abspath("/opt")
         if relative_path.endswith((".json", ".txt")):
             return os.path.join(base_path, "lock-and-key", relative_path)
         elif relative_path.endswith(".png"):
