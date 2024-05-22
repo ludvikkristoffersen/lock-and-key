@@ -3,6 +3,7 @@
 - Created by: [@ludvikkristoffersen](https://github.com/ludvikkristoffersen)
 - Powered by Python, MySQL, and Customtkinter
 - Current OS support: **Windows**, **Linux**
+- [MIT License](https://choosealicense.com/licenses/mit/)
 # About Lock&Key
 
 Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!
