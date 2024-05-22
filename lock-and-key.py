@@ -69,17 +69,28 @@ elif os_name == "Linux":
 #--------------------------------IMAGES----------------------------------
 # Importing images from the ".images" folder, and saving these images as
 # variables to be used later in the script.
-
-logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-darkmode.png")), size=(140,34))
-logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("lock-and-key-lightmode.png")), size=(140,34))
-information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("info-button-lightmode.png")), size=(24,24))
-information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("info-button-darkmode.png")), size=(24,24))
-dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path("light-mode.png")), size=(24,24))
-light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("dark-mode.png")), size=(24,24))
-exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("exit-button-lightmode.png")), size=(24,24))
-exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("exit-button-darkmode.png")), size=(24,24))
-title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-white.png")), size=(20,20))
-title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-dark.png")), size=(20,20))
+if os_name == "Windows":
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-darkmode.png")), size=(140,34))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\lock-and-key-lightmode.png")), size=(140,34))
+    information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\info-button-lightmode.png")), size=(24,24))
+    information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\info-button-darkmode.png")), size=(24,24))
+    dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\light-mode.png")), size=(24,24))
+    light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\dark-mode.png")), size=(24,24))
+    exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\exit-button-lightmode.png")), size=(24,24))
+    exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\exit-button-darkmode.png")), size=(24,24))
+    title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-white.png")), size=(20,20))
+    title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-dark.png")), size=(20,20))
+elif os_name == "Linux":
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-darkmode.png")), size=(140,34))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("lock-and-key-lightmode.png")), size=(140,34))
+    information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("info-button-lightmode.png")), size=(24,24))
+    information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("info-button-darkmode.png")), size=(24,24))
+    dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path("light-mode.png")), size=(24,24))
+    light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("dark-mode.png")), size=(24,24))
+    exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("exit-button-lightmode.png")), size=(24,24))
+    exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("exit-button-darkmode.png")), size=(24,24))
+    title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-white.png")), size=(20,20))
+    title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-dark.png")), size=(20,20))
 
 #---------------------------APPEARANCE MODE-----------------------------
 # Setting the default appearance mode of the application to custom JSON
