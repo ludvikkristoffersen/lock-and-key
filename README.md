@@ -14,13 +14,12 @@ Lock&Key is built using Python as its main language with MySQL integrated to hel
 - Listing specified or all entries
 - Deleting entries
 - Encryption
-## MySQL server set up
+## MySQL Server Set Up
 The user needs to have a local MySQL server set up and running, here is how to set up a MySQL server locally:
 - [Windows MySQL server installation (workbench not needed)](https://www.youtube.com/watch?v=u96rVINbAUI)
 - [Linux MySQL server installation (Debian)](https://www.youtube.com/watch?v=3qD6zv7thdE)
-
 **IMPORTANT!** - When creating a MySQL user account, remember these credentials, this is how you are going to authenticate to the password manager. This acts as the master password, so make it strong!
-## Application installation
+## Application Installation
 The Lock&Key password manager has been packaged as an executable for both Windows and Linux using the "pyinstaller" tool. Downloading the executable for your operating system eliminates the need to install any dependencies. It’s designed to work seamlessly right out of the box!
 - [Download Windows executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Windows)
 - [Download Linux executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Linux)
@@ -42,7 +41,8 @@ Install and fix the Pillow library:
 pip install --upgrade --force-reinstall Pillow
 ```
 ## Usage
-Starting the password manager:
+Executable installation? Launch the executable file.
+Manual installation? Start the password manager:
 ```
 python3 lock-and-key.py
 ```
