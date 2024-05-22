@@ -20,7 +20,11 @@ The user needs to have a local MySQL server set up and running, here is how to s
 - [Linux MySQL server installation (Debian)](https://www.youtube.com/watch?v=3qD6zv7thdE)
 
 **IMPORTANT!** - When creating a MySQL user account, remember these credentials, this is how you are going to authenticate to the password manager. This acts as the master password, so make it strong!
-## Installation
+## Application installation
+The Lock&Key password manager has been packaged as an executable for both Windows and Linux using the "pyinstaller" tool. Downloading the executable for your operating system eliminates the need to install any dependencies. It’s designed to work seamlessly right out of the box!
+- [Download Windows executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Windows)
+- [Download Linux executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Linux)
+## Manual Installation
 Clone repository (requires git to be installed):
 ```
 git clone https://github.com/ludvikkristoffersen/lock-and-key
