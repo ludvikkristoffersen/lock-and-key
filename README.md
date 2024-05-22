@@ -15,6 +15,7 @@ Lock&Key is built using Python as its main language with MySQL integrated to hel
 - Listing specified or all entries
 - Deleting entries
 - Encryption
+
 # Installation and Set Up
 ## MySQL Server Set Up
 The user needs to have a local MySQL server set up and running, here is how to set up a MySQL server locally:
