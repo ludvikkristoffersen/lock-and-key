@@ -52,20 +52,3 @@ Manual installation? Start the password manager:
 python3 lock-and-key.py
 ```
 Login by providing MySQL server IP address and MySQL user credentials, and you are good to go!
-
-
-```
-Hashing algorithm used: MD5
-Stored hash: 42f749ade7f9e195bf475f37a44cafcb
-
-Matching process
-_________________________________________________________________________________________________
-| Password list  | Generated hash                     Stored hash                      | Match? |
-|-----------------------------------------------------------------------------------------------|
-| supersecret    | 9a618248b64db62d15b300a07b00580b = 42f749ade7f9e195bf475f37a44cafcb | No     |
-| password123    | 482c811da5d5b4bc6d497ffa98491e38 = 42f749ade7f9e195bf475f37a44cafcb | No     |
-| Password123    | 42f749ade7f9e195bf475f37a44cafcb = 42f749ade7f9e195bf475f37a44cafcb | Yes    |
-------------------------------------------------------------------------------------------------|
-
-Stored plain text found = Password123
-```
