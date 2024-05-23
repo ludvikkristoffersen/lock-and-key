@@ -52,3 +52,18 @@ Manual installation? Start the password manager:
 python3 lock-and-key.py
 ```
 Login by providing MySQL server IP address and MySQL user credentials, and you are good to go!
+
+
+```
+Hashing algorithm used: MD6 256
+Stored hash: a8f75221ed7cae35a14ec82890917dddeb1b37e0c9fa8753640e18209b30ef07
+
+Matching process
+______________________________________________________________________________________________________________________________________________________________
+| Plain text  | Generated hash                                                     Stored hash                                                      | Match? |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| supersecret | c58607ffa40ca2be21002c4b8e82d92fb0083c5618531d1da4f249f1d76e4f92 = a8f75221ed7cae35a14ec82890917dddeb1b37e0c9fa8753640e18209b30ef07 | No     |
+| password123 | 04516e374f0ad9f74c3fc62045a597e732b3387020f7646bf8ea5643e8ab3037 = a8f75221ed7cae35a14ec82890917dddeb1b37e0c9fa8753640e18209b30ef07 | No     |
+| Password123 | a8f75221ed7cae35a14ec82890917dddeb1b37e0c9fa8753640e18209b30ef07 = a8f75221ed7cae35a14ec82890917dddeb1b37e0c9fa8753640e18209b30ef07 | Yes    |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+```
