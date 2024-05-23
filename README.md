@@ -59,11 +59,13 @@ Hashing algorithm used: MD5
 Stored hash: 42f749ade7f9e195bf475f37a44cafcb
 
 Matching process
-______________________________________________________________________________________________
-| Plain text  | Generated hash                     Stored hash                      | Match? |
-|--------------------------------------------------------------------------------------------|
-| supersecret | 9a618248b64db62d15b300a07b00580b = 42f749ade7f9e195bf475f37a44cafcb | No     |
-| password123 | 482c811da5d5b4bc6d497ffa98491e38 = 42f749ade7f9e195bf475f37a44cafcb | No     |
-| Password123 | 42f749ade7f9e195bf475f37a44cafcb = 42f749ade7f9e195bf475f37a44cafcb | Yes    |
----------------------------------------------------------------------------------------------|
+_________________________________________________________________________________________________
+| Password list  | Generated hash                     Stored hash                      | Match? |
+|-----------------------------------------------------------------------------------------------|
+| supersecret    | 9a618248b64db62d15b300a07b00580b = 42f749ade7f9e195bf475f37a44cafcb | No     |
+| password123    | 482c811da5d5b4bc6d497ffa98491e38 = 42f749ade7f9e195bf475f37a44cafcb | No     |
+| Password123    | 42f749ade7f9e195bf475f37a44cafcb = 42f749ade7f9e195bf475f37a44cafcb | Yes    |
+------------------------------------------------------------------------------------------------|
+
+Stored plain text found = Password123
 ```
