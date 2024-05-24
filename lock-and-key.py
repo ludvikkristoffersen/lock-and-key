@@ -1196,6 +1196,10 @@ def login():
             if os.path.isfile(resource_path(".remember_me.txt")):
                 os.remove(resource_path(".remember_me.txt"))
 
+    # Checkbox that will trigger the remember_me function to trigger once clicked. 
+    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
+    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
+
     # Checks if there is a file called .remember_me.txt, and if this file
     # exists, read the file and place the host and username in their 
     # input fields.
@@ -1212,10 +1216,6 @@ def login():
             os.remove(resource_path(".remember_me.txt"))
     else:
         pass
-    
-    # Checkbox that will trigger the remember_me function to trigger once clicked. 
-    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
-    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
     
     # Function for checking if the host entered actually is reachable on port 3306.
     def mysql_server_alive_check(host, port=3306):
