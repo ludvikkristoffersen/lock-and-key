@@ -1,36 +1,39 @@
-#------------------------------------------------------------------------#
-# Lock&Key Password Manager                                              #
-#------------------------------------------------------------------------#
-# Version: 1.0                                                           #
-# Open-source, self-managed, and self-hosted                             #
-#                                                                        #
-# Created by - Ludvik Kristoffersen                                      #
-#                                                                        #
-# Copyright 2024 Ludvik Kristoffersen                                    #
-#________________________________________________________________________#
+################################################################################
+# Lock&Key Password Manager                                                    #
+################################################################################
+# Version: 1.0                                                                 #
+# Open-source, self-managed, and self-hosted                                   #
+#                                                                              #
+# Created by - Ludvik Kristoffersen                                            #
+#                                                                              #
+# Copyright 2024 Ludvik Kristoffersen                                          #
+################################################################################
 
+################################################################################
+#                                                                              #
+#                               Importing modules                              #
+#                                                                              #
+################################################################################
 
-#---------------------------IMPORTING MODULES-----------------------------
-# 1. Cryptography for encrypting and decrypting passwords.
-# 2. Pillow for importing and handling images.
-# 3. Customtkinter for creating the application interface.
-# 4. MySQL connector for connecting and interacting with the MySQL database.
+# 1. Fernet used for encrypting and decrypting passwords before storage.
+# 2. Pillow used for importing and handling images in the application.
+# 3. MySQL connector used for connecting and interacting with the MySQL database.
+# 4. Customtkinter used for creating the application interface.
 # 5. Platform used for OS type detection.
-# 6. Random for randomly selecting characters for password generating.
-# 7. String for easily getting lowercase, uppercase, and digit characters.
-# 8. Socket for testing the connection of the user supplied IP address.
-# 9. Base64 for encoding the encryption/decryption key into base64
-# 10. Time for creating small time delays between some actions.
-# 11. OS for mainly checking for if files exist or not.
-# 12. RE for creating regex to be used to check user input.
-#from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-#from cryptography.hazmat.primitives import hashes
+# 6. Argon2 used for creating a secure key for encryption and decryption.
+# 7. Random used for randomly selecting characters for password generating.
+# 8. String used for easily getting lowercase, uppercase, and digit characters.
+# 9. Socket used for testing the connection of the user supplied IP address.
+# 10. Base64 used for encoding the Argon2 generated key into base64.
+# 11. Time used for creating small time delays between some actions.
+# 12. OS used for mainly checking for if files exist or not.
+# 13. RE used for creating regex to be used to check user input.
 from cryptography.fernet import Fernet
-import argon2
 from PIL import Image
 import mysql.connector
 import customtkinter
 import platform
+import argon2
 import random
 import string
 import socket
@@ -40,15 +43,12 @@ import sys
 import os
 import re
 
-
-#--------------------------------OS TYPE----------------------------------
-# Getting the OS type the user is using
+# Getting the OS type the user is currently on, used to determine various decisions.
 os_name = platform.system()
 
-#-----------------------------GETTING PATHS--------------------------------
 # Based on the OS used, Python determines the absolute paths for the installation
 # folder, this is how we are able to locate not only the executable but also the
-# images, and the other files used in the script
+# images, and the other files used in the script.
 if os_name == "Windows":
     def resource_path(relative_path):
         try:
@@ -67,9 +67,9 @@ elif os_name == "Linux":
         elif relative_path.endswith(".png"):
             return os.path.join(base_path, "lock-and-key", ".images", relative_path)
 
-#--------------------------------IMAGES----------------------------------
-# Importing images from the ".images" folder, and saving these images as
-# variables to be used later in the script.
+
+# Based on the OS type we are importing images from the ".images" folder,
+# and saving these images as variables to be used later in the script.
 if os_name == "Windows":
     logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-darkmode.png")), size=(140,34))
     logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\lock-and-key-lightmode.png")), size=(140,34))
@@ -93,15 +93,22 @@ elif os_name == "Linux":
     title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-white.png")), size=(20,20))
     title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-dark.png")), size=(20,20))
 
-#---------------------------APPEARANCE MODE-----------------------------
-# Setting the default appearance mode of the application to custom JSON
-# theme, and setting the default color mode to being dark.
+################################################################################
+#                                                                              #
+#                           Application color control                          #
+#                                                                              #
+################################################################################
+
+# Setting the default appearance mode of the application to the custom JSON
+# theme, and setting the default appearance mode to being dark. Also setting
+# the error message color, and succeed message color.
 customtkinter.set_default_color_theme(resource_path(".app-theme.json"))
 error_color = "#E63946"
 succeed_color = "#3A3DFD"
-
 appearance_mode = "dark"
 
+# A function for getting the saved appearance mode on application startup,
+# and then configuring the color for the title bar based on the appearance mode.
 def get_color():
     global appearance_mode
     if os.path.isfile(resource_path(".appearance-mode.txt")):
@@ -145,9 +152,9 @@ def get_color():
             title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             appearance_mode = "light"
 
-#--------------------------------CHANGING COLOR-----------------------------------
-# User can change the appearance mode from dark to light mode and vice versa. This
-# also changes the colors that are not controlled by the .app-theme.json file
+# This function is for triggering the a UI change once the user changes
+# the appearance mode within the application, it is also changing the
+# colors of objects that might have changed during application usage.
 def ui_change():
     if appearance_mode == "dark":
         button_change_appearance.configure(image=light_mode_image)
@@ -195,7 +202,8 @@ def ui_change():
             pass
         customtkinter.set_appearance_mode("dark")
 
-# Function that toggles between light and dark mode.
+# This is the function that changes the appearance mode based on user interaction
+# during runtime.
 def change_appearance_mode():
     global appearance_mode
     if appearance_mode == "dark":
@@ -211,7 +219,12 @@ def change_appearance_mode():
             file.close()
         ui_change()
 
-#--------------------------------REGEX-----------------------------------
+################################################################################
+#                                                                              #
+#                               Minor functions                                #
+#                                                                              #
+################################################################################
+
 # Creating some regex's that determine what the user is allowed to type
 # in the various input fields, checks if the user has used characters that 
 # is not allowed.
@@ -219,44 +232,60 @@ username_regex = r"^[A-Za-z0-9_.@\-]+$"
 password_regex = r"^[A-Za-z0-9!@#$%^&*]+$"
 folder_regex = r"^[A-Za-z0-9]+$"
 
-#----------------------------MINOR FUNCTIONS-----------------------------
-# 1. remove_right_objects is used to remove all objects that are currently 
-#    present on the right hand side.
-# 2. remove_sidebar_objects are used to remove the sidebar objects.
-# 3. mysql_server_alive_check is used to check if the user supplied IP
-#    address is reachable on port 3306.
+# Function for removing the objects in the right frame, used to reset the
+# right frame by removing the contents that is in place, used at the start in
+# every main function.
 def remove_right_objects():
     for widget in right_frame.winfo_children():
         widget.destroy()
 
+# Function for removing the objects in the sidebar frame, used to reset the
+# sidebar frame by removing the contents that is in place.
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
         widget.destroy()
 
-def mysql_server_alive_check(host, port=3306):
+# Functions for letting the user click and drag on the custom title bar to
+# move it around on the screen. 
+def get_position(event):
+    global x_pos, y_pos
+    x_pos = event.x
+    y_pos = event.y
+    
+def move_application(event):
+    x = event.x_root - x_pos
+    y = event.y_root - y_pos
+    root.geometry(f"+{x}+{y}")
+
+# This function is used to exit the application, it closes the current
+# database connection and the database cursor and then safely exists 
+# the application.
+def exit_application():
     try:
-        socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_instance.settimeout(4)
-        socket_instance.connect((host,port))
-        socket_instance.close()
-        return True
+        if cursor and connection:
+            cursor.close()
+            connection.close()
+            time.sleep(1)
+            root.quit()
+            sys.exit()
+        else:
+            root.quit()
+            sys.exit()
     except:
-        return False
+        time.sleep(1)
+        root.quit()
+        sys.exit()
 
-#-----------------------------KDF--------------------------
-# Used to create a encryption/decryption key from combining
-# the master password with a salt created on first runtime
-def key_derivation_function(master_password, salt):
-    kdf = argon2.PasswordHasher()
-    hash_the_key = kdf.hash(master_password, salt=salt)
-    key_length = hash_the_key[:32]
-    key = base64.urlsafe_b64encode(key_length.encode()).decode()
-    return key
+################################################################################
+#                                                                              #
+#                          Password strength check                             #
+#                                                                              #
+################################################################################
 
-#-----------------------PASSWORD STRENGTH CHECK-----------------------
-# Checking the overall password strength of the password entered by the
-# user or the one generated by the application. Password strength and
-# complexity is based on the CIS benchmark with some slight modifications.
+# This function calculates the score based on if the user meets the requirements
+# listed below, these requirements follow the guidelines found on this website
+# https://www.cmu.edu/iso/governance/guidelines/password-management.html
+# but has been modified to make the requirements stronger.
 def password_score_calculation(password):
     password_score = 0
 
@@ -272,6 +301,9 @@ def password_score_calculation(password):
         password_score += 1
     return password_score
 
+# This function updates the password strength checker based on teh score
+# calculated in the previous function. This let's the user see exactly
+# how weak or strong the password entered is.
 def password_strength_updater(event):
     entered_password = password_entry.get()
     overall_score = password_score_calculation(entered_password)
@@ -296,10 +328,16 @@ def password_strength_updater(event):
         password_strength_label.configure(text="")
     password_strength_slider.set(overall_score)
 
-#----------------------------HOME SCREEN------------------------------
-# Creating a home screen where the user should be informed of what
-# features are in the password manager, also given a short description
-# of the password manager itself.
+################################################################################
+#                                                                              #
+#                                Home screen                                   #
+#                                                                              #
+################################################################################
+
+# This function creates the home screen, this is the first screen the user sees
+# once they have authenticated themselves. The home screen provides a short
+# description of the password manager, and also lists the functionality provided
+# by this password manager.
 def home_screen():
     remove_right_objects()
     description_title_label = customtkinter.CTkLabel(right_frame, text="Description", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -323,14 +361,20 @@ def home_screen():
 • Encryption: Data securely stored with encryption.""")
     functionalities_text.configure(state="disabled")
 
-#----------------------------ADDING ENTRY-----------------------------
-# One of the main functions. This let's the user add a new account entry
-# to the database, they can choose to generate a random password in the
-# 25-255 character limit, and they can also choose to save this account
-# in a group by specifying a folder name.
+################################################################################
+#                                                                              #
+#                                Adding entry                                  #
+#                                                                              #
+################################################################################
+
+# This is one of the main functionalities provided by the password manager, this
+# function lets the user add a new password entry into the database. 
 def adding_entry():
-    global username_entry, folder_entry, folder_menu, password_entry, password_strength_label, password_strength_slider
+    # Calls the function to remove what is currently in the right frame.
     remove_right_objects()
+
+    global username_entry, folder_entry, folder_menu, password_entry, password_strength_label, password_strength_slider
+
     add_entry_label = customtkinter.CTkLabel(right_frame, text="Add Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     add_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
@@ -338,7 +382,8 @@ def adding_entry():
     username_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
     username_entry = customtkinter.CTkEntry(right_frame)
     username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="w")
-
+    
+    # Function for showing the entered password.
     def toggle_password_show():
         if password_show.get():
             password_entry.configure(show="")
@@ -349,6 +394,7 @@ def adding_entry():
     password_label.grid(row=2, column=0, padx=20, pady=(10,0), sticky="w")
     password_entry = customtkinter.CTkEntry(right_frame, show="*")
     password_entry.grid(row=2, column=0, padx=100, pady=(10,0), sticky="w")
+    # Bind that triggers the password strength checker on key release.
     password_entry.bind("<KeyRelease>", password_strength_updater)
     password_strength_slider = customtkinter.CTkSlider(right_frame, from_=0, to=6, number_of_steps=6, width=115, height=5)
     password_strength_slider.grid(row=3, column=0, padx=(100,0), pady=0, sticky="w")
@@ -368,6 +414,7 @@ def adding_entry():
     password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
     password_show.grid(row=2, column=1, pady=(10,0), sticky="w")
 
+    # MySQL query that retrieves all the folders from the vault.
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
@@ -384,7 +431,10 @@ def adding_entry():
     folder_entry.grid(row=4, column=0, padx=100, pady=(0,10), sticky="w")
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
     folder_menu.grid(row=4, column=1, pady=(0,10), sticky="w")
-
+    
+    # Function for adding the new entry into the database, it checks if the username,
+    # password, and folder matches their respective regex patterns. Passwords are
+    # encrypted, and that encrypted value is stored in the database.
     def add_database_entry():
         try:
             username = username_entry.get().strip()
@@ -434,6 +484,10 @@ def adding_entry():
     add_button = customtkinter.CTkButton(right_frame, text="Add Entry", command=add_database_entry)
     add_button.grid(row=5, column=0, padx=20, pady=10, sticky="w")
     
+    # This function provides the user with the possibility to generate a random strong password
+    # that must be in the 25-255 character limit. The randomly generated password must create
+    # a strong password each time, meaning if must match the requirements for the password
+    # strength checker.
     def generate_random_password():
         try:
             password_length = int(password_char_length.get())
@@ -444,12 +498,17 @@ def adding_entry():
             else:
                 message_label.configure(text="")
                 password_entry.delete(0, "end")
-                letters = [char for char in string.ascii_letters]
-                digits = [char for char in string.digits]
-                special_char = ["!","@","#","$","%","^","&","*"]
-                combined_char_list = letters+digits+special_char
+                lowercase = string.ascii_lowercase
+                uppercase = string.ascii_uppercase
+                numbers = string.digits
+                special_char = "!@#$%^&*"
+                combined_char_list = lowercase+uppercase+numbers+special_char
                 random_password = "".join(random.choices(combined_char_list, k=password_length))
-                password_entry.insert(0, random_password)
+                if any(char in lowercase for char in random_password) and any(char in uppercase for char in random_password) \
+                    and sum(char in numbers for char in random_password) >= 3 and sum(char in special_char for char in random_password) >= 3: 
+                    password_entry.insert(0, random_password)
+                else:
+                    generate_random_password()
                 password_strength_updater(None)
         except:
             message_label.configure(text="Password character length not valid.", text_color=error_color)
@@ -463,21 +522,26 @@ def adding_entry():
 
     message_label = customtkinter.CTkLabel(right_frame, text="")
     message_label.grid(row=6, column=0, padx=20, pady=10, sticky="w")
-    
 
-#----------------------------UPDATING ENTRY---------------------------
-# One of the main functions. This let's the user update a entry that is
-# already stored in the database, they can change everything or just 
-# small parts of the entry such as only the username, password, or folder.
-# The user should also be allowed to generate a random password here with
-# the same 25-255 range character limit.
+################################################################################
+#                                                                              #
+#                               Updating entry                                 #
+#                                                                              #
+################################################################################
+
+# This is one of the main functionalities provided by the password manager, this
+# function lets the user update any entries that are already stored in the
+# password manager.
 def updating_entry():
+    # Calls the function to remove what is currently in the right frame.
     remove_right_objects()
 
     global updating_list
     update_entry_label = customtkinter.CTkLabel(right_frame, text="Update Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     update_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
+    # MySQL query that retrieves all the folders from the vault which is used
+    # for displaying all entries or only specified entries.
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
@@ -491,6 +555,8 @@ def updating_entry():
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
+    # Function that retrieves all entries currently stored in the password manager,
+    # but it does not retrieve the password.
     def updating_list():
         if folder_menu.get() == "All":
             cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
@@ -522,7 +588,13 @@ def updating_entry():
             select_entry_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
             select_entry_button.configure(command=lambda r=row_id, u=username, f=folder: updating_entry_button(r,u,f))
             entry_id += 1
-            
+
+    # When a user selects a entry they want to edit or update in any way, they get
+    # brought to the same screen used to create a new entry, but the username
+    # and folder is already filled in, indicating that the user is updating a 
+    # entry. The password does not show, if the password is not changed then the
+    # currently stored password will not change, but if it is changed then the 
+    # password will update.         
     def updating_entry_button(row_id, username, folder):
         global password_entry, password_strength_label, password_strength_slider
         remove_right_objects()
@@ -535,7 +607,8 @@ def updating_entry():
         username_entry = customtkinter.CTkEntry(right_frame)
         username_entry.grid(row=1, column=0, padx=100, pady=10, sticky="w")
         username_entry.insert(0, username)
-
+        
+        # Function for showing the entered password.
         def toggle_password_show():
             if password_show.get():
                 password_entry.configure(show="")
@@ -546,6 +619,7 @@ def updating_entry():
         password_label.grid(row=2, column=0, padx=20, pady=(10,0), sticky="w")
         password_entry = customtkinter.CTkEntry(right_frame, show="*")
         password_entry.grid(row=2, column=0, padx=100, pady=(10,0), sticky="w")
+        # Bind that triggers the password strength checker on key release.
         password_entry.bind("<KeyRelease>", password_strength_updater)
         password_strength_slider = customtkinter.CTkSlider(right_frame, from_=0, to=6, number_of_steps=6, width=115, height=5)
         password_strength_slider.grid(row=3, column=0, padx=(100,0), pady=0, sticky="w")
@@ -564,7 +638,8 @@ def updating_entry():
 
         password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
         password_show.grid(row=2, column=1, pady=(10,0), sticky="w")
-    
+        
+        # MySQL query that retrieves all the folders from the vault.
         cursor.execute("SELECT folder FROM vault ORDER BY folder")
         rows = cursor.fetchall()
         folder_list = [row[0] for row in rows]
@@ -582,6 +657,12 @@ def updating_entry():
         folder_entry.insert(0, folder)
         folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
         folder_menu.grid(row=4, column=1, padx=0, pady=(0,10))
+
+        # Function that updates the selected entry. It checks if anything has been changed
+        # if not then nothing will be updated, all inputs are also being run through the
+        # regex specified earlier to hinder the user from entering characters that might
+        # break the back end query made. The user can choose to update one or multiple
+        # things, new passwords are also encrypted before being stored in the database.
         def confirm_update():
             new_username = username_entry.get().strip()
             password = password_entry.get().strip()
@@ -670,7 +751,9 @@ def updating_entry():
                     message_label.configure(text="Username invalid.", text_color=error_color)
             else:
                 message_label.configure(text="Username cannot be empty.", text_color=error_color)
-
+        
+        # Function for letting the user cancel the current update, brings the user
+        # back to the selection screen.
         def cancel_update():
             password_strength_updater(None)
             remove_right_objects()
@@ -681,6 +764,10 @@ def updating_entry():
         cancel_update_button = customtkinter.CTkButton(right_frame, text="Cancel", command=cancel_update, width=60)
         cancel_update_button.grid(row=5, column=0, padx=90, pady=10, sticky="w")
 
+        # This function provides the user with the possibility to generate a random strong password
+        # that must be in the 25-255 character limit. The randomly generated password must create
+        # a strong password each time, meaning if must match the requirements for the password
+        # strength checker.
         def generate_random_password():
             try:
                 password_length = int(password_char_length.get())
@@ -689,13 +776,19 @@ def updating_entry():
                 elif password_length > 255:
                     message_label.configure(text="Password character length to long.", text_color=error_color)
                 else:
+                    message_label.configure(text="")
                     password_entry.delete(0, "end")
-                    letters = [char for char in string.ascii_letters]
-                    digits = [char for char in string.digits]
-                    special_char = ["!","@","#","$","%","^","&","*"]
-                    combined_char_list = letters+digits+special_char
+                    lowercase = string.ascii_lowercase
+                    uppercase = string.ascii_uppercase
+                    numbers = string.digits
+                    special_char = "!@#$%^&*"
+                    combined_char_list = lowercase+uppercase+numbers+special_char
                     random_password = "".join(random.choices(combined_char_list, k=password_length))
-                    password_entry.insert(0, random_password)
+                    if any(char in lowercase for char in random_password) and any(char in uppercase for char in random_password) \
+                        and sum(char in numbers for char in random_password) >= 3 and sum(char in special_char for char in random_password) >= 3: 
+                        password_entry.insert(0, random_password)
+                    else:
+                        generate_random_password()
                     password_strength_updater(None)
             except:
                 message_label.configure(text="Password character length not valid.", text_color=error_color)
@@ -710,22 +803,29 @@ def updating_entry():
         message_label = customtkinter.CTkLabel(right_frame, text="")
         message_label.grid(row=6, column=0, padx=20, pady=10, sticky="w")
     
+    # Calls the updating list function immediately to update the current list of entries.
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-#----------------------------DELETING ENTRY---------------------------
-# One of the main functions. This let's the user delete one or more 
-# entries stored in the database. This is not reversible so we must
-# notify the user before deleting an entry.
+################################################################################
+#                                                                              #
+#                               Deleting entry                                 #
+#                                                                              #
+################################################################################
+
+# This is one of the main functionalities provided by the password manager, this
+# function lets the user delete entries in the password manager.
 def deleting_entry():
+    # Calls the function to remove what is currently in the right frame.
     remove_right_objects()
 
-    global updating_list
     delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
     delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
+    # MySQL query that retrieves all the folders from the vault which is used
+    # for displaying all entries or only specified entries.
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
@@ -739,13 +839,18 @@ def deleting_entry():
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
+    # Clicking the delete button on one of the entries in the list
+    # will bring up a confirmation screen where the user can confirm
+    # the deletion or decline the deletion.
     def delete_entry_button(row_id):
         remove_right_objects()
         delete_entry_label = customtkinter.CTkLabel(right_frame, text="Delete Entry", font=customtkinter.CTkFont(size=15, weight="bold"))
         delete_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
         warning_label = customtkinter.CTkLabel(right_frame, text="Deletion of entries are final, are you sure?")
         warning_label.grid(row=1, column=0, padx=20, pady=5, sticky="w")
-
+        
+        # This function is run when the user confirms the deletion, this will
+        # delete the entry from the database.
         def confirm_deletion():
             cursor.execute(f"DELETE FROM vault WHERE id={int(row_id)}")
             connection.commit()
@@ -755,6 +860,8 @@ def deleting_entry():
         regret_deletion_button = customtkinter.CTkButton(right_frame, text="No", command=deleting_entry, width=50)
         regret_deletion_button.grid(row=2, column=0, padx=90, pady=5, sticky="w")
 
+    # Function that retrieves all entries currently stored in the password manager,
+    # but it does not retrieve the password.
     def updating_list():
         if folder_menu.get() == "All":
             cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
@@ -785,23 +892,32 @@ def deleting_entry():
             remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
             entry_id += 1
 
+    # Calls the updating list function immediately to update the current list of entries.
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-#----------------------------LISTING ENTRIES--------------------------
-# One of the main functions. This let's the user list all or specified
-# entries from the database, this is also where the user can copy the 
-# password for their accounts directly. Passwords are not shown in
-# plaintext for security reasons.
+################################################################################
+#                                                                              #
+#                               Listing entries                                #
+#                                                                              #
+################################################################################
+
+# This is one of the main functionalities provided by the password manager, this
+# function lets the user list all or specified entries and let's the user copy
+# password for any stored entry in the database.
 def listing_entries():
+    # Calls the function to remove what is currently in the right frame.
     remove_right_objects()
+
     global scrollable_frame
 
     list_entry_label = customtkinter.CTkLabel(right_frame, text="Listing Entries", font=customtkinter.CTkFont(size=15, weight="bold"))
     list_entry_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
 
+    # MySQL query that retrieves all the folders from the vault which is used
+    # for displaying all entries or only specified entries.
     cursor.execute("SELECT folder FROM vault ORDER BY folder")
     rows = cursor.fetchall()
     folder_list = [row[0] for row in rows]
@@ -815,7 +931,10 @@ def listing_entries():
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
-    # Function that copies the password from the list entries main function
+    # Passwords are not shown in plain text, the plain text password is stored between a
+    # copy button which the user can press to copy that plain text password. This is done
+    # for security reasons, no one in your surrounding's should be able to see the users
+    # plain text passwords.
     def copy_to_clipboard(password, button):
         root.clipboard_clear()
         root.clipboard_append(password)
@@ -829,6 +948,8 @@ def listing_entries():
             button.configure(text="Copied!", fg_color="#DAD9FC", hover_color="#DAD9FC", text_color="#0B0B12")
             scrollable_frame.after(2000, lambda: button.configure(text="Copy Pass", fg_color="#262639", hover_color="#30303F", text_color="#DAD9FC"))
 
+    # Function that retrieves all entries currently stored in the password manager,
+    # but it does not retrieve the password.
     def updating_list():
         global copy_button
         if folder_menu.get() == "All":
@@ -864,51 +985,39 @@ def listing_entries():
             copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
             entry_id += 1
 
+    # Calls the updating list function immediately to update the current list of entries.
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
     update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
 
-#----------------------------EXIT APPLICATION-------------------------
-# Simply let's the user exit the application. Makes sure that both the
-# application and root are terminated.
-def exit_application():
-    try:
-        if cursor and connection:
-            cursor.close()
-            connection.close()
-            time.sleep(1)
-            root.quit()
-            sys.exit()
-        else:
-            root.quit()
-            sys.exit()
-    except:
-        time.sleep(1)
-        root.quit()
-        sys.exit()
+################################################################################
+#                                                                              #
+#                               Main function                                  #
+#                                                                              #
+################################################################################
 
-# Function for letting the user click and drag on the custom title bar to
-# move it around on the screen. 
-def get_position(event):
-    global x_pos, y_pos
-    x_pos = event.x
-    y_pos = event.y
-    
-def move_application(event):
-    x = event.x_root - x_pos
-    y = event.y_root - y_pos
-    root.geometry(f"+{x}+{y}")
-
-#-----------------------------MAIN FUNCTION---------------------------
-# The main function powers all the functions above by creating buttons
-# that call these functions when clicked.
+# This function powers the whole application, it has a button to trigger each of
+# functions listed above, as well as buttons for changing appearance mode, and 
+# quitting the application.
 def main():
+    # Calls the function to remove what is currently in the sidebar.
     remove_sidebar_objects()
+
     global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label
+    
+    # Creates the database and the needed tables if they do not already exist.
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS lockandkey_{username}")
+    cursor.execute(f"USE lockandkey_{username}")
+    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
+    cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, salt VARCHAR(50) NOT NULL)")
+    connection.commit()
+
+    # Retrieves the salt from the user table.
     cursor.execute("SELECT salt FROM user")
     retrieved_salt = cursor.fetchone()
-
+    # If the salt exist then use that salt, but if no salt is present
+    # create a randomly generated 50 character salt for the user.
     if retrieved_salt is not None:
         salt = retrieved_salt[0].encode()
     else:
@@ -922,23 +1031,35 @@ def main():
         cursor.execute(f"INSERT INTO user (salt) VALUES ('{store_salt}')")
         connection.commit()
 
+    # This function generates a key based on the users master password and user salt.
+    # The key is then shortened to 32 characters and encoded with base64 to work with Ferent.
+    def key_derivation_function(master_password, salt):
+        kdf = argon2.PasswordHasher()
+        hash_the_key = kdf.hash(master_password, salt=salt)
+        key_length = hash_the_key[:32]
+        key = base64.urlsafe_b64encode(key_length.encode()).decode()
+        return key
+    # Calls the KDF function and creates the cipher_instance with the generated key.
+    # This cipher instance is now used for encryption and decryption.
     key = key_derivation_function(master_password.encode(),salt)
     cipher_instance = Fernet(key)
 
     root.geometry(f"{792}x{400}")
 
+    # Removes the system title bar based on the current OS.
     if os_name == "Windows":
         root.overrideredirect(True)
     elif os_name == "Linux":
         root.attributes("-type", "splash")
     else:
-        quit()
+        sys.exit()
 
     root.grid_columnconfigure(0, weight=0)
     root.grid_columnconfigure(1, weight=1)
     root.grid_rowconfigure(0, weight=0)
     root.grid_rowconfigure(1, weight=1)
 
+    # Creates the custom title bar.
     title_bar = customtkinter.CTkFrame(root, height=5)
     title_bar.grid(row=0, column=0, columnspan=2, sticky="ew")
 
@@ -953,12 +1074,12 @@ def main():
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
     title_bar_close_button.grid(row=0, column=1, padx=5, sticky="e")
-
+    # Binds to trigger the functions for clicking and dragging the task bar.
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
 
     title_bar.tkraise()
-
+    # Creates the sidebar frame, creates buttons for all the provided functionalities. 
     sidebar_frame = customtkinter.CTkFrame(root, width=300)
     sidebar_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
     sidebar_frame.grid_rowconfigure(6, weight=1)
@@ -990,43 +1111,41 @@ def main():
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=1, column=1, columnspan=2, rowspan=5, sticky="nsew")
 
+    # Calls the home screen function to show the home screen on startup
+    # Also calling the ui change function to update the UI based on the
+    # current appearance theme.
     home_screen()
     ui_change()
 
-#-----------------------------DATABASE CREATION--------------------------
-# Creates the database for the user and tables if not already cerated.
-def creating_db():
-    cursor.execute(f"CREATE DATABASE IF NOT EXISTS lockandkey_{username}")
-    cursor.execute(f"USE lockandkey_{username}")
-    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
-    cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, salt VARCHAR(50) NOT NULL)")
-    connection.commit()
-    main()
+################################################################################
+#                                                                              #
+#                               Login function                                 #
+#                                                                              #
+################################################################################
 
-#-----------------------------LOGIN FUNCTION--------------------------
-# The login function authenticates the user before being able to use
-# the password manager, it establishes a connection to the specified
-# MySQL server, and uses the MySQL credentials for authentication.
-# The login function also has a "remember me" functionality which
-# remembers the IP and username.
+# This function authenticates the user with the MySQL server, uses the MySQL
+# password as the master password for the password manager.
 def login():
     global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
+
     root = customtkinter.CTk()
     root.geometry(f"{180}x{300}")
     root.title("Login")
     root.resizable(False, False)
 
+    # Removes the system title bar based on the current OS.
     if os_name == "Windows":
         root.overrideredirect(True)
     elif os_name == "Linux":
         root.attributes("-type", "splash")
     else:
         root.quit()
-        sys.quit()
+        sys.exit()
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
 
+    # Creates the custom title bar.
     title_bar = customtkinter.CTkFrame(root, height=5, fg_color="#11111C")
     title_bar.grid(row=0, column=0, sticky="ew")
 
@@ -1041,7 +1160,7 @@ def login():
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
     title_bar_close_button.grid(row=0, column=1, padx=5, sticky="e")
-
+    # Binds to trigger the functions for clicking and dragging the task bar.
     title_bar.bind("<Button-1>", get_position)
     title_bar.bind("<B1-Motion>", move_application)
 
@@ -1063,7 +1182,9 @@ def login():
     password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*")
     password_entry.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
 
-
+    # Function for creating a document that will store the host and username
+    # to provide a remember me functionality so the user does not need to
+    # enter the host and username each time they launch the application.
     def remember_me():
         if remember_me_check.get():
             if os.path.isfile(resource_path(".remember_me.txt")):
@@ -1075,9 +1196,9 @@ def login():
             if os.path.isfile(resource_path(".remember_me.txt")):
                 os.remove(resource_path(".remember_me.txt"))
 
-    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
-    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
-
+    # Checks if there is a file called .remember_me.txt, and if this file
+    # exists, read the file and place the host and username in their 
+    # input fields.
     if os.path.isfile(resource_path(".remember_me.txt")):
         with open(resource_path(".remember_me.txt"), "r") as file:
             line = file.readlines()
@@ -1091,7 +1212,24 @@ def login():
             os.remove(resource_path(".remember_me.txt"))
     else:
         pass
+    
+    # Checkbox that will trigger the remember_me function to trigger once clicked. 
+    remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
+    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
+    
+    # Function for checking if the host entered actually is reachable on port 3306.
+    def mysql_server_alive_check(host, port=3306):
+        try:
+            socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_instance.settimeout(4)
+            socket_instance.connect((host,port))
+            socket_instance.close()
+            return True
+        except:
+            return False
 
+    # Function for authenticating the user to the MySQL server. User input in all fields
+    # are run through regex's to make sure the user provides valid input.
     def authentication():
         global connection, cursor, username, master_password
 
@@ -1112,6 +1250,9 @@ def login():
                         login_failure_message_label.configure(text="")
                         if mysql_server_alive_check(host):
                             login_failure_message_label.configure(text="")
+                            # If the user input pass all the above, it will try to connect to the MySQL server,
+                            # if it succeeds, the user information such as host and username will be stored in
+                            # the .remember_me.txt file and the a connection to the MySQL server will be established.
                             try:
                                 if os.path.isfile(resource_path(".remember_me.txt")):
                                     with open(resource_path(".remember_me.txt"), "r") as file:
@@ -1127,7 +1268,8 @@ def login():
                                     pass
                                 connection = mysql.connector.connect(user=username, password=master_password, host=host)
                                 cursor = connection.cursor()
-                                creating_db()
+                                # If the connection is established, the main function will be called.
+                                main()
                             except mysql.connector.Error:
                                 login_failure_message_label.configure(text="Login failed.", text_color=error_color)
                         else:
@@ -1147,9 +1289,11 @@ def login():
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
     login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
 
+    # On startup we get the color if the .appearance-mode.txt exists.
     get_color()
+    # We force the application to being in focused mode, and we start the main loop of the root object.
     root.focus_force()
     root.mainloop()
 
-# RUNS THE LOGIN FUNCTION UPON RUNTIME
+# Starts the login function on application startup.
 login()
