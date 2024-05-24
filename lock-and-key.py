@@ -23,9 +23,10 @@
 # 10. Time for creating small time delays between some actions.
 # 11. OS for mainly checking for if files exist or not.
 # 12. RE for creating regex to be used to check user input.
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
+#from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+#from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
+import argon2
 from PIL import Image
 import mysql.connector
 import customtkinter
@@ -246,13 +247,10 @@ def mysql_server_alive_check(host, port=3306):
 # Used to create a encryption/decryption key from combining
 # the master password with a salt created on first runtime
 def key_derivation_function(master_password, salt):
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=480000
-    )
-    key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
+    kdf = argon2.PasswordHasher()
+    hash_the_key = kdf.hash(master_password, salt=salt)
+    key_length = hash_the_key[:32]
+    key = base64.urlsafe_b64encode(key_length.encode()).decode()
     return key
 
 #-----------------------PASSWORD STRENGTH CHECK-----------------------
@@ -912,14 +910,19 @@ def main():
     retrieved_salt = cursor.fetchone()
 
     if retrieved_salt is not None:
-        salt = bytes.fromhex(retrieved_salt[0])
+        salt = retrieved_salt[0].encode()
     else:
-        salt = os.urandom(16)
-        store_salt = salt.hex()
+        letters = [char for char in string.ascii_letters]
+        digits = [char for char in string.digits]
+        special_char = ["!","@","#","$","%","^","&","*"]
+        combined_char_list = letters+digits+special_char
+        random_salt = "".join(random.choices(combined_char_list, k=50))
+        store_salt = random_salt
+        salt = random_salt.encode()
         cursor.execute(f"INSERT INTO user (salt) VALUES ('{store_salt}')")
         connection.commit()
-    
-    key = key_derivation_function(master_password,salt)
+
+    key = key_derivation_function(master_password.encode(),salt)
     cipher_instance = Fernet(key)
 
     root.geometry(f"{792}x{400}")
