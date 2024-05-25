@@ -1,3 +1,4 @@
 cryptography
 mysql.connector
 customtkinter
+argon2-cffi
