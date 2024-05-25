@@ -1140,7 +1140,7 @@ def login():
     global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
 
     root = customtkinter.CTk()
-    root.geometry(f"{225}x{300}")
+    root.geometry(f"{225}x{310}")
     root.title("Login")
     root.resizable(False, False)
 
@@ -1182,7 +1182,7 @@ def login():
     login_frame.grid_rowconfigure(6, weight=1)
 
     main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
-    main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
+    main_title_label.grid(row=0, column=0, padx=(20,0), pady=(10,10), sticky="ew")
 
     host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP", width=120)
     host_entry.grid(row=1, column=0, padx=(20,0), pady=5, sticky="w")
@@ -1309,7 +1309,7 @@ def login():
                         else:
                             login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
                     else:
-                        login_failure_message_label.configure(text="Port not in range.", text_color=error_color)
+                        login_failure_message_label.configure(text="Port not in valid range.", text_color=error_color)
                 else:
                     login_failure_message_label.configure(text="Port invalid.", text_color=error_color)
             else:
@@ -1318,10 +1318,10 @@ def login():
             login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
 
     login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, width=185)
-    login_button.grid(row=5, column=0, padx=(20,0), pady=(10,5), sticky="w")
+    login_button.grid(row=5, column=0, padx=(20,0), pady=5, sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
-    login_failure_message_label.grid(row=6, column=0, padx=(20,0), pady=0, sticky="w")
+    login_failure_message_label.grid(row=6, column=0, padx=(20,0), pady=5, sticky="ew")
 
     # On startup we get the color if the .appearance-mode.txt exists.
     get_color()
