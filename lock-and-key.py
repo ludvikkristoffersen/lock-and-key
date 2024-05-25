@@ -43,6 +43,12 @@ import sys
 import os
 import re
 
+################################################################################
+#                                                                              #
+#                                  OS detection                                #
+#                                                                              #
+################################################################################
+
 # Getting the OS type the user is currently on, used to determine various decisions.
 os_name = platform.system()
 
@@ -71,8 +77,8 @@ elif os_name == "Linux":
 # Based on the OS type we are importing images from the ".images" folder,
 # and saving these images as variables to be used later in the script.
 if os_name == "Windows":
-    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-darkmode.png")), size=(140,34))
-    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\lock-and-key-lightmode.png")), size=(140,34))
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-darkmode.png")), size=(165,39))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\lock-and-key-lightmode.png")), size=(165,39))
     information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\info-button-lightmode.png")), size=(24,24))
     information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\info-button-darkmode.png")), size=(24,24))
     dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\light-mode.png")), size=(24,24))
@@ -82,8 +88,8 @@ if os_name == "Windows":
     title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-white.png")), size=(20,20))
     title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-dark.png")), size=(20,20))
 elif os_name == "Linux":
-    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-darkmode.png")), size=(140,34))
-    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("lock-and-key-lightmode.png")), size=(140,34))
+    logo_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-darkmode.png")), size=(165,39))
+    logo_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("lock-and-key-lightmode.png")), size=(165,39))
     information_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("info-button-lightmode.png")), size=(24,24))
     information_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("info-button-darkmode.png")), size=(24,24))
     dark_mode_image = customtkinter.CTkImage(light_image=Image.open(resource_path("light-mode.png")), size=(24,24))
@@ -1044,7 +1050,7 @@ def main():
     key = key_derivation_function(master_password.encode(),salt)
     cipher_instance = Fernet(key)
 
-    root.geometry(f"{792}x{400}")
+    root.geometry(f"{818}x{400}")
 
     # Removes the system title bar based on the current OS.
     if os_name == "Windows":
@@ -1085,28 +1091,28 @@ def main():
     sidebar_frame.grid_rowconfigure(6, weight=1)
 
     logo_label = customtkinter.CTkLabel(sidebar_frame, text="", image=logo_image_dark)
-    logo_label.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="w")
+    logo_label.grid(row=0, column=0, padx=(20,0), pady=(20, 10), sticky="w")
 
-    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, font=customtkinter.CTkFont(weight="bold"))
-    button_adding_entry.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+    button_adding_entry = customtkinter.CTkButton(sidebar_frame, text="Add", command=adding_entry, font=customtkinter.CTkFont(weight="bold"), width=165)
+    button_adding_entry.grid(row=1, column=0, padx=(20,0), pady=10, sticky="w")
 
-    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, font=customtkinter.CTkFont(weight="bold"))
-    button_updating_entry.grid(row=2, column=0, padx=20, pady=10, sticky="w")
+    button_updating_entry = customtkinter.CTkButton(sidebar_frame, text="Update", command=updating_entry, font=customtkinter.CTkFont(weight="bold"), width=165)
+    button_updating_entry.grid(row=2, column=0, padx=(20,0), pady=10, sticky="w")
 
-    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, font=customtkinter.CTkFont(weight="bold"))
-    button_deleting_entry.grid(row=3, column=0, padx=20, pady=10, sticky="w")
+    button_deleting_entry = customtkinter.CTkButton(sidebar_frame, text="Delete", command=deleting_entry, font=customtkinter.CTkFont(weight="bold"), width=165)
+    button_deleting_entry.grid(row=3, column=0, padx=(20,0), pady=10, sticky="w")
 
-    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, font=customtkinter.CTkFont(weight="bold"))
-    button_listing_entries.grid(row=4, column=0, padx=20, pady=10, sticky="w")
+    button_listing_entries = customtkinter.CTkButton(sidebar_frame, text="List", command=listing_entries, font=customtkinter.CTkFont(weight="bold"), width=165)
+    button_listing_entries.grid(row=4, column=0, padx=(20,0), pady=10, sticky="w")
 
     button_home = customtkinter.CTkButton(sidebar_frame, text="", image=information_image_dark, command=home_screen, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_home.grid(row=6, column=0, padx=(20,0), pady=10, sticky="w")
+    button_home.grid(row=6, column=0, padx=(32,0), pady=10, sticky="w")
 
     button_change_appearance = customtkinter.CTkButton(sidebar_frame, text="", image=dark_mode_image, command=change_appearance_mode, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_change_appearance.grid(row=6, column=0, padx=(70,0), pady=10, sticky="w")
+    button_change_appearance.grid(row=6, column=0, padx=(82,0), pady=10, sticky="w")
 
     button_exit_application = customtkinter.CTkButton(sidebar_frame, text="", image=exit_image_dark, command=exit_application, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_exit_application.grid(row=6, column=0, padx=(120,0), pady=10, sticky="w")
+    button_exit_application.grid(row=6, column=0, padx=(132,0), pady=10, sticky="w")
 
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=1, column=1, columnspan=2, rowspan=5, sticky="nsew")
@@ -1115,6 +1121,7 @@ def main():
     # Also calling the ui change function to update the UI based on the
     # current appearance theme.
     home_screen()
+    root.focus_force()
     ui_change()
 
 ################################################################################
@@ -1129,7 +1136,7 @@ def login():
     global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
 
     root = customtkinter.CTk()
-    root.geometry(f"{300}x{300}")
+    root.geometry(f"{225}x{300}")
     root.title("Login")
     root.resizable(False, False)
 
@@ -1173,16 +1180,16 @@ def login():
     main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
     main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
 
-    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP", width=110)
+    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP", width=120)
     host_entry.grid(row=1, column=0, padx=(20,0), pady=5, sticky="w")
 
-    port_entry = customtkinter.CTkEntry(login_frame, placeholder_text="3306", width=60)
-    port_entry.grid(row=1, column=0, padx=(140,0), pady=5, sticky="w")
+    port_entry = customtkinter.CTkEntry(login_frame, placeholder_text="3306", width=58)
+    port_entry.grid(row=1, column=0, padx=(145,0), pady=5, sticky="w")
 
-    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username", width=180)
+    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username", width=185)
     username_entry.grid(row=2, column=0, padx=(20,0), pady=5, sticky="w")
 
-    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*", width=180)
+    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*", width=185)
     password_entry.grid(row=3, column=0, padx=(20,0), pady=5, sticky="w")
 
     # Function for creating a document that will store the host and username
@@ -1204,24 +1211,27 @@ def login():
     remember_me_check.grid(row=4, column=0, padx=(20,0),pady=5, sticky="w")
 
     # Checks if there is a file called .remember_me.txt, and if this file
-    # exists, read the file and place the host and username in their 
+    # exists, read the file and place the host, port, and username in their 
     # input fields.
     if os.path.isfile(resource_path(".remember_me.txt")):
         with open(resource_path(".remember_me.txt"), "r") as file:
             line = file.readlines()
         if len(line) > 0:
             remember_me_check.select()
-            stripped_line = line[0].strip()
-            host_entry.insert("end", stripped_line)
-            username_entry.insert("end", line[1])
+            host_line = line[0].strip()
+            port_line = line[1].strip()
+            host_entry.insert("end", host_line)
+            port_entry.insert("end", port_line)
+            username_entry.insert("end", line[2].strip())
         else:
             remember_me_check.deselect()
+            port_entry.insert("end", "3306")
             os.remove(resource_path(".remember_me.txt"))
     else:
-        pass
+        port_entry.insert("end", "3306")
     
-    # Function for checking if the host entered actually is reachable on port 3306.
-    def mysql_server_alive_check(host, port=3306):
+    # Function for checking if the host entered actually is reachable on the specified port.
+    def mysql_server_alive_check(host, port):
         try:
             socket_instance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket_instance.settimeout(4)
@@ -1239,54 +1249,66 @@ def login():
         username = username_entry.get().strip()
         master_password = password_entry.get().strip()
         host = host_entry.get().strip()
-        octet_regex = r"(?!.*(?:\d){4})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-        host_regex = rf"{octet_regex}\.{octet_regex}\.{octet_regex}\.{octet_regex}$"
+        port = port_entry.get().strip()
+        host_octet_regex = r"(?!.*(?:\d){4})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+        host_regex = rf"{host_octet_regex}\.{host_octet_regex}\.{host_octet_regex}\.{host_octet_regex}$"
+        port_regex = r"^[0-9]{1,5}$"
         username_regex = r"^[A-Za-z_.@\-]+$"
         password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
-        if len(username) != 0 and len(master_password) != 0 and len(host) != 0:
+
+        if len(username) != 0 and len(port) != 0 and len(master_password) != 0 and len(host) != 0:
             login_failure_message_label.configure(text="")
             if re.match(host_regex,host):
                 login_failure_message_label.configure(text="")
-                if re.match(username_regex,username):
+                if re.match(port_regex,port):
                     login_failure_message_label.configure(text="")
-                    if re.match(password_regex,master_password):
-                        login_failure_message_label.configure(text="")
-                        if mysql_server_alive_check(host):
+                    port = int(port)
+                    if port >= 0 and port <= 65535:
+                        if re.match(username_regex,username):
                             login_failure_message_label.configure(text="")
-                            # If the user input pass all the above, it will try to connect to the MySQL server,
-                            # if it succeeds, the user information such as host and username will be stored in
-                            # the .remember_me.txt file and the a connection to the MySQL server will be established.
-                            try:
-                                if os.path.isfile(resource_path(".remember_me.txt")):
-                                    with open(resource_path(".remember_me.txt"), "r") as file:
-                                        line = file.readlines()
-                                    if len(line) > 0:
-                                        pass
-                                    else:
-                                        with open(resource_path(".remember_me.txt"), "a") as file:
-                                            file.write(host_entry.get() + "\n")
-                                            file.write(username_entry.get())
-                                            file.close()
+                            if re.match(password_regex,master_password):
+                                login_failure_message_label.configure(text="")
+                                if mysql_server_alive_check(host, port):
+                                    login_failure_message_label.configure(text="")
+                                    # If the user input pass all the above, it will try to connect to the MySQL server,
+                                    # if it succeeds, the user information such as host and username will be stored in
+                                    # the .remember_me.txt file and the a connection to the MySQL server will be established.
+                                    try:
+                                        if os.path.isfile(resource_path(".remember_me.txt")):
+                                            with open(resource_path(".remember_me.txt"), "r") as file:
+                                                line = file.readlines()
+                                            if len(line) > 0:
+                                                pass
+                                            else:
+                                                with open(resource_path(".remember_me.txt"), "a") as file:
+                                                    file.write(host_entry.get() + "\n")
+                                                    file.write(port_entry.get() + "\n")
+                                                    file.write(username_entry.get())
+                                                    file.close()
+                                        else:
+                                            pass
+                                        connection = mysql.connector.connect(user=username, password=master_password, host=host, port=port)
+                                        cursor = connection.cursor()
+                                        # If the connection is established, the main function will be called.
+                                        main()
+                                    except mysql.connector.Error:
+                                        login_failure_message_label.configure(text="Login failed.", text_color=error_color)
                                 else:
-                                    pass
-                                connection = mysql.connector.connect(user=username, password=master_password, host=host)
-                                cursor = connection.cursor()
-                                # If the connection is established, the main function will be called.
-                                main()
-                            except mysql.connector.Error:
-                                login_failure_message_label.configure(text="Login failed.", text_color=error_color)
+                                    login_failure_message_label.configure(text="Host unreachable.", text_color=error_color)
+                            else:
+                                login_failure_message_label.configure(text="Password invalid.", text_color=error_color) 
                         else:
-                            login_failure_message_label.configure(text="Host unreachable.", text_color=error_color)
+                            login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
                     else:
-                        login_failure_message_label.configure(text="Password invalid.", text_color=error_color) 
+                        login_failure_message_label.configure(text="Port not in range.", text_color=error_color)
                 else:
-                    login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
+                    login_failure_message_label.configure(text="Port invalid.", text_color=error_color)
             else:
                 login_failure_message_label.configure(text="Host invalid.", text_color=error_color)
         else:
             login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
 
-    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, width=180)
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, width=185)
     login_button.grid(row=5, column=0, padx=(20,0), pady=(10,5), sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
