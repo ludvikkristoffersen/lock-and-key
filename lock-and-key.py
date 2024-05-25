@@ -1278,17 +1278,20 @@ def login():
                                             with open(resource_path(".remember_me.txt"), "r") as file:
                                                 line = file.readlines()
                                             if len(line) > 0:
-                                                pass
+                                                if host != line[0].strip() or port != line[1].strip() or username != line[2].strip():
+                                                    with open(resource_path(".remember_me.txt"), "w") as file:
+                                                        file.write(f"{host}\n{port}\n{username}")
+                                                        file.close()
                                             else:
-                                                with open(resource_path(".remember_me.txt"), "a") as file:
-                                                    file.write(host_entry.get() + "\n")
-                                                    file.write(port_entry.get() + "\n")
-                                                    file.write(username_entry.get())
+                                                with open(resource_path(".remember_me.txt"), "w") as file:
+                                                    file.write(f"{host}\n{port}\n{username}")
                                                     file.close()
                                         else:
                                             pass
+
                                         connection = mysql.connector.connect(user=username, password=master_password, host=host, port=port)
                                         cursor = connection.cursor()
+                                        
                                         # If the connection is established, the main function will be called.
                                         main()
                                     except mysql.connector.Error:
