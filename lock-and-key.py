@@ -120,6 +120,7 @@ def get_color():
     if os.path.isfile(resource_path(".appearance-mode.txt")):
         with open(resource_path(".appearance-mode.txt"), "r") as file:
             appearance_mode = file.readline().strip()
+            file.close()
         if appearance_mode == "dark":
             customtkinter.set_appearance_mode("light")
             title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
@@ -138,6 +139,9 @@ def get_color():
             title_bar_close_button.configure(fg_color="#0B0B12", bg_color="#0B0B12", text_color="#DAD9FC", hover_color="#19192d")
             title_bar_logo_label.configure(image=title_bar_logo_dark)
             appearance_mode = "light"
+            with open(resource_path(".appearance-mode.txt"), "w") as file:
+                file.write("light")
+                file.close()
     else:
         with open(resource_path(".appearance-mode.txt"), "x") as file:
             file.close()
@@ -1216,6 +1220,7 @@ def login():
     if os.path.isfile(resource_path(".remember_me.txt")):
         with open(resource_path(".remember_me.txt"), "r") as file:
             line = file.readlines()
+            file.close()
         if len(line) > 0:
             remember_me_check.select()
             host_line = line[0].strip()
@@ -1277,6 +1282,7 @@ def login():
                                         if os.path.isfile(resource_path(".remember_me.txt")):
                                             with open(resource_path(".remember_me.txt"), "r") as file:
                                                 line = file.readlines()
+                                                file.close()
                                             if len(line) > 0:
                                                 if host != line[0].strip() or port != line[1].strip() or username != line[2].strip():
                                                     with open(resource_path(".remember_me.txt"), "w") as file:
@@ -1291,7 +1297,7 @@ def login():
 
                                         connection = mysql.connector.connect(user=username, password=master_password, host=host, port=port)
                                         cursor = connection.cursor()
-                                        
+
                                         # If the connection is established, the main function will be called.
                                         main()
                                     except mysql.connector.Error:
