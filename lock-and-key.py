@@ -1129,7 +1129,7 @@ def login():
     global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
 
     root = customtkinter.CTk()
-    root.geometry(f"{180}x{300}")
+    root.geometry(f"{300}x{300}")
     root.title("Login")
     root.resizable(False, False)
 
@@ -1173,14 +1173,17 @@ def login():
     main_title_label = customtkinter.CTkLabel(login_frame, text="MySQL Login", font=customtkinter.CTkFont(size=20, weight="bold"))
     main_title_label.grid(row=0, column=0, padx=20, pady=(10,10), sticky="w")
 
-    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP")
-    host_entry.grid(row=1, column=0, padx=20, pady=5, sticky="ew")
+    host_entry = customtkinter.CTkEntry(login_frame, placeholder_text="MySQL Server IP", width=110)
+    host_entry.grid(row=1, column=0, padx=(20,0), pady=5, sticky="w")
 
-    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username")
-    username_entry.grid(row=2, column=0, padx=20, pady=5, sticky="ew")
+    port_entry = customtkinter.CTkEntry(login_frame, placeholder_text="3306", width=60)
+    port_entry.grid(row=1, column=0, padx=(140,0), pady=5, sticky="w")
 
-    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*")
-    password_entry.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
+    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username", width=180)
+    username_entry.grid(row=2, column=0, padx=(20,0), pady=5, sticky="w")
+
+    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Password", show="*", width=180)
+    password_entry.grid(row=3, column=0, padx=(20,0), pady=5, sticky="w")
 
     # Function for creating a document that will store the host and username
     # to provide a remember me functionality so the user does not need to
@@ -1198,7 +1201,7 @@ def login():
 
     # Checkbox that will trigger the remember_me function to trigger once clicked. 
     remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
-    remember_me_check.grid(row=4, column=0, padx=20,pady=5, sticky="ew")
+    remember_me_check.grid(row=4, column=0, padx=(20,0),pady=5, sticky="w")
 
     # Checks if there is a file called .remember_me.txt, and if this file
     # exists, read the file and place the host and username in their 
@@ -1283,11 +1286,11 @@ def login():
         else:
             login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
 
-    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication)
-    login_button.grid(row=5, column=0, padx=20, pady=(10,5), sticky="w")
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, width=180)
+    login_button.grid(row=5, column=0, padx=(20,0), pady=(10,5), sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
-    login_failure_message_label.grid(row=6, column=0, padx=20, pady=0, sticky="w")
+    login_failure_message_label.grid(row=6, column=0, padx=(20,0), pady=0, sticky="w")
 
     # On startup we get the color if the .appearance-mode.txt exists.
     get_color()
