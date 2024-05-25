@@ -25,9 +25,10 @@
 # 8. String used for easily getting lowercase, uppercase, and digit characters.
 # 9. Socket used for testing the connection of the user supplied IP address.
 # 10. Base64 used for encoding the Argon2 generated key into base64.
-# 11. Time used for creating small time delays between some actions.
-# 12. OS used for mainly checking for if files exist or not.
-# 13. RE used for creating regex to be used to check user input.
+# 11. Bcrypt used for hashing the users master password before storage.
+# 12. Time used for creating small time delays between some actions.
+# 13. OS used for mainly checking for if files exist or not.
+# 14. RE used for creating regex to be used to check user input.
 from cryptography.fernet import Fernet
 from PIL import Image
 import mysql.connector
@@ -38,6 +39,7 @@ import random
 import string
 import socket
 import base64
+import bcrypt
 import time
 import sys
 import os
@@ -85,6 +87,8 @@ if os_name == "Windows":
     light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\dark-mode.png")), size=(24,24))
     exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\exit-button-lightmode.png")), size=(24,24))
     exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\exit-button-darkmode.png")), size=(24,24))
+    user_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path(".images\\user-button-lightmode.png")), size=(24,24))
+    user_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\user-button-darkmode.png")), size=(24,24))
     title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-white.png")), size=(20,20))
     title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path(".images\\lock-and-key-titlebar-dark.png")), size=(20,20))
 elif os_name == "Linux":
@@ -96,6 +100,8 @@ elif os_name == "Linux":
     light_mode_image = customtkinter.CTkImage(dark_image=Image.open(resource_path("dark-mode.png")), size=(24,24))
     exit_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("exit-button-lightmode.png")), size=(24,24))
     exit_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("exit-button-darkmode.png")), size=(24,24))
+    user_image_light = customtkinter.CTkImage(light_image=Image.open(resource_path("user-button-lightmode.png")), size=(24,24))
+    user_image_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("user-button-darkmode.png")), size=(24,24))
     title_bar_logo_dark = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-white.png")), size=(20,20))
     title_bar_logo_light = customtkinter.CTkImage(dark_image=Image.open(resource_path("lock-and-key-titlebar-dark.png")), size=(20,20))
 
@@ -170,6 +176,7 @@ def ui_change():
         button_change_appearance.configure(image=light_mode_image)
         button_home.configure(image=information_image_light)
         button_exit_application.configure(image=exit_image_light)
+        user_management_button.configure(image=user_image_light)
         logo_label.configure(image=logo_image_light)
         right_frame.configure(fg_color="#DAD9FC", bg_color="#DAD9FC")
         title_bar.configure(fg_color="#eaeaff", bg_color="#eaeaff")
@@ -185,6 +192,7 @@ def ui_change():
         button_change_appearance.configure(image=dark_mode_image)
         button_home.configure(image=information_image_dark)
         button_exit_application.configure(image=exit_image_dark)
+        user_management_button.configure(image=user_image_dark)
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
@@ -200,6 +208,7 @@ def ui_change():
         button_change_appearance.configure(image=dark_mode_image)
         button_home.configure(image=information_image_dark)
         button_exit_application.configure(image=exit_image_dark)
+        user_management_button.configure(image=user_image_dark)
         logo_label.configure(image=logo_image_dark)
         right_frame.configure(fg_color="#11111C", bg_color="#11111C")
         title_bar.configure(fg_color="#2c2c46", bg_color="#2c2c46")
@@ -253,6 +262,11 @@ def remove_right_objects():
 # sidebar frame by removing the contents that is in place.
 def remove_sidebar_objects():
     for widget in login_frame.winfo_children():
+        widget.destroy()
+
+# Fucntion for deleting the objects that are currently present in the title bar.
+def remove_titlebar_objects():
+    for widget in title_bar.winfo_children():
         widget.destroy()
 
 # Functions for letting the user click and drag on the custom title bar to
@@ -425,13 +439,16 @@ def adding_entry():
     password_show.grid(row=2, column=1, pady=(10,0), sticky="w")
 
     # MySQL query that retrieves all the folders from the vault.
-    cursor.execute("SELECT folder FROM vault ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
     rows = cursor.fetchall()
-    folder_list = [row[0] for row in rows]
-    unique_set = set(folder_list)
-    unique_list = list(unique_set)
-    if "None" in unique_list:
-        unique_list.remove("None")
+    folder_list = []
+    for row in rows:
+        folder = row[0].encode()
+        decrypted_folder = cipher_instance.decrypt(folder)
+        decode_folder = decrypted_folder.decode()
+        folder_list.append(decode_folder)
+    if "None" in folder_list:
+        folder_list.remove("None")
     else:
         pass
 
@@ -439,7 +456,7 @@ def adding_entry():
     folder_label.grid(row=4, column=0, padx=20, pady=(0,10), sticky="w")
     folder_entry = customtkinter.CTkEntry(right_frame)
     folder_entry.grid(row=4, column=0, padx=100, pady=(0,10), sticky="w")
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+folder_list)
     folder_menu.grid(row=4, column=1, pady=(0,10), sticky="w")
     
     # Function for adding the new entry into the database, it checks if the username,
@@ -458,13 +475,16 @@ def adding_entry():
                     message_label.configure(text="")
                     if re.match(password_regex,password):
                         message_label.configure(text="")
-                        encode_password = password.encode()
-                        encrypt_password = cipher_instance.encrypt(encode_password)
+                        encrypt_username = cipher_instance.encrypt(username.encode())
+                        decoded_encrypted_username = encrypt_username.decode()
+                        encrypt_password = cipher_instance.encrypt(password.encode())
                         decoded_encrypted_password = encrypt_password.decode()
+                        encrypt_folder = cipher_instance.encrypt(folder.encode())
+                        decoded_encrypted_folder = encrypt_folder.decode()
                         if len(folder) > 0:
                             message_label.configure(text="")
                             if re.match(folder_regex,folder):
-                                cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder}");')
+                                cursor.execute("INSERT INTO vault (user_id, username, password, folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
                                 connection.commit()
                                 message_label.configure(text="New entry added.", text_color=succeed_color)
                                 username_entry.delete(0, 'end')
@@ -474,8 +494,10 @@ def adding_entry():
                             else:
                                 message_label.configure(text="Folder invalid.", text_color=error_color)
                         else:
+                            encrypt_folder = cipher_instance.encrypt(folder_select.encode())
+                            decoded_encrypted_folder = encrypt_folder.decode()
                             message_label.configure(text="")
-                            cursor.execute(f'INSERT INTO vault (username, password, folder) VALUES ("{username}","{decoded_encrypted_password}","{folder_select}");')
+                            cursor.execute("INSERT INTO vault (user_id, username, password, folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
                             connection.commit()
                             message_label.configure(text="New entry added.", text_color=succeed_color)
                             username_entry.delete(0, 'end')
@@ -552,13 +574,16 @@ def updating_entry():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
     rows = cursor.fetchall()
-    folder_list = [row[0] for row in rows]
-    unique_set = set(folder_list)
-    unique_list = list(unique_set)
+    folder_list = []
+    for row in rows:
+        folder = row[0].encode()
+        decrypted_folder = cipher_instance.decrypt(folder)
+        decode_folder = decrypted_folder.decode()
+        folder_list.append(decode_folder)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
@@ -569,9 +594,9 @@ def updating_entry():
     # but it does not retrieve the password.
     def updating_list():
         if folder_menu.get() == "All":
-            cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
         else:
-            cursor.execute(f"SELECT id, username, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault WHERE folder = %s AND user_id = %s ORDER BY folder", (folder_menu.get(), user_id))
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -579,24 +604,30 @@ def updating_entry():
 
         entry_id = 3
         for entry in entries:
+            encode_username = entry[1].encode()
+            decrypt_username = cipher_instance.decrypt(encode_username)
+            decoded_username = decrypt_username.decode()
+
+            encode_folder = entry[2].encode()
+            decrypt_folder = cipher_instance.decrypt(encode_folder)
+            decoded_folder = decrypt_folder.decode()
+
             title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
             title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
-            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
+            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_username}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
-            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_folder}")
             folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             row_id = entry[0]
-            username = entry[1]
-            folder = entry[2]
 
             select_entry_button = customtkinter.CTkButton(scrollable_frame, text="Select")
             select_entry_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
-            select_entry_button.configure(command=lambda r=row_id, u=username, f=folder: updating_entry_button(r,u,f))
+            select_entry_button.configure(command=lambda r=row_id, u=decoded_username, f=decoded_folder: updating_entry_button(r,u,f))
             entry_id += 1
 
     # When a user selects a entry they want to edit or update in any way, they get
@@ -605,7 +636,7 @@ def updating_entry():
     # entry. The password does not show, if the password is not changed then the
     # currently stored password will not change, but if it is changed then the 
     # password will update.         
-    def updating_entry_button(row_id, username, folder):
+    def updating_entry_button(row_id, username, get_folder):
         global password_entry, password_strength_label, password_strength_slider
         remove_right_objects()
     
@@ -648,24 +679,27 @@ def updating_entry():
 
         password_show = customtkinter.CTkCheckBox(right_frame, text="Show password", command=toggle_password_show)
         password_show.grid(row=2, column=1, pady=(10,0), sticky="w")
-        
-        # MySQL query that retrieves all the folders from the vault.
-        cursor.execute("SELECT folder FROM vault ORDER BY folder")
-        rows = cursor.fetchall()
-        folder_list = [row[0] for row in rows]
-        unique_set = set(folder_list)
-        unique_list = list(unique_set)
-        if "None" in unique_list:
-            unique_list.remove("None")
-        else:
-            pass
-        
+
         folder_label = customtkinter.CTkLabel(right_frame, text="Folder:")
         folder_label.grid(row=4, column=0, padx=20, pady=(0,10), sticky="w")
         folder_entry = customtkinter.CTkEntry(right_frame)
         folder_entry.grid(row=4, column=0, padx=100, pady=(0,10), sticky="w")
-        folder_entry.insert(0, folder)
-        folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+unique_list)
+        folder_entry.insert(0, get_folder)
+        
+        # MySQL query that retrieves all the folders from the vault.
+        cursor.execute("SELECT folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
+        rows = cursor.fetchall()
+        folder_list = []
+        for row in rows:
+            folder = row[0].encode()
+            decrypted_folder = cipher_instance.decrypt(folder)
+            decode_folder = decrypted_folder.decode()
+            folder_list.append(decode_folder)
+        if "None" in folder_list:
+            folder_list.remove("None")
+        else:
+            pass
+        folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["None"]+folder_list)
         folder_menu.grid(row=4, column=1, padx=0, pady=(0,10))
 
         # Function that updates the selected entry. It checks if anything has been changed
@@ -676,8 +710,8 @@ def updating_entry():
         def confirm_update():
             new_username = username_entry.get().strip()
             password = password_entry.get().strip()
-            folder_length = folder_entry.get().strip()
             new_folder = folder_entry.get().strip()
+            row_id_int = int(row_id)
 
             if len(new_username) > 0:
                 message_label.configure(text="")
@@ -691,63 +725,75 @@ def updating_entry():
                                 encode_password = password.encode()
                                 encrypt_password = cipher_instance.encrypt(encode_password)
                                 decoded_encrypted_password = encrypt_password.decode()
+                            if len(new_folder) == 0:
+                                folder_encode = folder_menu.get().encode()
+                                encrypt_folder = cipher_instance.encrypt(folder_encode)
+                                decoded_encrypted_folder = encrypt_folder.decode()
+                            else:
+                                folder_encode = new_folder.encode()
+                                encrypt_folder = cipher_instance.encrypt(folder_encode)
+                                decoded_encrypted_folder = encrypt_folder.decode()
+                            
+                            username_encode = new_username.encode()
+                            encrypt_username = cipher_instance.encrypt(username_encode)
+                            decoded_encrypted_username = encrypt_username.decode()
 
-                            if new_username != username and len(password) != 0 and new_folder != folder:
-                                if len(folder_length) == 0:
-                                    cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                            if new_username != username and len(password) != 0 and new_folder != get_folder:
+                                if len(new_folder) == 0:
+                                    cursor.execute("UPDATE vault SET username = %s, password = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    cursor.execute("UPDATE vault SET username = %s, password = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                             elif new_username != username and len(password) != 0:
-                                cursor.execute(f"UPDATE vault SET username='{new_username}', password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                                cursor.execute("UPDATE vault SET username = %s, password = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
-                            elif new_username != username and new_folder != folder:
-                                if len(folder_length) == 0:
-                                    cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                            elif new_username != username and new_folder != get_folder:
+                                if len(new_folder) == 0:
+                                    cursor.execute("UPDATE vault SET username = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute(f"UPDATE vault SET username='{new_username}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    cursor.execute("UPDATE vault SET username = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
-                            elif len(password) != 0 and new_folder != folder:
-                                if len(folder_length) == 0:
-                                    cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}', folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                            elif len(password) != 0 and new_folder != get_folder:
+                                if len(new_folder) == 0:
+                                    cursor.execute("UPDATE vault SET password = %s, folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute(f"UPDATE vault SET username='{decoded_encrypted_password}', folder='{new_folder}' WHERE id={int(row_id)}")
+                                    cursor.execute("UPDATE vault SET password = %s, folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                             elif new_username != username:
-                                cursor.execute(f"UPDATE vault SET username='{new_username}' WHERE id={int(row_id)}")
+                                cursor.execute("UPDATE vault SET username = %s WHERE id = %s", (decoded_encrypted_username, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
                             elif len(password) != 0:
-                                cursor.execute(f"UPDATE vault SET password='{decoded_encrypted_password}' WHERE id={int(row_id)}")
+                                cursor.execute("UPDATE vault SET password = %s WHERE id = %s", (decoded_encrypted_password, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
-                            elif new_folder != folder:
-                                if len(folder_length) == 0:
-                                    cursor.execute(f"UPDATE vault SET folder='{folder_menu.get()}' WHERE id={int(row_id)}")
+                            elif new_folder != get_folder:
+                                if len(new_folder) == 0:
+                                    cursor.execute("UPDATE vault SET folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute(f"UPDATE vault SET folder='{new_folder}' WHERE id={int(row_id)}")
+                                    cursor.execute("UPDATE vault SET folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
@@ -836,13 +882,16 @@ def deleting_entry():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
     rows = cursor.fetchall()
-    folder_list = [row[0] for row in rows]
-    unique_set = set(folder_list)
-    unique_list = list(unique_set)
+    folder_list = []
+    for row in rows:
+        folder = row[0].encode()
+        decrypted_folder = cipher_instance.decrypt(folder)
+        decode_folder = decrypted_folder.decode()
+        folder_list.append(decode_folder)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
@@ -874,9 +923,9 @@ def deleting_entry():
     # but it does not retrieve the password.
     def updating_list():
         if folder_menu.get() == "All":
-            cursor.execute("SELECT id, username, folder FROM vault ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
         else:
-            cursor.execute(f"SELECT id, username, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute("SELECT id, username, folder FROM vault WHERE folder = %s AND user_id = %s ORDER BY folder", (folder_menu.get(), user_id))
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -884,15 +933,23 @@ def deleting_entry():
 
         entry_id = 3
         for entry in entries:
+            encode_username = entry[1].encode()
+            decrypt_username = cipher_instance.decrypt(encode_username)
+            decoded_username = decrypt_username.decode()
+
+            encode_folder = entry[2].encode()
+            decrypt_folder = cipher_instance.decrypt(encode_folder)
+            decoded_folder = decrypt_folder.decode()
+
             title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
             title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
-            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[1]}")
+            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_username}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
-            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_folder}")
             folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             row_id = entry[0]
@@ -928,13 +985,16 @@ def listing_entries():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault ORDER BY folder")
+    cursor.execute("SELECT folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
     rows = cursor.fetchall()
-    folder_list = [row[0] for row in rows]
-    unique_set = set(folder_list)
-    unique_list = list(unique_set)
+    folder_list = []
+    for row in rows:
+        folder = row[0].encode()
+        decrypted_folder = cipher_instance.decrypt(folder)
+        decode_folder = decrypted_folder.decode()
+        folder_list.append(decode_folder)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+unique_list)
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
     folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
@@ -963,9 +1023,9 @@ def listing_entries():
     def updating_list():
         global copy_button
         if folder_menu.get() == "All":
-            cursor.execute("SELECT username, password, folder FROM vault ORDER BY folder;")
+            cursor.execute("SELECT username, password, folder FROM vault WHERE user_id = %s ORDER BY folder", (user_id,))
         else:
-            cursor.execute(f"SELECT username, password, folder FROM vault WHERE folder='{folder_menu.get()}' ORDER BY folder;")
+            cursor.execute("SELECT username, password, folder FROM vault WHERE folder = %s AND user_id = %s  ORDER BY folder", (folder_menu.get(), user_id))
         entries = cursor.fetchall()
 
         for widget in scrollable_frame.winfo_children():
@@ -973,6 +1033,14 @@ def listing_entries():
 
         entry_id = 3
         for entry in entries:
+            encode_username = entry[0].encode()
+            decrypt_username = cipher_instance.decrypt(encode_username)
+            decoded_username = decrypt_username.decode()
+
+            encode_folder = entry[2].encode()
+            decrypt_folder = cipher_instance.decrypt(encode_folder)
+            decoded_folder = decrypt_folder.decode()
+
             title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
             title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
@@ -980,10 +1048,10 @@ def listing_entries():
             title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=13, weight="bold"))
             title_password_label.grid(row=2, column=2, padx=(5,0), pady=5, sticky="w")
 
-            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[0]}")
+            username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_username}")
             username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
 
-            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{entry[2]}")
+            folder_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decoded_folder}")
             folder_label.grid(row=entry_id, column=1, padx=(5,40), pady=5, sticky="w")
 
             password = entry[1]
@@ -1003,6 +1071,73 @@ def listing_entries():
 
 ################################################################################
 #                                                                              #
+#                               User management                                #
+#                                                                              #
+################################################################################
+
+# This function is for deletion of user account, if the user do wish to delete
+# their account they can do so, the user must confirm deletion with their master
+# password. All user data will be deleted.
+def user_management():
+    remove_right_objects()
+
+    global delete_account_button
+
+    user_management_title_label = customtkinter.CTkLabel(right_frame, text="User Management", font=customtkinter.CTkFont(size=20, weight="bold"))
+    user_management_title_label.grid(row=0, column=0, padx=20, pady=(20,5), sticky="w")
+
+    delete_account_label = customtkinter.CTkLabel(right_frame, text="Delete Your User Account", font=customtkinter.CTkFont(size=15, weight="bold"))
+    delete_account_label.grid(row=1, column=0, padx=20, pady=(10,5), sticky="w")
+    delete_account_label = customtkinter.CTkLabel(right_frame, text="Warning: Deleting your account is a permanent action.", font=customtkinter.CTkFont(size=13, weight="bold"), text_color=error_color)
+    delete_account_label.grid(row=2, column=0, padx=20, pady=(5,5), sticky="w")
+
+    account_deletion_text = customtkinter.CTkTextbox(right_frame, width=550, height=60, font=customtkinter.CTkFont(size=13), wrap="word")
+    account_deletion_text.grid(row=3, column=0, padx=20, sticky="w")
+    account_deletion_text.insert("end", """• Your account will be permanently removed from our system.\n
+• All your stored passwords will be permanently deleted.""")
+    account_deletion_text.configure(state="disabled")
+
+    account_deletion = customtkinter.CTkTextbox(right_frame, width=550, height=60, font=customtkinter.CTkFont(size=13), wrap="word", text_color=error_color)
+    account_deletion.grid(row=4, column=0, padx=20, pady=(10,5), sticky="w")
+    account_deletion.insert("end", f"""{username.title()}, confirm account deletion with your master password. Are you sure?""")
+    account_deletion.configure(state="disabled")
+
+    master_password_entry = customtkinter.CTkEntry(right_frame, placeholder_text="Master Password", show="*")
+    master_password_entry.grid(row=5, column=0, padx=(20,0), pady=0, sticky="w")
+
+    delete_account_button = customtkinter.CTkButton(right_frame, text="Confirm", fg_color=error_color, hover_color="#CC323F", text_color="#0B0B12", width=60)
+    delete_account_button.grid(row=5, column=0, padx=(165,0), pady=0, sticky="w")
+
+    def confirm_account_deletion():
+        cursor.execute("SELECT salt, password FROM users WHERE user_id = %s", (user_id,))
+        retrieve_information = cursor.fetchone()
+        if len(master_password_entry.get()) != 0:
+            if retrieve_information:
+                salt = retrieve_information[0].encode()
+                stored_password = retrieve_information[1]
+
+                hash_password = bcrypt.hashpw(master_password_entry.get().encode("utf-8"), salt)
+                if hash_password.decode() == stored_password:
+                    right_frame.destroy()
+                    sidebar_frame.destroy()
+                    cursor.execute("DELETE FROM vault WHERE user_id = %s", (user_id,))
+                    cursor.execute("DELETE FROM user_salt WHERE user_id = %s", (user_id,))
+                    cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+                    connection.commit()
+                    user_login()
+                else:
+                    error_label.configure(text="Invalid username or password.", text_color=error_color)
+        else:
+            error_label.configure(text="Please enter master password.", text_color=error_color)
+
+    delete_account_button = customtkinter.CTkButton(right_frame, text="Confirm", command=confirm_account_deletion, fg_color=error_color, hover_color="#CC323F", text_color="#0B0B12", width=60)
+    delete_account_button.grid(row=5, column=0, padx=(165,0), pady=0, sticky="w")
+
+    error_label = customtkinter.CTkLabel(right_frame, text="")
+    error_label.grid(row=6, column=0, padx=(20,0), pady=10, sticky="w")
+
+################################################################################
+#                                                                              #
 #                               Main function                                  #
 #                                                                              #
 ################################################################################
@@ -1013,22 +1148,16 @@ def listing_entries():
 def main():
     # Calls the function to remove what is currently in the sidebar.
     remove_sidebar_objects()
+    remove_titlebar_objects()
 
-    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label
-    
-    # Creates the database and the needed tables if they do not already exist.
-    cursor.execute(f"CREATE DATABASE IF NOT EXISTS lockandkey_{username}")
-    cursor.execute(f"USE lockandkey_{username}")
-    cursor.execute("CREATE TABLE IF NOT EXISTS vault (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(200) NOT NULL, password VARCHAR(1000) NOT NULL, folder VARCHAR(50) DEFAULT 'None')")
-    cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, salt VARCHAR(50) NOT NULL)")
-    connection.commit()
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label, user_management_button
 
     # Retrieves the salt from the user table.
-    cursor.execute("SELECT salt FROM user")
+    cursor.execute("SELECT salt FROM user_salt WHERE user_id = %s", (user_id,))
     retrieved_salt = cursor.fetchone()
     # If the salt exist then use that salt, but if no salt is present
     # create a randomly generated 50 character salt for the user.
-    if retrieved_salt is not None:
+    if retrieved_salt:
         salt = retrieved_salt[0].encode()
     else:
         letters = [char for char in string.ascii_letters]
@@ -1038,7 +1167,7 @@ def main():
         random_salt = "".join(random.choices(combined_char_list, k=50))
         store_salt = random_salt
         salt = random_salt.encode()
-        cursor.execute(f"INSERT INTO user (salt) VALUES ('{store_salt}')")
+        cursor.execute("INSERT INTO user_salt (user_id, salt) VALUES (%s, %s)", (user_id, store_salt))
         connection.commit()
 
     # This function generates a key based on the users master password and user salt.
@@ -1110,13 +1239,16 @@ def main():
     button_listing_entries.grid(row=4, column=0, padx=(20,0), pady=10, sticky="w")
 
     button_home = customtkinter.CTkButton(sidebar_frame, text="", image=information_image_dark, command=home_screen, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_home.grid(row=6, column=0, padx=(32,0), pady=10, sticky="w")
+    button_home.grid(row=6, column=0, padx=(20,0), pady=10, sticky="w")
 
     button_change_appearance = customtkinter.CTkButton(sidebar_frame, text="", image=dark_mode_image, command=change_appearance_mode, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_change_appearance.grid(row=6, column=0, padx=(82,0), pady=10, sticky="w")
+    button_change_appearance.grid(row=6, column=0, padx=(62,0), pady=10, sticky="w")
+
+    user_management_button = customtkinter.CTkButton(sidebar_frame, text="", image=user_image_dark, command=user_management, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
+    user_management_button.grid(row=6, column=0, padx=(104,0), pady=10, sticky="w")
 
     button_exit_application = customtkinter.CTkButton(sidebar_frame, text="", image=exit_image_dark, command=exit_application, font=customtkinter.CTkFont(weight="bold"), width=30, height=30)
-    button_exit_application.grid(row=6, column=0, padx=(132,0), pady=10, sticky="w")
+    button_exit_application.grid(row=6, column=0, padx=(145,0), pady=10, sticky="w")
 
     right_frame = customtkinter.CTkFrame(root)
     right_frame.grid(row=1, column=1, columnspan=2, rowspan=5, sticky="nsew")
@@ -1130,18 +1262,18 @@ def main():
 
 ################################################################################
 #                                                                              #
-#                               Login function                                 #
+#                                 User login                                   #
 #                                                                              #
 ################################################################################
 
-# This function authenticates the user with the MySQL server, uses the MySQL
-# password as the master password for the password manager.
-def login():
+# Function for authenticating users to the password manager, one can choose to
+# create a new user account or login with their current user account.
+def user_login():
+    remove_sidebar_objects()
+    remove_titlebar_objects()
     global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
 
-    root = customtkinter.CTk()
-    root.geometry(f"{225}x{310}")
-    root.title("Login")
+    root.geometry(f"{225}x{270}")
     root.resizable(False, False)
 
     # Removes the system title bar based on the current OS.
@@ -1166,7 +1298,184 @@ def login():
     title_bar_logo_label = customtkinter.CTkLabel(title_bar, text="", image=title_bar_logo_dark)
     title_bar_logo_label.grid(row=0, column=0, padx=5, sticky="w")
 
-    title_bar_title = customtkinter.CTkLabel(title_bar, text="Login", font=customtkinter.CTkFont("bold"))
+    title_bar_title = customtkinter.CTkLabel(title_bar, text="User Login", font=customtkinter.CTkFont("bold"))
+    title_bar_title.grid(row=0, column=0, padx=27, sticky="w")
+
+    title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
+    title_bar_close_button.grid(row=0, column=1, padx=5, sticky="e")
+    # Binds to trigger the functions for clicking and dragging the task bar.
+    title_bar.bind("<Button-1>", get_position)
+    title_bar.bind("<B1-Motion>", move_application)
+
+    title_bar.tkraise()
+
+    login_frame = customtkinter.CTkFrame(root)
+    login_frame.grid(row=1, column=0, rowspan=6, sticky="nsew")
+    login_frame.grid_rowconfigure(6, weight=1)
+
+    main_title_label = customtkinter.CTkLabel(login_frame, text="User Login", font=customtkinter.CTkFont(size=20, weight="bold"))
+    main_title_label.grid(row=0, column=0, padx=(20,0), pady=(10,10), sticky="ew")
+
+    username_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Username", width=185)
+    username_entry.grid(row=2, column=0, padx=(20,0), pady=5, sticky="w")
+
+    password_entry = customtkinter.CTkEntry(login_frame, placeholder_text="Master Password", show="*", width=185)
+    password_entry.grid(row=3, column=0, padx=(20,0), pady=5, sticky="w")
+    # Function for showing the entered password.
+    def toggle_password_show():
+        if password_show.get():
+            password_entry.configure(show="")
+        else:
+            password_entry.configure(show="*")
+
+    password_show = customtkinter.CTkCheckBox(login_frame, text="Show password", command=toggle_password_show)
+    password_show.grid(row=4, column=0, padx=(20,0),pady=5, sticky="w")
+
+    # Function for authenticating the user into the password manager
+    def user_authentication():
+        global username, master_password, user_id
+
+        username = username_entry.get().strip()
+        master_password = password_entry.get().strip()
+        username_regex = r"^[A-Za-z_.@\-]+$"
+        password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
+
+        if len(username) != 0 and len(master_password) != 0:
+            login_failure_message_label.configure(text="")
+            if re.match(username_regex,username):
+                login_failure_message_label.configure(text="")
+                if re.match(password_regex,master_password):
+                    login_failure_message_label.configure(text="")
+                    # If the user input pass all the above, it will check if the user exists in the database
+                    # and if the user exists it will compare the hashed master password against the stored
+                    # user password located in the database.
+                    try:
+                        cursor.execute("SELECT username FROM users")
+                        usernames = [row[0] for row in cursor.fetchall()]
+
+                        if username in usernames:
+                            cursor.execute("SELECT salt, password FROM users WHERE username = %s", (username,))
+                            user_retrieve = cursor.fetchone()
+                            login_failure_message_label.configure(text="")
+                            if user_retrieve:
+                                salt = user_retrieve[0].encode()
+                                stored_password = user_retrieve[1]
+                                hash_password = bcrypt.hashpw(master_password.encode("utf-8"), salt)
+                                login_failure_message_label.configure(text="")
+                                if hash_password.decode() == stored_password:
+                                    login_failure_message_label.configure(text="")
+                                    cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
+                                    user_id = cursor.fetchone()[0]
+                                    main()
+                                else:
+                                    login_failure_message_label.configure(text="Invalid username or password.", text_color=error_color)
+                            else:
+                                login_failure_message_label.configure(text="Invalid username or password.", text_color=error_color)
+                        else:
+                            login_failure_message_label.configure(text="Invalid username or password.", text_color=error_color)
+                    except mysql.connector.Error:
+                        login_failure_message_label.configure(text="Login failed.", text_color=error_color)
+                else:
+                    login_failure_message_label.configure(text="Password invalid.", text_color=error_color) 
+            else:
+                login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
+        else:
+            login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
+    
+    # If one wish to create a user account they can do so here, the master password provided
+    # will be hashed using bcrypt and stored in the users table along with the rest of the
+    # user information such as user_id, username, and salt.
+    def user_signup():
+        global username, master_password, user_id
+
+        username = username_entry.get().strip()
+        master_password = password_entry.get().strip()
+        username_regex = r"^[A-Za-z_.@\-]+$"
+        password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
+
+        if len(username) != 0 and len(master_password) != 0:
+            login_failure_message_label.configure(text="")
+            if re.match(username_regex,username):
+                login_failure_message_label.configure(text="")
+                if re.match(password_regex,master_password):
+                    login_failure_message_label.configure(text="")
+                    # If the user input pass all the above, it will try create a user account.
+                    try:
+                        cursor.execute("SELECT username FROM users")
+                        usernames = [row[0] for row in cursor.fetchall()]
+
+                        if username in usernames:
+                            login_failure_message_label.configure(text="Username already taken.", text_color=error_color)
+                        else:
+                            user_salt = bcrypt.gensalt()
+                            hash_password = bcrypt.hashpw(master_password.encode("utf-8"), user_salt)
+                            store_password = hash_password.decode()
+                            store_salt = user_salt.decode()
+                            cursor.execute("INSERT INTO users (username, password, salt) VALUES (%s, %s, %s)", (username, store_password, store_salt))
+                            connection.commit()
+                            cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
+                            user_id = cursor.fetchone()[0]
+                            main()
+                    except mysql.connector.Error:
+                        login_failure_message_label.configure(text="Sign Up failed.", text_color=error_color)
+                else:
+                    login_failure_message_label.configure(text="Password invalid.", text_color=error_color) 
+            else:
+                login_failure_message_label.configure(text="Username invalid.", text_color=error_color)
+        else:
+            login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
+
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=user_authentication, width=85)
+    login_button.grid(row=5, column=0, padx=(20,0), pady=5, sticky="w")
+
+    signup_button = customtkinter.CTkButton(login_frame, text="Sign Up", command=user_signup, width=85)
+    signup_button.grid(row=5, column=0, padx=(118,0), pady=5, sticky="w")
+
+    login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
+    login_failure_message_label.grid(row=6, column=0, padx=(17,0), pady=5, sticky="ew")
+
+    # We force the application to being in focused mode, and we start the main loop of the root object.
+    get_color()
+    root.focus_force()
+
+################################################################################
+#                                                                              #
+#                               Login function                                 #
+#                                                                              #
+################################################################################
+
+# This function authenticates the user with the MySQL server, uses the MySQL
+# password as the master password for the password manager.
+def mysql_login():
+    global root, login_frame, login_failure_message_label, title_bar, title_bar_close_button, title_bar_logo_label
+
+    root = customtkinter.CTk()
+    root.geometry(f"{225}x{310}")
+    root.resizable(False, False)
+
+    # Removes the system title bar based on the current OS.
+    if os_name == "Windows":
+        root.overrideredirect(True)
+    elif os_name == "Linux":
+        root.attributes("-type", "splash")
+    else:
+        root.quit()
+        sys.exit()
+
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_rowconfigure(1, weight=1)
+
+    # Creates the custom title bar.
+    title_bar = customtkinter.CTkFrame(root, height=5, fg_color="#11111C")
+    title_bar.grid(row=0, column=0, sticky="ew")
+
+    title_bar.grid_columnconfigure(0, weight=1)
+    title_bar.grid_columnconfigure(1, weight=0)
+
+    title_bar_logo_label = customtkinter.CTkLabel(title_bar, text="", image=title_bar_logo_dark)
+    title_bar_logo_label.grid(row=0, column=0, padx=5, sticky="w")
+
+    title_bar_title = customtkinter.CTkLabel(title_bar, text="MySQL Login", font=customtkinter.CTkFont("bold"))
     title_bar_title.grid(row=0, column=0, padx=27, sticky="w")
 
     title_bar_close_button = customtkinter.CTkButton(title_bar, text="✕", width=20, height=5, command=exit_application)
@@ -1201,14 +1510,14 @@ def login():
     # enter the host and username each time they launch the application.
     def remember_me():
         if remember_me_check.get():
-            if os.path.isfile(resource_path(".remember_me.txt")):
+            if os.path.isfile(resource_path(".mysql_remember_me.txt")):
                 pass
             else:
-                with open(resource_path(".remember_me.txt"), "x") as file:
+                with open(resource_path(".mysql_remember_me.txt"), "x") as file:
                     file.close()
         else:
-            if os.path.isfile(resource_path(".remember_me.txt")):
-                os.remove(resource_path(".remember_me.txt"))
+            if os.path.isfile(resource_path(".mysql_remember_me.txt")):
+                os.remove(resource_path(".mysql_remember_me.txt"))
 
     # Checkbox that will trigger the remember_me function to trigger once clicked. 
     remember_me_check = customtkinter.CTkCheckBox(login_frame, text="Remember me", command=remember_me)
@@ -1217,8 +1526,8 @@ def login():
     # Checks if there is a file called .remember_me.txt, and if this file
     # exists, read the file and place the host, port, and username in their 
     # input fields.
-    if os.path.isfile(resource_path(".remember_me.txt")):
-        with open(resource_path(".remember_me.txt"), "r") as file:
+    if os.path.isfile(resource_path(".mysql_remember_me.txt")):
+        with open(resource_path(".mysql_remember_me.txt"), "r") as file:
             line = file.readlines()
             file.close()
         if len(line) > 0:
@@ -1231,7 +1540,7 @@ def login():
         else:
             remember_me_check.deselect()
             port_entry.insert("end", "3306")
-            os.remove(resource_path(".remember_me.txt"))
+            os.remove(resource_path(".mysql_remember_me.txt"))
     else:
         port_entry.insert("end", "3306")
     
@@ -1248,11 +1557,11 @@ def login():
 
     # Function for authenticating the user to the MySQL server. User input in all fields
     # are run through regex's to make sure the user provides valid input.
-    def authentication():
-        global connection, cursor, username, master_password
+    def mysql_authentication():
+        global connection, cursor
 
         username = username_entry.get().strip()
-        master_password = password_entry.get().strip()
+        mysql_password = password_entry.get().strip()
         host = host_entry.get().strip()
         port = port_entry.get().strip()
         host_octet_regex = r"(?!.*(?:\d){4})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
@@ -1261,7 +1570,7 @@ def login():
         username_regex = r"^[A-Za-z_.@\-]+$"
         password_regex = r"^[A-Za-z0-9#!@#$^&*.]+$"
 
-        if len(username) != 0 and len(port) != 0 and len(master_password) != 0 and len(host) != 0:
+        if len(username) != 0 and len(port) != 0 and len(mysql_password) != 0 and len(host) != 0:
             login_failure_message_label.configure(text="")
             if re.match(host_regex,host):
                 login_failure_message_label.configure(text="")
@@ -1271,7 +1580,7 @@ def login():
                     if port >= 0 and port <= 65535:
                         if re.match(username_regex,username):
                             login_failure_message_label.configure(text="")
-                            if re.match(password_regex,master_password):
+                            if re.match(password_regex,mysql_password):
                                 login_failure_message_label.configure(text="")
                                 if mysql_server_alive_check(host, port):
                                     login_failure_message_label.configure(text="")
@@ -1279,27 +1588,49 @@ def login():
                                     # if it succeeds, the user information such as host and username will be stored in
                                     # the .remember_me.txt file and the a connection to the MySQL server will be established.
                                     try:
-                                        if os.path.isfile(resource_path(".remember_me.txt")):
-                                            with open(resource_path(".remember_me.txt"), "r") as file:
+                                        if os.path.isfile(resource_path(".mysql_remember_me.txt")):
+                                            with open(resource_path(".mysql_remember_me.txt"), "r") as file:
                                                 line = file.readlines()
                                                 file.close()
                                             if len(line) > 0:
                                                 if host != line[0].strip() or port != line[1].strip() or username != line[2].strip():
-                                                    with open(resource_path(".remember_me.txt"), "w") as file:
+                                                    with open(resource_path(".mysql_remember_me.txt"), "w") as file:
                                                         file.write(f"{host}\n{port}\n{username}")
                                                         file.close()
                                             else:
-                                                with open(resource_path(".remember_me.txt"), "w") as file:
+                                                with open(resource_path(".mysql_remember_me.txt"), "w") as file:
                                                     file.write(f"{host}\n{port}\n{username}")
                                                     file.close()
                                         else:
                                             pass
 
-                                        connection = mysql.connector.connect(user=username, password=master_password, host=host, port=port)
+                                        connection = mysql.connector.connect(user=username, password=mysql_password, host=host, port=port)
                                         cursor = connection.cursor()
 
-                                        # If the connection is established, the main function will be called.
-                                        main()
+                                        # Creates the database and the needed tables if they do not already exist.
+                                        cursor.execute("CREATE DATABASE IF NOT EXISTS lockandkey")
+                                        cursor.execute("USE lockandkey")
+                                        cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+                                                       user_id INT AUTO_INCREMENT PRIMARY KEY, 
+                                                       username VARCHAR(200) NOT NULL, 
+                                                       password VARCHAR(200) NOT NULL, 
+                                                       salt VARCHAR(50) NOT NULL)""")
+                                        cursor.execute("""CREATE TABLE IF NOT EXISTS vault (
+                                                       id INT AUTO_INCREMENT PRIMARY KEY,
+                                                       user_id INT NOT NULL, 
+                                                       username VARCHAR(1000) NOT NULL, 
+                                                       password VARCHAR(1000) NOT NULL, 
+                                                       folder VARCHAR(500) DEFAULT 'None',
+                                                       FOREIGN KEY (user_id) REFERENCES users(user_id))""")
+                                        cursor.execute("""CREATE TABLE IF NOT EXISTS user_salt (
+                                                       id INT AUTO_INCREMENT PRIMARY KEY,
+                                                       user_id INT NOT NULL, 
+                                                       salt VARCHAR(50) NOT NULL,
+                                                       FOREIGN KEY (user_id) REFERENCES users(user_id))""")
+                                        connection.commit()
+
+                                        # If the connection is established, the user_login function will be called.
+                                        user_login()
                                     except mysql.connector.Error:
                                         login_failure_message_label.configure(text="Login failed.", text_color=error_color)
                                 else:
@@ -1317,7 +1648,7 @@ def login():
         else:
             login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
 
-    login_button = customtkinter.CTkButton(login_frame, text="Login", command=authentication, width=185)
+    login_button = customtkinter.CTkButton(login_frame, text="Login", command=mysql_authentication, width=185)
     login_button.grid(row=5, column=0, padx=(20,0), pady=5, sticky="w")
 
     login_failure_message_label = customtkinter.CTkLabel(login_frame, text="")
@@ -1330,4 +1661,4 @@ def login():
     root.mainloop()
 
 # Starts the login function on application startup.
-login()
+mysql_login()
