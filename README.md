@@ -7,16 +7,16 @@
 
 # Table Of Contents
 1. [About Lock&Key](#about-lockkey)
-    - [Features](##features)
+    - [Features](#features)
 2. [Installation and Set Up](#installation-and-set-up)
-    - [MySQL Server Set Up](##mysql-server-set-up)
-    - [Installation](##installation)
-        - [Executable Installation](###executable-installation)
-        - [Manual Installation Linux](###manual-installation-linux)
-        - [Manual Installation Windows](###manual-installation-windows)
-    - [Usage](##usage)
-        - [Login](###login)
-        - [Sign Up](###sign-up)
+    - [MySQL Server Set Up](#mysql-server-set-up)
+    - [Installation](#installation)
+        - [Executable Installation](#executable-installation)
+        - [Manual Installation Linux](#manual-installation-linux)
+        - [Manual Installation Windows](#manual-installation-windows)
+    - [Usage](#usage)
+        - [Login](#login)
+        - [Sign Up](#sign-up)
 # About Lock&Key
 
 Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need to store and manage your accounts securely!
