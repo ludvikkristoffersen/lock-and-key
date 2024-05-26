@@ -6,17 +6,17 @@
 - [MIT License](https://github.com/ludvikkristoffersen/lock-and-key/blob/main/license.md)
 
 # Table Of Contents
-1. [About Lock&Key](#About-Lock&Key)
-    - [Features](##Features)
-2. [Installation and Set Up](#Installation-and-Set-Up)
-    - [MySQL Server Set Up](##MySQL-Server-Set-Up)
-    - [Installation](##Installation)
-        - [Executable Installation](###Executable-Installation)
-        - [Manual Installation Linux](###Manual-Installation-Linux)
-        - [Manual Installation Windows](###Manual-Installation-Windows)
-    - [Usage](##Usage)
-        - [Login](###Login)
-        - [Sign Up](###Sign-Up)
+1. [About Lock&Key](#about-lockkey)
+    - [Features](##features)
+2. [Installation and Set Up](#installation-and-set-up)
+    - [MySQL Server Set Up](##mysql-server-set-up)
+    - [Installation](##installation)
+        - [Executable Installation](###executable-installation)
+        - [Manual Installation Linux](###manual-installation-linux)
+        - [Manual Installation Windows](###manual-installation-windows)
+    - [Usage](##usage)
+        - [Login](###login)
+        - [Sign Up](###sign-up)
 # About Lock&Key
 
 Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need to store and manage your accounts securely!
