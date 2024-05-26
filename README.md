@@ -46,9 +46,10 @@ Install and fix the Pillow library:
 pip install --upgrade --force-reinstall Pillow
 ```
 ## Usage
-Executable installation? Launch the executable file.
-Manual installation? Start the password manager:
+- Executable installation? Launch the executable file.
+- Manual installation? Start the password manager:
 ```
 python3 lock-and-key.py
 ```
-Login by providing MySQL server IP address and MySQL user credentials, and you are good to go!
+1. Login by providing MySQL server IP address and MySQL user credentials, and you are good to go!
+2. Create a user account to begin using the password manager!
