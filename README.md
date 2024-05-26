@@ -32,7 +32,32 @@ The Lock&Key password manager has been packaged as an executable for both Window
 ```
 Download and launch the executable file.
 ```
-### Manual Installation
+### Manual Installation Linux
+Change directory to the /opt directory:
+```
+cd /opt
+```
+Clone repository (requires git to be installed):
+```
+sudo git clone https://github.com/ludvikkristoffersen/lock-and-key
+```
+Change the directory to the 'lock-and-key' directory:
+```
+cd lock-and-key
+```
+Install the required libraries:
+```
+pip install -r requirements.txt
+```
+Install and fix the Pillow library:
+```
+pip install --upgrade --force-reinstall Pillow
+```
+Now start the password manager from the command line:
+```
+python3 lock-and-key.py
+```
+### Manual Installation Windows
 Clone repository (requires git to be installed):
 ```
 git clone https://github.com/ludvikkristoffersen/lock-and-key
