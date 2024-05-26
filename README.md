@@ -15,7 +15,7 @@ Lock&Key is built using Python as its main language with MySQL integrated to hel
 - **Deleting account entries**: Remove unwanted account entries.
 - **Listing account entries**: Display a list of all or specified account entries.
 - **Password generation**: Generate random, complex passwords.
-- **Encryption**: Data securely stored with encryption.
+- **Encryption**: All data securely stored with encryption.
 
 # Installation and Set Up
 ## MySQL Server Set Up
