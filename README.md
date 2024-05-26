@@ -24,11 +24,15 @@ The user needs to have a local MySQL server set up and running, here is how to s
 **IMPORTANT!** - When creating a MySQL user account, remember these credentials, this is how you are going to authenticate to the password manager. This acts as the master password, so make it strong!
 - [Windows MySQL server installation (workbench not needed)](https://www.youtube.com/watch?v=u96rVINbAUI)
 - [Linux MySQL server installation (Debian)](https://www.youtube.com/watch?v=3qD6zv7thdE)
-## Application Installation
+## Usage
+### Executable Installation
 The Lock&Key password manager has been packaged as an executable for both Windows and Linux using the "pyinstaller" tool. Downloading the executable for your operating system eliminates the need to install any dependencies. It’s designed to work seamlessly right out of the box!
 - [Download Windows executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Windows)
 - [Download Linux executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Linux)
-## Manual Installation
+```
+Download and launch the executable file.
+```
+### Manual Installation
 Clone repository (requires git to be installed):
 ```
 git clone https://github.com/ludvikkristoffersen/lock-and-key
@@ -45,11 +49,12 @@ Install and fix the Pillow library:
 ```
 pip install --upgrade --force-reinstall Pillow
 ```
-## Usage
-- Executable installation? Launch the executable file.
-- Manual installation? Start the password manager:
+Now start the password manager from the command line:
 ```
 python3 lock-and-key.py
 ```
-1. Login by providing MySQL server IP address and MySQL user credentials, and you are good to go!
-2. Create a user account to begin using the password manager!
+### Login
+1. First, log in by providing your MySQL server IP, port, and MySQL user credentials.
+2. If you have created a user account, log in as that user to start using the password manager.
+### Creating a User Account
+If this is your first time using the password manager you need to create a user account after logging in to the MySQL server.
