@@ -24,7 +24,7 @@ The user needs to have a local MySQL server set up and running, here is how to s
 **IMPORTANT!** - When creating a MySQL user account, remember these credentials, this is how you are going to authenticate to the password manager. This acts as the master password, so make it strong!
 - [Windows MySQL server installation (workbench not needed)](https://www.youtube.com/watch?v=u96rVINbAUI)
 - [Linux MySQL server installation (Debian)](https://www.youtube.com/watch?v=3qD6zv7thdE)
-## Usage
+## Installation
 ### Executable Installation
 The Lock&Key password manager has been packaged as an executable for both Windows and Linux using the "pyinstaller" tool. Downloading the executable for your operating system eliminates the need to install any dependencies. It’s designed to work seamlessly right out of the box!
 - [Download Windows executable here.](https://github.com/ludvikkristoffersen/lock-and-key/releases/tag/Lock%26Key-Windows)
@@ -78,8 +78,9 @@ Now start the password manager from the command line:
 ```
 python3 lock-and-key.py
 ```
+## Usage
 ### Login
 1. First, log in by providing your MySQL server IP, port, and MySQL user credentials.
 2. If you have created a user account, log in as that user to start using the password manager.
-### Creating a User Account
-If this is your first time using the password manager you need to create a user account after logging into the MySQL server.
+### Sign Up
+If this is your first time using the password manager you need to create a user account after logging into the MySQL server. Make sure to create a strong password, but you need to remember it or write it down in a safe spot!
