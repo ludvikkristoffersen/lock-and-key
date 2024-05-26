@@ -4,6 +4,19 @@
 - Powered by Python, MySQL, and Customtkinter
 - Current OS support: **Windows**, **Linux**
 - [MIT License](https://github.com/ludvikkristoffersen/lock-and-key/blob/main/license.md)
+
+# Table Of Contents
+1. [About Lock&Key](#About-Lock&Key)
+    - [Features](##Features)
+2. [Installation and Set Up](#Installation-and-Set-Up)
+    - [MySQL Server Set Up](##MySQL-Server-Set-Up)
+    - [Installation](##Installation)
+        - [Executable Installation](###Executable-Installation)
+        - [Manual Installation Linux](###Manual-Installation-Linux)
+        - [Manual Installation Windows](###Manual-Installation-Windows)
+    - [Usage](##Usage)
+        - [Login](###Login)
+        - [Sign Up](###Sign-Up)
 # About Lock&Key
 
 Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need to store and manage your accounts securely!
