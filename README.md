@@ -6,9 +6,9 @@
 - [MIT License](https://github.com/ludvikkristoffersen/lock-and-key/blob/main/license.md)
 
 # Appendix
-1. [About Lock&Key](#about-lockkey)
+1. **[About Lock&Key](#about-lockkey)**
     - [Features](#features)
-2. [Installation and Set Up](#installation-and-set-up)
+2. **[Installation and Set Up](#installation-and-set-up)**
     - [MySQL Server Set Up](#mysql-server-set-up)
     - [Installation](#installation)
         - [Executable Installation](#executable-installation)
