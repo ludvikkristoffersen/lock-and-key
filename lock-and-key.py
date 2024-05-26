@@ -369,7 +369,7 @@ def home_screen():
 
     description_text = customtkinter.CTkTextbox(right_frame, width=550, height=50, font=customtkinter.CTkFont(size=13), wrap="word")
     description_text.grid(row=1, column=0, padx=20, sticky="w")
-    description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!")
+    description_text.insert("end", "Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need to store and manage your accounts securely!")
     description_text.configure(state="disabled")
 
     functionalities_label = customtkinter.CTkLabel(right_frame, text="Provided Functionalities", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -382,7 +382,7 @@ def home_screen():
 • Deleting account entries: Remove unwanted account entries.\n
 • Listing account entries: Display a list of all or specified account entries.\n
 • Password generation: Generate random, complex passwords.\n
-• Encryption: All data securely stored with encryption.""")
+• Encryption: All data is securely stored with encryption.""")
     functionalities_text.configure(state="disabled")
 
 ################################################################################
