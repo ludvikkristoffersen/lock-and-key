@@ -1129,7 +1129,7 @@ def user_management():
                     connection.commit()
                     user_login()
                 else:
-                    error_label.configure(text="Invalid username or password.", text_color=error_color)
+                    error_label.configure(text="Invalid master password.", text_color=error_color)
         else:
             error_label.configure(text="Please enter master password.", text_color=error_color)
 
