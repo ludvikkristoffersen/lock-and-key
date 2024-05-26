@@ -6,16 +6,16 @@
 - [MIT License](https://github.com/ludvikkristoffersen/lock-and-key/blob/main/license.md)
 # About Lock&Key
 
-Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need for storing and managing your accounts securely!
+Lock&Key is a self-hosted, self-managed, open-source password manager. It provides everything you need to store and manage your accounts securely!
 
-Lock&Key is built using Python as its main language with MySQL integrated to help store and manage password entries, it's self-hosted and open-source meaning you as the consumer have full control over everything. The master password for each user is used for encrypting and decrypting password entries so make it strong.
+Lock&Key is built using Python as its main language with MySQL integrated to help store and manage password entries, it's self-hosted and open-source meaning you as the consumer have full control over everything. The master password for each user is used to encrypt and decrypt all user data with strong encryption to provide secure storage
 ## Features
 - **Adding account entries**: Create new or add existing account entries.
 - **Updating account entries**: Modify account entries with new information.
 - **Deleting account entries**: Remove unwanted account entries.
 - **Listing account entries**: Display a list of all or specified account entries.
 - **Password generation**: Generate random, complex passwords.
-- **Encryption**: All data securely stored with encryption.
+- **Encryption**: All data is securely stored with encryption.
 
 # Installation and Set Up
 ## MySQL Server Set Up
@@ -57,4 +57,4 @@ python3 lock-and-key.py
 1. First, log in by providing your MySQL server IP, port, and MySQL user credentials.
 2. If you have created a user account, log in as that user to start using the password manager.
 ### Creating a User Account
-If this is your first time using the password manager you need to create a user account after logging in to the MySQL server.
+If this is your first time using the password manager you need to create a user account after logging into the MySQL server.
