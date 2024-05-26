@@ -5,7 +5,7 @@
 - Current OS support: **Windows**, **Linux**
 - [MIT License](https://github.com/ludvikkristoffersen/lock-and-key/blob/main/license.md)
 
-# Table Of Contents
+# Appendix
 1. [About Lock&Key](#about-lockkey)
     - [Features](#features)
 2. [Installation and Set Up](#installation-and-set-up)
