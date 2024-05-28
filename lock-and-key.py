@@ -1112,7 +1112,7 @@ def user_management():
     def confirm_account_deletion():
         cursor.execute("SELECT master_password FROM users WHERE user_id = %s", (user_id,))
         retrieve_information = cursor.fetchone()
-        pass_hasher = argon2.PasswordHasher()
+        pass_hasher = argon2.PasswordHasher(type=argon2.Type.ID, memory_cost=47104, time_cost=1, parallelism=1)
 
         if len(master_password_entry.get()) != 0:
             if retrieve_information:
@@ -1174,7 +1174,7 @@ def main():
     # This function generates a key based on the users master password and user salt.
     # The key is then shortened to 32 characters and encoded with base64 to work with Ferent.
     def key_derivation_function(master_password, salt):
-        pass_hasher = argon2.PasswordHasher()
+        pass_hasher = argon2.PasswordHasher(type=argon2.Type.ID, memory_cost=47104, time_cost=1, parallelism=1)
         hash_the_key = pass_hasher.hash(master_password, salt=salt)
         key_length = hash_the_key[:32]
         key = base64.urlsafe_b64encode(key_length.encode()).decode()
@@ -1353,7 +1353,7 @@ def user_login():
                     try:
                         cursor.execute("SELECT username FROM users")
                         usernames = [row[0] for row in cursor.fetchall()]
-                        pass_hasher = argon2.PasswordHasher()
+                        pass_hasher = argon2.PasswordHasher(type=argon2.Type.ID, memory_cost=47104, time_cost=1, parallelism=1)
 
                         if username in usernames:
                             cursor.execute("SELECT master_password FROM users WHERE username = %s", (username,))
@@ -1404,7 +1404,7 @@ def user_login():
                     try:
                         cursor.execute("SELECT username FROM users")
                         usernames = [row[0] for row in cursor.fetchall()]
-                        pass_hasher = argon2.PasswordHasher()
+                        pass_hasher = argon2.PasswordHasher(type=argon2.Type.ID, memory_cost=47104, time_cost=1, parallelism=1)
 
                         if username in usernames:
                             login_failure_message_label.configure(text="Username already taken.", text_color=error_color)
