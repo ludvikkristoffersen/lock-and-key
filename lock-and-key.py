@@ -20,15 +20,14 @@
 # 3. MySQL connector used for connecting and interacting with the MySQL database.
 # 4. Customtkinter used for creating the application interface.
 # 5. Platform used for OS type detection.
-# 6. Argon2 used for creating a secure key for encryption and decryption.
+# 6. Argon2 used for hashing master passwords and creating a secure key for encryption and decryption.
 # 7. Random used for randomly selecting characters for password generating.
 # 8. String used for easily getting lowercase, uppercase, and digit characters.
 # 9. Socket used for testing the connection of the user supplied IP address.
 # 10. Base64 used for encoding the Argon2 generated key into base64.
-# 11. Bcrypt used for hashing the users master password before storage.
-# 12. Time used for creating small time delays between some actions.
-# 13. OS used for mainly checking for if files exist or not.
-# 14. RE used for creating regex to be used to check user input.
+# 11. Time used for creating small time delays between some actions.
+# 12. OS used for mainly checking for if files exist or not.
+# 13. RE used for creating regex to be used to check user input.
 from cryptography.fernet import Fernet
 from PIL import Image
 import mysql.connector
@@ -39,7 +38,6 @@ import random
 import string
 import socket
 import base64
-import bcrypt
 import time
 import sys
 import os
@@ -1176,8 +1174,8 @@ def main():
     # This function generates a key based on the users master password and user salt.
     # The key is then shortened to 32 characters and encoded with base64 to work with Ferent.
     def key_derivation_function(master_password, salt):
-        kdf = argon2.PasswordHasher()
-        hash_the_key = kdf.hash(master_password, salt=salt)
+        pass_hasher = argon2.PasswordHasher()
+        hash_the_key = pass_hasher.hash(master_password, salt=salt)
         key_length = hash_the_key[:32]
         key = base64.urlsafe_b64encode(key_length.encode()).decode()
         return key
@@ -1350,27 +1348,27 @@ def user_login():
                 if re.match(password_regex,master_password):
                     login_failure_message_label.configure(text="")
                     # If the user input pass all the above, it will check if the user exists in the database
-                    # and if the user exists it will compare the hashed master password against the stored
-                    # user password located in the database.
+                    # and if the user exists it will compare the hashed master password against the provided
+                    # master password.
                     try:
                         cursor.execute("SELECT username FROM users")
                         usernames = [row[0] for row in cursor.fetchall()]
+                        pass_hasher = argon2.PasswordHasher()
 
                         if username in usernames:
-                            cursor.execute("SELECT user_salt, master_password FROM users WHERE username = %s", (username,))
+                            cursor.execute("SELECT master_password FROM users WHERE username = %s", (username,))
                             user_retrieve = cursor.fetchone()
                             login_failure_message_label.configure(text="")
                             if user_retrieve:
-                                salt = user_retrieve[0].encode()
-                                stored_password = user_retrieve[1]
-                                hash_password = bcrypt.hashpw(master_password.encode("utf-8"), salt)
+                                stored_password = user_retrieve[0]
                                 login_failure_message_label.configure(text="")
-                                if hash_password.decode() == stored_password:
+                                try:
+                                    pass_hasher.verify(stored_password, master_password)
                                     login_failure_message_label.configure(text="")
                                     cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
                                     user_id = cursor.fetchone()[0]
                                     main()
-                                else:
+                                except:
                                     login_failure_message_label.configure(text="Invalid username or password.", text_color=error_color)
                             else:
                                 login_failure_message_label.configure(text="Invalid username or password.", text_color=error_color)
@@ -1386,8 +1384,8 @@ def user_login():
             login_failure_message_label.configure(text="Empty fields.", text_color=error_color)
     
     # If one wish to create a user account they can do so here, the master password provided
-    # will be hashed using bcrypt and stored in the users table along with the rest of the
-    # user information such as user_id, username, and salt.
+    # will be hashed using Argon2 and stored in the users table along with the rest of the
+    # user information such as user_id and username.
     def user_signup():
         global username, master_password, user_id
 
@@ -1406,15 +1404,13 @@ def user_login():
                     try:
                         cursor.execute("SELECT username FROM users")
                         usernames = [row[0] for row in cursor.fetchall()]
+                        pass_hasher = argon2.PasswordHasher()
 
                         if username in usernames:
                             login_failure_message_label.configure(text="Username already taken.", text_color=error_color)
                         else:
-                            user_salt = bcrypt.gensalt()
-                            hash_password = bcrypt.hashpw(master_password.encode("utf-8"), user_salt)
-                            store_password = hash_password.decode()
-                            store_salt = user_salt.decode()
-                            cursor.execute("INSERT INTO users (username, master_password, user_salt) VALUES (%s, %s, %s)", (username, store_password, store_salt))
+                            stored_hashed_password = pass_hasher.hash(master_password)
+                            cursor.execute("INSERT INTO users (username, master_password) VALUES (%s, %s)", (username, stored_hashed_password))
                             connection.commit()
                             cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
                             user_id = cursor.fetchone()[0]
@@ -1616,8 +1612,7 @@ def mysql_login():
                                         cursor.execute("""CREATE TABLE IF NOT EXISTS users (
                                                        user_id INT AUTO_INCREMENT PRIMARY KEY, 
                                                        username VARCHAR(200) NOT NULL, 
-                                                       master_password VARCHAR(200) NOT NULL, 
-                                                       user_salt VARCHAR(50) NOT NULL)""")
+                                                       master_password VARCHAR(200) NOT NULL)""")
                                         cursor.execute("""CREATE TABLE IF NOT EXISTS vault (
                                                        id INT AUTO_INCREMENT PRIMARY KEY,
                                                        user_id INT NOT NULL, 
