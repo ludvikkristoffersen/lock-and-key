@@ -1110,15 +1110,15 @@ def user_management():
     delete_account_button.grid(row=5, column=0, padx=(165,0), pady=0, sticky="w")
 
     def confirm_account_deletion():
-        cursor.execute("SELECT user_salt, master_password FROM users WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT master_password FROM users WHERE user_id = %s", (user_id,))
         retrieve_information = cursor.fetchone()
+        pass_hasher = argon2.PasswordHasher()
+
         if len(master_password_entry.get()) != 0:
             if retrieve_information:
-                salt = retrieve_information[0].encode()
-                stored_password = retrieve_information[1]
-
-                hash_password = bcrypt.hashpw(master_password_entry.get().encode("utf-8"), salt)
-                if hash_password.decode() == stored_password:
+                stored_password = retrieve_information[0]
+                try:
+                    pass_hasher.verify(stored_password, master_password_entry.get())
                     right_frame.destroy()
                     sidebar_frame.destroy()
                     cursor.execute("DELETE FROM vault WHERE user_id = %s", (user_id,))
@@ -1126,7 +1126,7 @@ def user_management():
                     cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
                     connection.commit()
                     user_login()
-                else:
+                except:
                     error_label.configure(text="Invalid master password.", text_color=error_color)
         else:
             error_label.configure(text="Please enter master password.", text_color=error_color)
