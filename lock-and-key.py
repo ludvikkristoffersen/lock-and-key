@@ -589,7 +589,7 @@ def updating_entry():
     folder_list.sort(key=str.lower)
 
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
@@ -867,7 +867,7 @@ def updating_entry():
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
+    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
 ################################################################################
 #                                                                              #
@@ -899,7 +899,7 @@ def deleting_entry():
     folder_list.sort(key=str.lower)
 
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
@@ -965,7 +965,7 @@ def deleting_entry():
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
+    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
 ################################################################################
 #                                                                              #
@@ -1000,7 +1000,7 @@ def listing_entries():
     folder_list.sort(key=str.lower)
 
     folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
 
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
@@ -1068,7 +1068,7 @@ def listing_entries():
     updating_list()
 
     update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=180, pady=0, sticky="w")
+    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
 ################################################################################
 #                                                                              #
@@ -1151,7 +1151,8 @@ def main():
     remove_sidebar_objects()
     remove_titlebar_objects()
 
-    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label, user_management_button
+    global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home,\
+    button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label, user_management_button
 
     # Retrieves the salt from the user table.
     cursor.execute("SELECT salt FROM key_salt WHERE user_id = %s", (user_id,))
