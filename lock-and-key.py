@@ -439,7 +439,7 @@ def adding_entry():
     password_show.grid(row=2, column=1, pady=(10,0), sticky="w")
 
     # MySQL query that retrieves all the folders from the vault.
-    cursor.execute("SELECT folder FROM vault WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT entry_folder FROM vault WHERE user_id = %s", (user_id,))
     rows = cursor.fetchall()
     folder_list = []
     for row in rows:
@@ -487,7 +487,7 @@ def adding_entry():
                         if len(folder) > 0:
                             message_label.configure(text="")
                             if re.match(folder_regex,folder):
-                                cursor.execute("INSERT INTO vault (user_id, username, password, folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
+                                cursor.execute("INSERT INTO vault (user_id, entry_username, entry_password, entry_folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
                                 connection.commit()
                                 message_label.configure(text="New entry added.", text_color=succeed_color)
                                 username_entry.delete(0, 'end')
@@ -500,7 +500,7 @@ def adding_entry():
                             encrypt_folder = cipher_instance.encrypt(folder_select.encode())
                             decoded_encrypted_folder = encrypt_folder.decode()
                             message_label.configure(text="")
-                            cursor.execute("INSERT INTO vault (user_id, username, password, folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
+                            cursor.execute("INSERT INTO vault (user_id, entry_username, entry_password, entry_folder) VALUES (%s, %s, %s, %s)", (user_id, decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder))
                             connection.commit()
                             message_label.configure(text="New entry added.", text_color=succeed_color)
                             username_entry.delete(0, 'end')
@@ -578,7 +578,7 @@ def updating_entry():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT entry_folder FROM vault WHERE user_id = %s", (user_id,))
     rows = cursor.fetchall()
     folder_list = []
     for row in rows:
@@ -603,7 +603,7 @@ def updating_entry():
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
             
-        cursor.execute("SELECT id, username, folder FROM vault WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT id, entry_username, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
 
@@ -689,7 +689,7 @@ def updating_entry():
         folder_entry.insert(0, get_folder)
         
         # MySQL query that retrieves all the folders from the vault.
-        cursor.execute("SELECT folder FROM vault WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT entry_folder FROM vault WHERE user_id = %s", (user_id,))
         rows = cursor.fetchall()
         folder_list = []
         for row in rows:
@@ -746,60 +746,60 @@ def updating_entry():
 
                             if new_username != username and len(password) != 0 and new_folder != get_folder:
                                 if len(new_folder) == 0:
-                                    cursor.execute("UPDATE vault SET username = %s, password = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_username = %s, entry_password = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute("UPDATE vault SET username = %s, password = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_username = %s, entry_password = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                             elif new_username != username and len(password) != 0:
-                                cursor.execute("UPDATE vault SET username = %s, password = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, row_id_int))
+                                cursor.execute("UPDATE vault SET entry_username = %s, entry_password = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_password, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
                             elif new_username != username and new_folder != get_folder:
                                 if len(new_folder) == 0:
-                                    cursor.execute("UPDATE vault SET username = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_username = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute("UPDATE vault SET username = %s, folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_username = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_username, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                             elif len(password) != 0 and new_folder != get_folder:
                                 if len(new_folder) == 0:
-                                    cursor.execute("UPDATE vault SET password = %s, folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_password = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute("UPDATE vault SET password = %s, folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_password = %s, entry_folder = %s WHERE id = %s", (decoded_encrypted_password, decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                             elif new_username != username:
-                                cursor.execute("UPDATE vault SET username = %s WHERE id = %s", (decoded_encrypted_username, row_id_int))
+                                cursor.execute("UPDATE vault SET entry_username = %s WHERE id = %s", (decoded_encrypted_username, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
                             elif len(password) != 0:
-                                cursor.execute("UPDATE vault SET password = %s WHERE id = %s", (decoded_encrypted_password, row_id_int))
+                                cursor.execute("UPDATE vault SET entry_password = %s WHERE id = %s", (decoded_encrypted_password, row_id_int))
                                 connection.commit()
                                 password_strength_updater(None)
                                 updating_entry()
                             elif new_folder != get_folder:
                                 if len(new_folder) == 0:
-                                    cursor.execute("UPDATE vault SET folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
                                 else:
-                                    cursor.execute("UPDATE vault SET folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
+                                    cursor.execute("UPDATE vault SET entry_folder = %s WHERE id = %s", (decoded_encrypted_folder, row_id_int))
                                     connection.commit()
                                     password_strength_updater(None)
                                     updating_entry()
@@ -888,7 +888,7 @@ def deleting_entry():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT entry_folder FROM vault WHERE user_id = %s", (user_id,))
     rows = cursor.fetchall()
     folder_list = []
     for row in rows:
@@ -934,7 +934,7 @@ def deleting_entry():
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
             
-        cursor.execute("SELECT id, username, folder FROM vault WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT id, entry_username, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
 
@@ -989,7 +989,7 @@ def listing_entries():
 
     # MySQL query that retrieves all the folders from the vault which is used
     # for displaying all entries or only specified entries.
-    cursor.execute("SELECT folder FROM vault WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT entry_folder FROM vault WHERE user_id = %s", (user_id,))
     rows = cursor.fetchall()
     folder_list = []
     for row in rows:
@@ -1035,7 +1035,7 @@ def listing_entries():
             
         selected_folder = folder_menu.get()
 
-        cursor.execute("SELECT username, password, folder FROM vault WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT entry_username, entry_password, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
 
@@ -1112,7 +1112,7 @@ def user_management():
     delete_account_button.grid(row=5, column=0, padx=(165,0), pady=0, sticky="w")
 
     def confirm_account_deletion():
-        cursor.execute("SELECT salt, password FROM users WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT user_salt, master_password FROM users WHERE user_id = %s", (user_id,))
         retrieve_information = cursor.fetchone()
         if len(master_password_entry.get()) != 0:
             if retrieve_information:
@@ -1124,7 +1124,7 @@ def user_management():
                     right_frame.destroy()
                     sidebar_frame.destroy()
                     cursor.execute("DELETE FROM vault WHERE user_id = %s", (user_id,))
-                    cursor.execute("DELETE FROM user_salt WHERE user_id = %s", (user_id,))
+                    cursor.execute("DELETE FROM key_salt WHERE user_id = %s", (user_id,))
                     cursor.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
                     connection.commit()
                     user_login()
@@ -1156,7 +1156,7 @@ def main():
     global right_frame, sidebar_frame, cipher_instance, button_change_appearance, button_home, button_exit_application, logo_label, title_bar, title_bar_close_button, title_bar_logo_label, user_management_button
 
     # Retrieves the salt from the user table.
-    cursor.execute("SELECT salt FROM user_salt WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT salt FROM key_salt WHERE user_id = %s", (user_id,))
     retrieved_salt = cursor.fetchone()
     # If the salt exist then use that salt, but if no salt is present
     # create a randomly generated 50 character salt for the user.
@@ -1170,7 +1170,7 @@ def main():
         random_salt = "".join(random.choices(combined_char_list, k=50))
         store_salt = random_salt
         salt = random_salt.encode()
-        cursor.execute("INSERT INTO user_salt (user_id, salt) VALUES (%s, %s)", (user_id, store_salt))
+        cursor.execute("INSERT INTO key_salt (user_id, salt) VALUES (%s, %s)", (user_id, store_salt))
         connection.commit()
 
     # This function generates a key based on the users master password and user salt.
@@ -1357,7 +1357,7 @@ def user_login():
                         usernames = [row[0] for row in cursor.fetchall()]
 
                         if username in usernames:
-                            cursor.execute("SELECT salt, password FROM users WHERE username = %s", (username,))
+                            cursor.execute("SELECT user_salt, master_password FROM users WHERE username = %s", (username,))
                             user_retrieve = cursor.fetchone()
                             login_failure_message_label.configure(text="")
                             if user_retrieve:
@@ -1414,7 +1414,7 @@ def user_login():
                             hash_password = bcrypt.hashpw(master_password.encode("utf-8"), user_salt)
                             store_password = hash_password.decode()
                             store_salt = user_salt.decode()
-                            cursor.execute("INSERT INTO users (username, password, salt) VALUES (%s, %s, %s)", (username, store_password, store_salt))
+                            cursor.execute("INSERT INTO users (username, master_password, user_salt) VALUES (%s, %s, %s)", (username, store_password, store_salt))
                             connection.commit()
                             cursor.execute("SELECT user_id FROM users WHERE username = %s",(username,))
                             user_id = cursor.fetchone()[0]
@@ -1616,17 +1616,16 @@ def mysql_login():
                                         cursor.execute("""CREATE TABLE IF NOT EXISTS users (
                                                        user_id INT AUTO_INCREMENT PRIMARY KEY, 
                                                        username VARCHAR(200) NOT NULL, 
-                                                       password VARCHAR(200) NOT NULL, 
-                                                       salt VARCHAR(50) NOT NULL)""")
+                                                       master_password VARCHAR(200) NOT NULL, 
+                                                       user_salt VARCHAR(50) NOT NULL)""")
                                         cursor.execute("""CREATE TABLE IF NOT EXISTS vault (
                                                        id INT AUTO_INCREMENT PRIMARY KEY,
                                                        user_id INT NOT NULL, 
-                                                       username VARCHAR(1000) NOT NULL, 
-                                                       password VARCHAR(1000) NOT NULL, 
-                                                       folder VARCHAR(500) DEFAULT 'None',
+                                                       entry_username VARCHAR(1000) NOT NULL, 
+                                                       entry_password VARCHAR(1000) NOT NULL, 
+                                                       entry_folder VARCHAR(500) DEFAULT 'None',
                                                        FOREIGN KEY (user_id) REFERENCES users(user_id))""")
-                                        cursor.execute("""CREATE TABLE IF NOT EXISTS user_salt (
-                                                       id INT AUTO_INCREMENT PRIMARY KEY,
+                                        cursor.execute("""CREATE TABLE IF NOT EXISTS key_salt (
                                                        user_id INT NOT NULL, 
                                                        salt VARCHAR(50) NOT NULL,
                                                        FOREIGN KEY (user_id) REFERENCES users(user_id))""")
