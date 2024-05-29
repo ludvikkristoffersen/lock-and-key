@@ -34,7 +34,7 @@ Lock&Key is built using Python as its main language with MySQL integrated to hel
 ## MySQL Server Set Up
 The user needs to have a local MySQL server set up and running, here is how to set up a MySQL server locally:
 
-**IMPORTANT!** - When creating a MySQL user account, remember these credentials, this is how you are going to authenticate to the password manager. This acts as the master password, so make it strong!
+**IMPORTANT!** - When creating a MySQL user account, remember these credentials, these credentials will be used to establish a database connection when running the application.
 - [Windows MySQL server installation (workbench not needed)](https://www.youtube.com/watch?v=u96rVINbAUI)
 - [Linux MySQL server installation (Debian)](https://www.youtube.com/watch?v=3qD6zv7thdE)
 ## Installation
