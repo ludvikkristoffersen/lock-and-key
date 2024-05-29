@@ -588,34 +588,35 @@ def updating_entry():
     folder_list = list(set(folder_list))
     folder_list.sort(key=str.lower)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
-
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
 
     # Function that retrieves all entries currently stored in the password manager,
     # but it does not retrieve the password.
-    def updating_list():
+    def updating_list(*args):
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
-            
+        
+        selected_folder = folder_menu.get()    
         cursor.execute("SELECT id, entry_username, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
+
+        if len(folder_list) != 0:
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
+        else:
+            pass
 
         entry_id = 3
         for entry in entries:
             decrypted_folder = cipher_instance.decrypt(entry[2].encode()).decode()
 
-            if folder_menu.get() == "All" or decrypted_folder == folder_menu.get():
+            if selected_folder == "All" or decrypted_folder == selected_folder:
                 decrypted_username = cipher_instance.decrypt(entry[1].encode()).decode()
-
-                title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-                title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
                 username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decrypted_username}")
                 username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
@@ -629,6 +630,11 @@ def updating_entry():
                 select_entry_button.grid(row=entry_id, column=2, padx=(5,0), pady=5, sticky="w")
                 select_entry_button.configure(command=lambda r=row_id, u=decrypted_username, f=decrypted_folder: updating_entry_button(r,u,f))
                 entry_id += 1
+    
+    folder_menu_label = customtkinter.CTkLabel(right_frame, text="Select folder:", font=customtkinter.CTkFont(size=13, weight="bold"))
+    folder_menu_label.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list, command=updating_list)
+    folder_menu.grid(row=1, column=0, padx=120, pady=0, sticky="w")
 
     # When a user selects a entry they want to edit or update in any way, they get
     # brought to the same screen used to create a new entry, but the username
@@ -866,9 +872,6 @@ def updating_entry():
     # Calls the updating list function immediately to update the current list of entries.
     updating_list()
 
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
-
 ################################################################################
 #                                                                              #
 #                               Deleting entry                                 #
@@ -898,9 +901,6 @@ def deleting_entry():
     folder_list = list(set(folder_list))
     folder_list.sort(key=str.lower)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
-
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
@@ -928,25 +928,29 @@ def deleting_entry():
 
     # Function that retrieves all entries currently stored in the password manager,
     # but it does not retrieve the password.
-    def updating_list():
+    def updating_list(*args):
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
-            
+        
+        selected_folder = folder_menu.get() 
         cursor.execute("SELECT id, entry_username, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
+
+        if len(folder_list) != 0:
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
+        else:
+            pass
 
         entry_id = 3
         for entry in entries:
             decrypted_folder = cipher_instance.decrypt(entry[2].encode()).decode()
 
-            if folder_menu.get() == "All" or decrypted_folder == folder_menu.get():
+            if selected_folder == "All" or decrypted_folder == selected_folder:
                 decrypted_username = cipher_instance.decrypt(entry[1].encode()).decode()
-
-                title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-                title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
 
                 username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decrypted_username}")
                 username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
@@ -961,11 +965,14 @@ def deleting_entry():
                 remove_button.configure(command=lambda r=row_id: delete_entry_button(r))
                 entry_id += 1
 
+    folder_menu_label = customtkinter.CTkLabel(right_frame, text="Select folder:", font=customtkinter.CTkFont(size=13, weight="bold"))
+    folder_menu_label.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list, command=updating_list)
+    folder_menu.grid(row=1, column=0, padx=120, pady=0, sticky="w")
+
     # Calls the updating list function immediately to update the current list of entries.
     updating_list()
 
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
 ################################################################################
 #                                                                              #
@@ -999,9 +1006,6 @@ def listing_entries():
     folder_list = list(set(folder_list))
     folder_list.sort(key=str.lower)
 
-    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list)
-    folder_menu.grid(row=1, column=0, padx=90, pady=0, sticky="w")
-
     scrollable_frame = customtkinter.CTkScrollableFrame(right_frame, width=550, height=235, corner_radius=6)
     scrollable_frame.grid(row=3, column=0, padx=(20, 0), pady=(10, 0), sticky="nsew")
     scrollable_frame.grid_columnconfigure(0, weight=1)
@@ -1025,31 +1029,33 @@ def listing_entries():
 
     # Function that retrieves all entries currently stored in the password manager,
     # but it does not retrieve the password.
-    def updating_list():
+    def updating_list(*args):
         global copy_button
 
         for widget in scrollable_frame.winfo_children():
             widget.destroy()
             
         selected_folder = folder_menu.get()
-
         cursor.execute("SELECT entry_username, entry_password, entry_folder FROM vault WHERE user_id = %s", (user_id,))
         entries = cursor.fetchall()
         entries.sort(key=lambda entry: cipher_instance.decrypt(entry[2].encode()).decode().lower())
+
+        if len(folder_list) != 0:
+            title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
+            title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
+            title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=13, weight="bold"))
+            title_password_label.grid(row=2, column=2, padx=(5,0), pady=5, sticky="w")
+        else:
+            pass
 
         entry_id = 3
         for entry in entries:
             decrypted_folder = cipher_instance.decrypt(entry[2].encode()).decode()
 
-            if folder_menu.get() == "All" or decrypted_folder == selected_folder:
+            if selected_folder == "All" or decrypted_folder == selected_folder:
                 decrypted_username = cipher_instance.decrypt(entry[0].encode()).decode()
-
-                title_username_label = customtkinter.CTkLabel(scrollable_frame, text="Username", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_username_label.grid(row=2, column=0, padx=0, pady=5, sticky="w")
-                title_folder_label = customtkinter.CTkLabel(scrollable_frame, text="Folder", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_folder_label.grid(row=2, column=1, padx=(5,40), pady=5, sticky="w")
-                title_password_label = customtkinter.CTkLabel(scrollable_frame, text="Password", font=customtkinter.CTkFont(size=13, weight="bold"))
-                title_password_label.grid(row=2, column=2, padx=(5,0), pady=5, sticky="w")
 
                 username_label = customtkinter.CTkLabel(scrollable_frame, text=f"{decrypted_username}")
                 username_label.grid(row=entry_id, column=0, padx=0, pady=5, sticky="w")
@@ -1064,11 +1070,13 @@ def listing_entries():
                 copy_button.configure(command=lambda p=decrypted_password, b=copy_button: copy_to_clipboard(p, b))
                 entry_id += 1
 
+    folder_menu_label = customtkinter.CTkLabel(right_frame, text="Select folder:", font=customtkinter.CTkFont(size=13, weight="bold"))
+    folder_menu_label.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+    folder_menu = customtkinter.CTkOptionMenu(right_frame, values=["All"]+folder_list, command=updating_list)
+    folder_menu.grid(row=1, column=0, padx=120, pady=0, sticky="w")
+
     # Calls the updating list function immediately to update the current list of entries.
     updating_list()
-
-    update_entries_button = customtkinter.CTkButton(right_frame, text="Search", command=updating_list, width=60)
-    update_entries_button.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
 ################################################################################
 #                                                                              #
